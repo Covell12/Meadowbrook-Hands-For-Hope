@@ -1,0 +1,3653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal — Hands for Hope</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--c:#1d4ed8;--cd:#1e3a8a;--w:#fff;--w6:rgba(255,255,255,.6);--w2:rgba(255,255,255,.12)}
+html,body{height:100%}
+body{background:var(--c);color:var(--w);font-family:'Inter',sans-serif;overflow:hidden;display:flex;flex-direction:column;transition:background 0.5s ease;}
+
+#wipe{position:fixed;inset:0;z-index:9990;background:#091530;clip-path:polygon(0 0,105% 0,105% 100%,0 100%);pointer-events:none}
+
+#tabs{
+  position:fixed;right:0;top:50%;transform:translateY(-50%) translateX(0);
+  z-index:700;display:flex;flex-direction:column;gap:8px;
+  align-items:flex-end;transition:transform 0.4s cubic-bezier(0.2,1,0.3,1);
+}
+#tabs.hidden{transform:translateY(-50%) translateX(100%)}
+
+#tabHandle{
+  position:absolute;left:-32px;top:50%;transform:translateY(-50%);
+  width:32px;height:60px;background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(8px);border-radius:8px 0 0 8px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;opacity:0;pointer-events:none;transition:opacity 0.3s;
+  border:1px solid rgba(255,255,255,0.1);border-right:none;
+}
+#tabs.hidden #tabHandle{opacity:1;pointer-events:auto}
+
+.tp{
+  display:flex;align-items:center;height:44px;
+  padding:0 20px 0 24px;border-radius:100px 0 0 100px;
+  font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);
+  text-decoration:none;white-space:nowrap;cursor:pointer;
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.15);border-right:none;
+  box-shadow:-4px 4px 20px rgba(0,0,0,0.3);
+  transition:width 0.3s, background 0.3s, color 0.3s;
+  width:140px;justify-content:flex-start;
+}
+.tp:hover{width:160px;color:#fff;}
+.tp.tp-active{width:180px;color:#fff;pointer-events:none;border-color:rgba(255,255,255,0.4)}
+
+#tp-main{background:rgba(9,21,48,0.6)}
+#tp-main:hover{background:rgba(9,21,48,0.85)}
+#tp-main.tp-active{background:rgba(9,21,48,1)}
+
+#tp-student{background:rgba(29,78,216,0.6)}
+#tp-student:hover{background:rgba(29,78,216,0.85)}
+#tp-student.tp-active{background:rgba(29,78,216,1)}
+
+#tp-request{background:rgba(59,130,246,0.6)}
+#tp-request:hover{background:rgba(59,130,246,0.85)}
+#tp-request.tp-active{background:rgba(59,130,246,1)}
+
+.ring{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.07);pointer-events:none}
+
+main{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  position:relative;overflow-y:auto;overflow-x:hidden;padding:60px 24px;text-align:center;
+}
+
+.page-label{
+  font-size:10px;letter-spacing:6px;text-transform:uppercase;
+  color:var(--w6);margin-bottom:28px;display:block;
+}
+
+h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(48px,8vw,100px);font-weight:900;line-height:.95;
+}
+h1 em{font-weight:400;font-style:italic}
+
+.ghost{
+  position:absolute;font-family:'Playfair Display',serif;
+  font-size:clamp(200px,28vw,400px);font-weight:900;
+  color:rgba(255,255,255,.04);line-height:1;pointer-events:none;
+  user-select:none;white-space:nowrap;
+}
+
+/* ═══ VIEW SYSTEM ═══ */
+.view{display:none;flex-direction:column;align-items:center;width:100%;max-width:900px;position:relative;z-index:2}
+.view.active{display:flex}
+
+.login-view {
+  flex-direction: row; justify-content: space-between; align-items: center; gap: 60px;
+  max-width: 1000px; text-align: left; width: 100%; margin-top: auto; margin-bottom: auto;
+}
+.login-view .title-group { display: flex; flex-direction: column; align-items: flex-start; }
+.login-view .form-container { margin-top: 0; flex: 1; max-width: 440px; }
+
+@media(max-width: 900px) {
+  .login-view { flex-direction: column; text-align: center; justify-content: center; gap: 40px; }
+  .login-view .title-group { align-items: center; }
+}
+
+/* ═══ ROLE SWITCHER ═══ */
+.role-switch {
+  display: flex; position: relative; background: rgba(255,255,255,0.05);
+  border-radius: 100px; padding: 4px; margin-bottom: 30px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.switch-btn {
+  flex: 1; padding: 12px 20px; border: none; background: transparent;
+  color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; cursor: pointer; z-index: 2; transition: color 0.3s;
+}
+.switch-btn.active { color: #fff; }
+.switch-slider {
+  position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: calc(100% - 8px);
+  background: rgba(255,255,255,0.15); border-radius: 100px; z-index: 1;
+}
+
+/* ═══ FORM CONTAINER ═══ */
+.form-container {
+  width:100%;max-width:480px;background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.1);border-radius:24px;
+  padding:50px;backdrop-filter:blur(24px);margin-top:40px;
+  text-align:left;position:relative; z-index: 10;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1);
+  transition: background 0.4s, border-color 0.4s, transform 0.4s cubic-bezier(0.2,1,0.3,1), box-shadow 0.4s cubic-bezier(0.2,1,0.3,1);
+}
+.form-container:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2);
+}
+.form-container.leader-mode {
+  background: rgba(10, 10, 15, 0.85);
+  border-color: rgba(212,175,55,0.2);
+}
+.form-title { font-family:'Playfair Display',serif; font-size:32px; font-weight:700; margin-bottom: 24px; text-align:center; }
+.input-group { display:flex; flex-direction:column; margin-bottom: 20px; }
+.input-group label { font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--w6); margin-bottom:10px; font-weight:700; }
+.input-group input {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2);
+  border-radius:12px; padding:18px; color:#fff; font-family:'Inter',sans-serif;
+  font-size:16px; outline:none; transition:border-color 0.3s, background 0.3s;
+  cursor:text;
+}
+.input-group input:focus { border-color:rgba(255,255,255,0.6); background:rgba(255,255,255,0.1); }
+.primary-btn {
+  width: 100%; background:#fff; color:var(--c); border:none; border-radius:100px;
+  padding:18px 48px; font-size:13px; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; cursor:pointer; box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  transition:transform 0.3s,box-shadow 0.3s; margin-top: 10px;
+}
+.primary-btn:hover { transform:translateY(-4px); box-shadow:0 14px 40px rgba(0,0,0,0.3); }
+.primary-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.toggle-link {
+  display: block; text-align: center; margin-top: 24px; font-size: 13px; color: var(--w6);
+  cursor: pointer; text-decoration: underline; transition: color 0.3s;
+}
+.toggle-link:hover { color: #fff; }
+.forgot-password {
+  display: block; text-align: right; font-size: 11px; color: var(--w6); margin-top: -10px;
+  margin-bottom: 20px; cursor: pointer; text-decoration: underline; transition: color 0.3s;
+}
+.forgot-password:hover { color: #fff; }
+.view-choice-btn {
+  width: 100%; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.3);
+  border-radius:100px; padding:18px 48px; font-size:13px; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; cursor:pointer; transition:background 0.3s; margin-bottom: 16px;
+}
+.view-choice-btn:hover { background:rgba(255,255,255,0.2); }
+
+/* status messages */
+.msg{
+  margin-top:18px;padding:14px 24px;border-radius:16px;font-size:13px;line-height:1.6;
+  max-width:400px;width:100%;text-align:center;
+}
+.msg.error{background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);color:#fca5a5}
+.msg.success{background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7}
+
+/* ═══ STUDENT VIEW ═══ */
+.welcome-sub{
+  font-size:15px;color:var(--w6);margin-top:12px;margin-bottom:40px;
+}
+.sign-out-btn{
+  margin-top:40px;padding:14px 36px;border-radius:100px;
+  border:1.5px solid rgba(255,255,255,0.3);background:transparent;
+  color:#fff;font-size:11px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+  transition:all 0.3s;
+}
+.sign-out-btn:hover{border-color:#fff;background:rgba(255,255,255,0.1)}
+
+/* ═══ STUDENT SURVEY CARD ═══ */
+#studentSurveyArea { width:100%; max-width:620px; }
+.empty-state-card {
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:24px;padding:60px 40px;backdrop-filter:blur(12px);
+  max-width:620px;width:100%;text-align:center;
+}
+.empty-state-card .es-emoji { font-size:56px; display:block; margin-bottom:20px; }
+.empty-state-card h2 { font-family:'Playfair Display',serif; font-size:28px; font-weight:700; margin-bottom:12px; }
+.empty-state-card p { font-size:15px; line-height:1.7; color:var(--w6); }
+
+.survey-card {
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:24px;padding:36px;backdrop-filter:blur(12px);
+  width:100%;text-align:left;
+}
+.survey-card-header { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+.survey-card-header h3 { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; }
+.survey-divider { height:1px; background:rgba(255,255,255,0.1); margin:18px 0; }
+.survey-question-label { font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--w6); font-weight:700; margin-bottom:12px; display:block; }
+.survey-textarea {
+  width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);
+  border-radius:14px; padding:16px; color:#fff; font-family:'Inter',sans-serif; font-size:14px;
+  line-height:1.6; outline:none; resize:vertical; min-height:90px; transition:border-color 0.3s;
+}
+.survey-textarea:focus { border-color:rgba(255,255,255,0.4); }
+.station-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; }
+.station-option {
+  padding:14px 16px; border-radius:14px; border:1.5px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.04); cursor:pointer; font-size:14px; font-weight:500;
+  transition:all 0.25s; text-align:center; color:rgba(255,255,255,0.8);
+}
+.station-option:hover { border-color:rgba(29,78,216,0.5); background:rgba(29,78,216,0.1); }
+.station-option.selected { border-color:#1d4ed8; background:rgba(29,78,216,0.25); color:#fff; }
+.survey-submit-btn {
+  width:100%; margin-top:24px; background:#fff; color:var(--c); border:none; border-radius:100px;
+  padding:16px; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:transform 0.3s, box-shadow 0.3s; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+}
+.survey-submit-btn:hover { transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,0.3); }
+.survey-submit-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+.thankyou-card {
+  background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3);
+  border-radius:24px; padding:48px 36px; text-align:center;
+}
+.thankyou-card .ty-emoji { font-size:48px; display:block; margin-bottom:16px; }
+.thankyou-card h3 { font-family:'Playfair Display',serif; font-size:22px; margin-bottom:8px; color:#4ade80; }
+.thankyou-card p { font-size:14px; color:rgba(255,255,255,0.6); }
+
+/* ═══ PULSE ANIMATION ═══ */
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+@keyframes pulseGlow { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.4)} 50%{box-shadow:0 0 0 6px rgba(34,197,94,0)} }
+.pulse-dot { width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite;display:inline-block; }
+@keyframes amberpulse { 0%,100%{border-color:rgba(245,158,11,0.4)} 50%{border-color:rgba(245,158,11,0.9)} }
+
+/* ═══ LEADER DASHBOARD ═══ */
+.dashboard-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:28px;
+  width:100%;max-width:900px;margin-top:36px;
+}
+@media(max-width:700px){.dashboard-grid{grid-template-columns:1fr}}
+
+.dash-card{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:24px;padding:36px 32px;backdrop-filter:blur(12px);
+  text-align:left;
+}
+.dash-card h3{
+  font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:6px;
+}
+.dash-card .card-sub{
+  font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px;line-height:1.5;
+}
+.email-list{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.email-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-radius:12px;background:rgba(255,255,255,0.05);
+  font-size:13px;color:rgba(255,255,255,0.8);transition:background 0.2s;
+}
+.email-item:hover{background:rgba(255,255,255,0.09)}
+.email-item .email-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin-right:12px}
+.email-item .permanent-tag{
+  font-size:9px;letter-spacing:1.5px;text-transform:uppercase;
+  color:rgba(212,175,55,0.7);font-weight:700;margin-right:8px;
+  font-family:'Space Grotesk',sans-serif;white-space:nowrap;
+}
+.remove-btn{
+  background:none;border:none;color:rgba(248,113,113,0.7);font-size:18px;
+  cursor:pointer;padding:0 4px;line-height:1;transition:color 0.2s;
+  font-weight:700;
+}
+.remove-btn:hover{color:#f87171}
+
+.add-row{display:flex;gap:8px}
+.add-input{
+  flex:1;padding:10px 16px;border-radius:100px;border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.06);color:#fff;font-size:13px;font-family:'Inter',sans-serif;
+  outline:none;transition:border-color 0.3s;cursor:text;
+}
+.add-input:focus{border-color:rgba(255,255,255,0.4)}
+.add-input::placeholder{color:rgba(255,255,255,0.3)}
+.add-btn{
+  padding:10px 20px;border-radius:100px;border:none;
+  background:linear-gradient(135deg,#065f46,#0a8f6a);color:#fff;
+  font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  cursor:pointer;font-family:'Space Grotesk',sans-serif;
+  transition:all 0.3s;white-space:nowrap;
+}
+.add-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(6,95,70,0.4)}
+
+.loading-placeholder{
+  text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:13px;
+}
+
+/* ═══ PROFILE HEADER & NAME OVERLAY ═══ */
+.profile-header {
+  position: fixed; top: 30px; left: 30px; z-index: 100;
+  display: none; flex-direction: column; opacity: 0; transform: translateY(-10px);
+}
+.profile-header .p-name {
+  font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #fff;
+  display: flex; align-items: center; gap: 8px;
+}
+.profile-header .p-email {
+  font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px;
+}
+.edit-name-btn {
+  background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer;
+  font-size: 14px; padding: 4px; transition: color 0.3s;
+}
+.edit-name-btn:hover { color: #fff; }
+
+.name-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+  display: none; align-items: center; justify-content: center;
+  opacity: 0;
+}
+.name-box {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+  padding: 40px; border-radius: 24px; text-align: left; max-width: 440px; width: 90%;
+  transform: translateY(20px);
+}
+.name-box h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
+.name-box p { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 24px; line-height: 1.5; }
+
+/* ═══ LEADER LAYOUT ═══ */
+#viewLeader { padding:0; display:none; width:100%; height:100%; flex-direction:column; align-items:center; }
+#viewLeader.active { display:flex; }
+.l-main-content { width:100%; position:relative; display:flex; flex-direction:column; align-items:center; }
+.l-sidebar { 
+  position:fixed;top:50%;left:0;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:4px;z-index:100;
+  width:auto; background:transparent; border:none; padding:0; align-items:flex-start;
+}
+.ltp {
+  display:flex;align-items:center;height:44px;
+  padding:0 24px 0 20px;border-radius:0 100px 100px 0;
+  font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.6);
+  text-decoration:none;white-space:nowrap;cursor:pointer;
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-left:none;
+  transition:all 0.3s; justify-content:flex-start; width: 220px;
+}
+.ltp:hover { background:rgba(255,255,255,0.08); color:#fff; width:240px; }
+.ltp.ltp-active { background:rgba(255,255,255,0.15); color:#fff; width:250px; border-color:rgba(255,255,255,0.2); pointer-events:none; }
+
+.l-view-inner { display:none; opacity:0; transform:translateY(20px); }
+.l-view-inner.active { display:flex; flex-direction:column; align-items:center; width:100%; opacity:1; transform:translateY(0); }
+
+.student-list-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 20px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05);
+  border-radius:12px; margin-bottom:8px; transition:transform 0.3s, opacity 0.3s;
+}
+.student-info { display:flex; flex-direction:column; gap:4px; }
+.student-info .s-name { font-weight:600; font-size:14px; color:#fff; }
+.student-info .s-email { font-size:12px; color:rgba(255,255,255,0.5); }
+.student-actions { display:flex; gap:12px; align-items:center; }
+.s-edit-btn { background:none; border:none; color:#3b82f6; font-size:12px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:1px; }
+.s-del-btn { background:none; border:none; color:#ef4444; font-size:12px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:1px; }
+.s-edit-btn:hover { color:#60a5fa; }
+.s-del-btn:hover { color:#f87171; }
+
+/* ═══ SURVEY BUILDER ═══ */
+.survey-panel {
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;padding:28px;width:100%;margin-bottom:24px;
+}
+.survey-panel h4 { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; margin-bottom:4px; }
+.survey-panel .sp-sub { font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:20px; }
+.action-bar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px; }
+.action-btn {
+  padding:10px 18px; border-radius:100px; border:1px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.06); color:#fff; font-size:11px; font-weight:700;
+  letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; font-family:'Space Grotesk',sans-serif;
+  transition:all 0.25s; white-space:nowrap;
+}
+.action-btn:hover { background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.4); }
+.action-btn.primary { background:rgba(29,78,216,0.3); border-color:rgba(29,78,216,0.6); }
+.action-btn.primary:hover { background:rgba(29,78,216,0.5); }
+.action-btn.danger { background:rgba(220,38,38,0.15); border-color:rgba(220,38,38,0.4); color:#fca5a5; }
+.action-btn.danger:hover { background:rgba(220,38,38,0.3); }
+.action-btn.success { background:rgba(34,197,94,0.15); border-color:rgba(34,197,94,0.4); color:#4ade80; }
+.action-btn.success:hover { background:rgba(34,197,94,0.3); }
+
+.draft-name-input {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px;
+  color:#fff; font-family:'Playfair Display',serif; font-size:24px; font-weight:700;
+  outline:none; width:100%; padding:12px 16px; margin-bottom:20px; transition:border-color 0.3s;
+}
+.draft-name-input:focus { border-color:rgba(29,78,216,0.8); background:rgba(255,255,255,0.08); }
+
+.section-label {
+  font-size:10px; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.35);
+  font-weight:700; margin-bottom:12px; display:block;
+}
+.stations-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:20px; }
+.station-chip {
+  display:flex; align-items:center; gap:6px; padding:6px 16px; border-radius:100px;
+  background:rgba(29,78,216,0.2); border:1px solid rgba(29,78,216,0.4); font-size:13px;
+  font-weight:500; white-space:nowrap;
+}
+.station-chip-x {
+  background:none; border:none; color:rgba(248,113,113,0.7); cursor:pointer;
+  font-size:14px; font-weight:700; line-height:1; padding:0; transition:color 0.2s;
+}
+.station-chip-x:hover { color:#f87171; }
+
+.question-card {
+  background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);
+  border-radius:16px; padding:24px; margin-bottom:20px; position:relative;
+  transition:all 0.2s;
+}
+.question-card:hover { transform:translateY(-2px); border-color:rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); }
+.question-card.being-edited { border-color:#1d4ed8; box-shadow: 0 0 0 2px rgba(29,78,216,0.3); }
+.question-editor-overlay {
+  position:absolute; top:16px; right:24px; font-size:12px; font-weight:600;
+  color:#60a5fa; background:rgba(96,165,250,0.1); padding:4px 10px; border-radius:100px;
+}
+.question-textarea {
+  width:100%; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px; padding:16px; color:#f8fafc; font-family:'Inter',sans-serif;
+  font-size:15px; outline:none; resize:vertical; min-height:80px;
+  transition:all 0.3s; margin-top:8px; margin-bottom:12px;
+}
+.question-textarea:focus { border-color:#10b981; box-shadow:0 0 0 3px rgba(16,185,129,0.1); background:rgba(0,0,0,0.3); }
+.q-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-top:10px; display:block; }
+
+.presence-chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+.presence-chip {
+  display:flex; align-items:center; gap:6px; padding:4px 12px; border-radius:100px;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+  font-size:11px; color:rgba(255,255,255,0.7);
+}
+.presence-chip-dot { width:6px; height:6px; border-radius:50%; background:#22c55e; }
+.ltp { position:relative; }
+.ltp-avatars { display:flex; gap:3px; position:absolute; right:10px; top:50%; transform:translateY(-50%); }
+.ltp-avatar {
+  width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; color:#fff; flex-shrink:0; border:1.5px solid rgba(0,0,0,0.3);
+}
+
+/* ═══ LIVE RESULTS ═══ */
+.live-banner {
+  display:flex; align-items:center; gap:10px; margin-bottom:20px;
+}
+.live-banner h4 { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; }
+.live-banner .response-count { font-size:13px; color:rgba(255,255,255,0.5); }
+.stations-results-grid { display:flex; gap:16px; flex-wrap:wrap; width:100%; margin-top:16px; }
+.station-result-col {
+  flex:1; min-width:140px; background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; text-align:left;
+}
+.station-result-col h5 { font-size:13px; font-weight:700; margin-bottom:4px; }
+.station-result-count { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:12px; }
+.station-result-name { font-size:13px; color:rgba(255,255,255,0.8); padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.station-result-name:last-child { border-bottom:none; }
+
+.text-answers-table { width:100%; border-collapse:collapse; margin-top:16px; }
+.truncated-answer:hover { background: rgba(255,255,255,0.08) !important; }
+.text-answers-table th { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.4); padding:8px 12px; text-align:left; }
+.text-answers-table td { padding:10px 12px; font-size:13px; color:rgba(255,255,255,0.8); border-top:1px solid rgba(255,255,255,0.05); }
+.text-answers-table tr:hover td { background:rgba(255,255,255,0.02); }
+
+/* ═══ SURVEY BANK ═══ */
+.survey-bank-item {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px; margin-bottom:12px; overflow:hidden;
+}
+.survey-bank-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 32px; cursor:pointer; transition:background 0.2s;
+}
+.survey-bank-header:hover { background:rgba(255,255,255,0.05); }
+.survey-bank-header-left { display:flex; align-items:center; gap:20px; flex:1; padding-right:32px; }
+.survey-bank-title { font-size:16px; font-weight:600; margin-bottom:4px; }
+.survey-bank-type { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.4); }
+.survey-bank-actions { display:flex; gap:12px; align-items:center; }
+.survey-bank-body { display:none; padding:0 18px 18px; }
+.survey-bank-body.open { display:block; }
+.bank-action-btn {
+  padding:5px 12px; border-radius:100px; border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:10px;
+  font-weight:700; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer;
+  font-family:'Space Grotesk',sans-serif; transition:all 0.2s; white-space:nowrap;
+}
+.bank-action-btn:hover { background:rgba(255,255,255,0.1); color:#fff; }
+
+/* ═══ TRACKER ═══ */
+.tracker-columns-wrapper { display:flex; gap:16px; flex-wrap:nowrap; width:100%; overflow-x:auto; padding-bottom:8px; }
+.tracker-columns-wrapper:fullscreen {
+  padding: 60px 40px; background: radial-gradient(circle at top, #1e3a8a 0%, #0a101d 80%);
+  overflow-y: auto; align-items: flex-start; gap: 24px;
+}
+.tracker-column {
+  min-width:200px; flex:1; 
+  background:linear-gradient(180deg, rgba(30,58,138,0.2) 0%, rgba(15,23,42,0.4) 100%);
+  border:1px solid rgba(59,130,246,0.15); border-radius:24px;
+  padding:20px 16px; min-height:300px; transition:all 0.25s;
+  display:flex; flex-direction:column; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+}
+.tracker-column.drag-over {
+  border-color:rgba(96,165,250,0.6);
+  box-shadow:0 0 24px rgba(59,130,246,0.4);
+  transform:scale(1.02);
+}
+.tracker-column h5 { font-size:14px; font-weight:700; margin-bottom:16px; text-align:center; color:#93c5fd; letter-spacing:1px; text-transform:uppercase; }
+.name-card {
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px; padding:12px 16px; margin-bottom:10px;
+  cursor:grab; user-select:none; font-size:14px; color:rgba(255,255,255,0.9);
+  transition:all 0.2s; display:flex; align-items:center; gap:10px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+.name-card:hover { background:rgba(255,255,255,0.12); transform:translateY(-2px); border-color:rgba(96,165,250,0.3); }
+.name-card.dragging { opacity:0.4; }
+.name-card .nc-avatar {
+  width:26px; height:26px; border-radius:50%; background:rgba(29,78,216,0.4);
+  display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+  flex-shrink:0;
+}
+
+.tracker-top-bar { display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:20px; }
+.tracker-top-bar h4 { font-family:'Playfair Display',serif; font-size:18px; }
+
+/* ═══ PAST ASSIGNMENT PAGES ═══ */
+.assignment-bank-item {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px; margin-bottom:8px; overflow:hidden;
+}
+.assignment-bank-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px; cursor:pointer; transition:background 0.2s;
+}
+.assignment-bank-header:hover { background:rgba(255,255,255,0.04); }
+.assignment-bank-body { display:none; padding:0 18px 18px; }
+.assignment-bank-body.open { display:block; }
+.readonly-columns { display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
+.readonly-col {
+  flex:1; min-width:120px; background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px;
+}
+.readonly-col h6 { font-size:11px; font-weight:700; margin-bottom:8px; color:rgba(255,255,255,0.6); }
+.readonly-name { font-size:12px; color:rgba(255,255,255,0.7); padding:3px 0; }
+
+/* ═══ MODAL ═══ */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px);
+  display:flex; align-items:center; justify-content:center; z-index:9000;
+  opacity:0; pointer-events:none; transition:opacity 0.3s;
+}
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal-box {
+  background:rgba(15,20,40,0.95); border:1px solid rgba(255,255,255,0.12);
+  border-radius:24px; padding:40px; max-width:500px; width:90%;
+  transform:translateY(20px); transition:transform 0.3s;
+  max-height:80vh; overflow-y:auto;
+}
+.modal-overlay.open .modal-box { transform:translateY(0); }
+.modal-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; margin-bottom:8px; }
+.modal-sub { font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:24px; line-height:1.6; }
+.modal-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:24px; }
+.modal-btn {
+  flex:1; padding:14px; border-radius:100px; border:1px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.08); color:#fff; font-size:12px; font-weight:700;
+  letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; font-family:'Space Grotesk',sans-serif;
+  transition:all 0.25s;
+}
+.modal-btn:hover { background:rgba(255,255,255,0.15); }
+.modal-btn.confirm { background:rgba(29,78,216,0.4); border-color:rgba(29,78,216,0.7); }
+.modal-btn.confirm:hover { background:rgba(29,78,216,0.6); }
+.modal-btn.danger { background:rgba(220,38,38,0.25); border-color:rgba(220,38,38,0.5); color:#fca5a5; }
+.modal-btn.danger:hover { background:rgba(220,38,38,0.4); }
+
+.schedule-chips { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+.schedule-chip {
+  padding:14px 18px; border-radius:14px; border:1.5px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.04); cursor:pointer; font-size:14px; text-align:center;
+  transition:all 0.2s; color:rgba(255,255,255,0.8);
+}
+.schedule-chip:hover { border-color:rgba(29,78,216,0.5); background:rgba(29,78,216,0.1); }
+.schedule-chip.selected { border-color:#1d4ed8; background:rgba(29,78,216,0.25); color:#fff; }
+.more-options-toggle { font-size:12px; color:rgba(255,255,255,0.4); cursor:pointer; text-decoration:underline; margin-bottom:8px; display:inline-block; }
+.more-options-toggle:hover { color:rgba(255,255,255,0.7); }
+.schedule-datetime { display:none; }
+.schedule-datetime input[type="datetime-local"] {
+  width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);
+  border-radius:12px; padding:14px; color:#fff; font-family:'Inter',sans-serif; font-size:14px;
+  outline:none; margin-top:8px;
+}
+.copy-survey-list { display:flex; flex-direction:column; gap:6px; max-height:240px; overflow-y:auto; }
+.copy-survey-item {
+  padding:12px 16px; border-radius:12px; background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08); cursor:pointer; font-size:13px;
+  transition:background 0.2s; text-align:left;
+}
+.copy-survey-item:hover { background:rgba(255,255,255,0.08); }
+.copy-survey-item .csi-name { font-weight:600; }
+.copy-survey-item .csi-meta { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; }
+
+.es-card {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+  border-radius:24px; padding:48px 32px; max-width:440px; margin:0 auto; text-align:center;
+  backdrop-filter:blur(16px);
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.es-card h3 { font-family:'Playfair Display',serif; font-size:28px; margin-bottom:12px; font-weight:700; background:linear-gradient(135deg,#fff,#94a3b8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.es-card p { font-size:15px; color:rgba(255,255,255,0.5); line-height:1.6; }
+
+.survey-card {
+  background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);
+  border-radius:24px; padding:40px; max-width:640px; margin:0 auto; text-align:left;
+  backdrop-filter:blur(24px); box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+}
+.survey-card h3 { font-family:'Playfair Display',serif; font-size:26px; margin-bottom:24px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:16px; }
+
+.station-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:32px; }
+.station-option {
+  background:rgba(255,255,255,0.03); border:1.5px solid rgba(255,255,255,0.08);
+  border-radius:16px; padding:20px; text-align:center; cursor:pointer;
+  transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight:600; font-size:15px;
+  position: relative; overflow: hidden;
+}
+.station-option:hover { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.2); transform:translateY(-2px); }
+.station-option.selected {
+  background:rgba(16,185,129,0.1); border-color:#10b981; color:#fff;
+  box-shadow: 0 8px 24px rgba(16,185,129,0.2);
+}
+.station-option.selected::after {
+  content:''; position:absolute; top:0; left:0; width:100%; height:100%;
+  background:radial-gradient(circle at center, rgba(16,185,129,0.2) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.survey-q { margin-bottom:28px; }
+.survey-q-text { font-size:15px; font-weight:500; margin-bottom:12px; color:rgba(255,255,255,0.9); }
+
+.survey-submit-btn {
+  width:100%; padding:16px; border-radius:16px; border:none;
+  background:linear-gradient(135deg, #10b981, #059669); color:#fff;
+  font-size:16px; font-weight:700; letter-spacing:1px; cursor:pointer;
+  transition:all 0.3s; font-family:'Space Grotesk',sans-serif;
+  box-shadow: 0 8px 24px rgba(16,185,129,0.3);
+}
+.survey-submit-btn:hover { transform:translateY(-2px); box-shadow: 0 12px 32px rgba(16,185,129,0.4); }
+
+/* ═══ REQUEST CARDS ═══ */
+.req-filter-bar { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+.req-filter-btn {
+  padding:8px 18px; border-radius:100px; border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.6);
+  font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+  cursor:pointer; font-family:'Space Grotesk',sans-serif; transition:all 0.2s;
+}
+.req-filter-btn:hover,.req-filter-btn.active { background:rgba(255,255,255,0.12); color:#fff; border-color:rgba(255,255,255,0.3); }
+.req-card {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px; padding:20px 24px; margin-bottom:12px;
+  display:flex; justify-content:space-between; align-items:flex-start;
+  gap:20px; transition:background 0.2s, border-color 0.3s, box-shadow 0.3s;
+}
+.req-card:hover { background:rgba(255,255,255,0.06); }
+.req-card.status-pending    { border-color:rgba(250,204,21,0.45); box-shadow:0 0 18px -4px rgba(250,204,21,0.18); }
+.req-card.status-in-progress{ border-color:rgba(96,165,250,0.45); box-shadow:0 0 18px -4px rgba(96,165,250,0.18); }
+.req-card.status-fulfilled  { border-color:rgba(34,197,94,0.45);  box-shadow:0 0 18px -4px rgba(34,197,94,0.18);  }
+.req-card-left { flex:1; min-width:0; overflow:hidden; }
+.req-card-title { font-size:15px; font-weight:600; margin-bottom:4px; word-break:break-word; }
+.req-card-meta { font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:8px; word-break:break-word; }
+.req-card-detail { font-size:12px; color:rgba(255,255,255,0.5); line-height:1.6; word-break:break-word; overflow-wrap:anywhere; }
+.req-badge {
+  padding:5px 12px; border-radius:100px; font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:1px; cursor:pointer;
+  transition:opacity 0.2s; white-space:nowrap; flex-shrink:0; border:1px solid transparent;
+}
+.req-badge:hover { opacity:0.8; }
+.req-badge.pending    { background:rgba(250,204,21,0.15); color:#fde047; border-color:rgba(250,204,21,0.3); }
+.req-badge.in-progress{ background:rgba(96,165,250,0.15); color:#93c5fd; border-color:rgba(96,165,250,0.3); }
+.req-badge.fulfilled  { background:rgba(34,197,94,0.15);  color:#4ade80; border-color:rgba(34,197,94,0.3);  }
+.req-delete-btn { background:none; border:none; cursor:pointer; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; font-family:'Space Grotesk',sans-serif; transition:color 0.2s, text-shadow 0.3s; }
+.req-delete-btn:not(.glow) { color:rgba(248,113,113,0.5); }
+.req-delete-btn:not(.glow):hover { color:#f87171; }
+.req-delete-btn.glow { color:#f87171; text-shadow:0 0 10px rgba(248,113,113,0.7), 0 0 24px rgba(248,113,113,0.4); }
+
+/* ═══ MOBILE ═══ */
+@media(max-width:768px){
+  #tabs { transform:translateY(-50%) translateX(100%) !important; }
+  main { padding:40px 16px 80px; }
+  h1 { font-size:clamp(40px,13vw,80px); }
+  .login-view { gap:24px; }
+  .form-container { padding:32px 24px; margin-top:20px; }
+  .l-sidebar {
+    position:fixed; top:0; left:0; right:0; width:100%;
+    transform:none; flex-direction:row; overflow-x:auto; overflow-y:hidden;
+    background:rgba(10,16,29,0.96); backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    z-index:200; padding:8px 12px; gap:6px; align-items:center; height:auto;
+    scrollbar-width:none;
+  }
+  .l-sidebar::-webkit-scrollbar { display:none; }
+  .ltp {
+    border-radius:100px; border-left:1px solid rgba(255,255,255,0.05);
+    width:auto !important; min-width:auto; white-space:nowrap;
+    height:36px; padding:0 16px; font-size:10px;
+  }
+  #viewLeader .l-main-content { padding-top:64px; }
+  .dashboard-grid { grid-template-columns:1fr; }
+  .tracker-columns-wrapper { flex-direction:column; }
+  .tracker-column { min-width:100%; }
+  .survey-panel { padding:20px 16px; }
+  .req-card { flex-direction:column; gap:10px; }
+  .req-filter-bar { gap:6px; }
+  .req-filter-btn { padding:6px 12px; font-size:10px; }
+  .dash-card { padding:24px 16px; }
+  .action-bar { gap:6px; }
+}
+@media(max-width:480px){
+  h1 { font-size:clamp(34px,15vw,56px); }
+  .form-container { padding:24px 16px; }
+}
+
+</style>
+</head>
+<body>
+
+<div id="errorToast" style="position:fixed; top:-100px; left:50%; transform:translateX(-50%); background:#ef4444; color:#fff; padding:12px 24px; border-radius:100px; z-index:10000; font-size:14px; font-weight:500; box-shadow:0 10px 25px rgba(239,68,68,0.3); transition:top 0.4s cubic-bezier(0.175,0.885,0.32,1.275);"></div>
+
+<!-- PROFILE HEADER -->
+<div class="profile-header" id="profileHeader">
+  <div class="p-name">
+    <span id="profileNameDisplay">Your Name</span>
+    <button class="edit-name-btn" id="editNameBtn" title="Edit Name">✎</button>
+  </div>
+  <div class="p-email" id="profileEmailDisplay">email@example.com</div>
+</div>
+
+<!-- NAME CAPTURE OVERLAY -->
+<div class="name-overlay" id="nameOverlay">
+  <div class="name-box" id="nameBox">
+    <h2 id="nameOverlayTitle">Welcome.</h2>
+    <p>Please enter your real first name. This will be used to identify you on the portal.<br><br><strong>Note:</strong> You can only change your name once a week.</p>
+    <div class="input-group">
+      <label>First Name</label>
+      <input type="text" id="nameInput">
+    </div>
+    <button class="primary-btn" id="saveNameBtn" type="button" style="margin-top:0">Save Name</button>
+    <div id="nameMsg" class="msg error" style="display:none;margin-top:16px;"></div>
+  </div>
+</div>
+
+<!-- GLOBAL MODAL -->
+<div class="modal-overlay" id="globalModal">
+  <div class="modal-box" id="globalModalBox">
+    <h3 class="modal-title" id="modalTitle"></h3>
+    <p class="modal-sub" id="modalSub"></p>
+    <div id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<div id="wipe"></div>
+
+<nav id="tabs">
+  <div id="tabHandle">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </div>
+  <a class="tp"           id="tp-main"    data-to="index.html">Main</a>
+  <a class="tp tp-active" id="tp-student" data-to="student-portal.html">Student Portal</a>
+  <a class="tp"           id="tp-request" data-to="send-a-request.html">Send A Request</a>
+</nav>
+
+<!-- LEADER SIDEBAR -->
+<nav class="l-sidebar" id="leaderSidebar" style="display:none;">
+  <a class="ltp ltp-active" data-lto="l-view-main">Main</a>
+  <a class="ltp" data-lto="l-view-logistics">Logistics</a>
+  <a class="ltp" data-lto="l-view-students">View Students</a>
+  <a class="ltp" data-lto="l-view-survey">Meeting Surveys</a>
+  <a class="ltp" data-lto="l-view-tracker">Meeting Assignments</a>
+  <a class="ltp" data-lto="l-view-requests">Requests</a>
+  <a class="ltp" id="switchFromLeaderBtn" style="margin-top:20px;">Switch to Student Portal</a>
+</nav>
+
+<main>
+  <div class="ring" style="width:700px;height:700px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="ring" style="width:900px;height:900px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="ring" style="width:500px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="ghost" style="bottom:-80px;left:-60px;opacity:.03">Portal</div>
+
+  <!-- ═══ VIEW 1: LOGIN ═══ -->
+  <div class="view active login-view" id="viewLogin">
+    <div class="title-group">
+      <span class="page-label" id="loginLabel">Hands for Hope</span>
+      <h1 id="loginHeading">Student<br><em>Portal</em></h1>
+    </div>
+    <div class="form-container" id="loginFormContainer" style="opacity:0;">
+      <div class="role-switch" id="roleSwitch">
+        <div class="switch-slider" id="switchSlider"></div>
+        <button class="switch-btn active" id="switchStudent" type="button">Student</button>
+        <button class="switch-btn" id="switchLeader" type="button">Leader</button>
+      </div>
+      <h2 class="form-title" id="formTitle">Sign In</h2>
+      <div class="input-group">
+        <label>Email Address</label>
+        <input id="emailInput" type="email" placeholder="student@meadowbrook-ma.org" autocomplete="email">
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input id="passwordInput" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <a class="forgot-password" id="forgotPasswordBtn">Forgot Password?</a>
+      <button class="primary-btn" id="authBtn" type="button">Sign In / Sign Up</button>
+      <div id="loginMsg"></div>
+    </div>
+  </div>
+
+  <!-- ═══ VIEW 1.5: LEADER INTERCEPTOR ═══ -->
+  <div class="view" id="viewLeaderChoice">
+    <span class="page-label">Hands for Hope</span>
+    <h1>Leader<br><em>Access</em></h1>
+    <p class="welcome-sub" style="max-width:400px;line-height:1.6;">You have been verified as a Leader. Would you like to proceed to the Leader or Student Portal?</p>
+    <div style="width:100%;max-width:400px;margin-top:20px;">
+      <button class="view-choice-btn" id="choiceLeaderBtn">Leader Dashboard</button>
+      <button class="view-choice-btn" id="choiceStudentBtn">Student Portal</button>
+    </div>
+  </div>
+
+  <!-- ═══ VIEW 2: STUDENT ═══ -->
+  <div class="view" id="viewStudent">
+    <div id="studentHeaderWrap">
+      <span class="page-label">Hands for Hope</span>
+      <h1>Student<br><em>Portal</em></h1>
+      <p class="welcome-sub" id="studentWelcome">Welcome</p>
+    </div>
+    <div id="studentSurveyArea" style="width:100%;max-width:620px;">
+      <!-- Populated by JS -->
+    </div>
+    <div style="display:flex;gap:16px;margin-top:20px;justify-content:center;">
+      <button class="primary-btn" id="switchFromStudentBtn" type="button" style="display:none;padding:19px 22px;margin-top:40px;font-size:11px;width:auto;align-self:flex-start;">Go to Leader Portal</button>
+      <button class="sign-out-btn" id="signOutStudent" type="button" >Sign Out</button>
+    </div>
+  </div>
+
+  <!-- ═══ VIEW 3: LEADER DASHBOARD ═══ -->
+  <div class="view" id="viewLeader">
+    <div class="l-main-content">
+      <span class="page-label" style="margin-bottom:10px;">Hands for Hope</span>
+      <h1 style="text-align:center;margin-bottom:60px;">Leader <em>Dashboard</em></h1>
+
+      <!-- MAIN TAB -->
+      <div class="l-view-inner active" id="l-view-main">
+        <p class="welcome-sub" id="leaderWelcome" style="margin-bottom:20px;">Welcome</p>
+        <div class="dash-card" style="width:100%;max-width:600px;text-align:left;">
+          <h3>Signed-In Leaders</h3>
+          <p class="card-sub">Leaders currently registered in the database</p>
+          <ul class="email-list" id="signedInLeadersList">
+            <li class="loading-placeholder">Loading…</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- LOGISTICS TAB -->
+      <div class="l-view-inner" id="l-view-logistics">
+        <div class="dashboard-grid" style="width:100%;margin-top:20px;justify-content:center;">
+          <div class="dash-card" style="text-align:left;">
+            <h3>Request Form Recipients</h3>
+            <p class="card-sub">People who receive emails when a request is submitted</p>
+            <ul class="email-list" id="mailingList"><li class="loading-placeholder">Loading…</li></ul>
+            <div class="add-row">
+              <input class="add-input" id="mailingInput" type="email" placeholder="Add email…">
+              <button class="add-btn" id="mailingAdd" type="button">Add</button>
+            </div>
+          </div>
+          <div class="dash-card" style="text-align:left;">
+            <h3>Authorized Leaders</h3>
+            <p class="card-sub">Emails that can sign in as leaders</p>
+            <ul class="email-list" id="leaderList"><li class="loading-placeholder">Loading…</li></ul>
+            <div class="add-row">
+              <input class="add-input" id="leaderInput" type="email" placeholder="Add email…">
+              <button class="add-btn" id="leaderAdd" type="button">Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SURVEY TAB -->
+      <div class="l-view-inner" id="l-view-survey" style="width:100%;max-width:860px;margin:20px auto 0;">
+        <div id="surveyTabContent"></div>
+        <div id="scheduledSurveysContainer" style="margin-top:32px;"></div>
+        <div id="surveyBankContainer" style="margin-top:32px;"></div>
+      </div>
+
+      <!-- STUDENTS TAB -->
+      <div class="l-view-inner" id="l-view-students">
+        <div class="dash-card" style="width:100%;max-width:1100px;margin-top:20px;text-align:left;">
+          <h3>View Students</h3>
+          <p class="card-sub">Manage student accounts</p>
+          <div id="studentsList" style="display:flex;flex-direction:column;width:100%;">
+            <div class="loading-placeholder">Loading students…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRACKER TAB -->
+      <div class="l-view-inner" id="l-view-tracker">
+        <div id="trackerTabContent" style="width:100%;max-width:1100px;margin-top:20px;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- REQUESTS TAB -->
+      <div class="l-view-inner" id="l-view-requests"></div>
+
+      <div style="margin-top:40px;">
+        <button class="sign-out-btn" id="signOutLeader" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════
+   FIREBASE INIT
+═══════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCo2GASOseatMm8_MNSDNqkotZn5cFdveY",
+  authDomain: "hands-forhope.firebaseapp.com",
+  projectId: "hands-forhope",
+  storageBucket: "hands-forhope.firebasestorage.app",
+  messagingSenderId: "445689777206",
+  appId: "1:445689777206:web:4d5dae8fe1eb6cada49c97",
+  measurementId: "G-0SH6H517X4"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+emailjs.init('hWWVlP_UVjFGbJkFZ');
+const PERMANENT_ADMIN = 'cbernstein27@meadowbrook-ma.org';
+
+/* ═══════════════════════════════════════════════
+   TABS SCROLL & CLICK
+═══════════════════════════════════════════════ */
+let lastScrollY = window.scrollY;
+const tabsEl = document.getElementById('tabs');
+const tabHandle = document.getElementById('tabHandle');
+window.addEventListener('scroll', () => {
+  const sy = window.scrollY;
+  if (sy > lastScrollY && sy > 100) tabsEl.classList.add('hidden');
+  else if (sy < lastScrollY - 5) tabsEl.classList.remove('hidden');
+  lastScrollY = sy;
+}, { passive: true });
+tabHandle.addEventListener('click', () => tabsEl.classList.remove('hidden'));
+
+/* ═══════════════════════════════════════════════
+   INK WIPE NAV
+═══════════════════════════════════════════════ */
+function inkNav(url) {
+  const w = document.getElementById('wipe');
+  w.style.pointerEvents = 'all';
+  gsap.fromTo(w,
+    { clipPath: 'polygon(0 0,0 0,0 100%,0 100%)' },
+    { clipPath: 'polygon(0 0,105% 0,105% 100%,0 100%)', duration: .7, ease: 'power3.inOut',
+      onComplete: () => { window.location.href = url; } });
+}
+document.querySelectorAll('[data-to]').forEach(el => {
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    if (el.classList.contains('tp-active')) return;
+    inkNav(el.dataset.to);
+  });
+});
+
+/* ═══════════════════════════════════════════════
+   GLOBAL MODAL SYSTEM
+═══════════════════════════════════════════════ */
+const globalModal = document.getElementById('globalModal');
+const globalModalBox = document.getElementById('globalModalBox');
+
+function openModal({ title = '', sub = '', bodyHTML = '', actions = [] }) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalSub').textContent = sub;
+  document.getElementById('modalBody').innerHTML = bodyHTML;
+  const actionsEl = document.getElementById('modalActions');
+  actionsEl.innerHTML = '';
+  actions.forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = 'modal-btn ' + (a.cls || '');
+    btn.textContent = a.label;
+    btn.onclick = () => { closeModal(); if (a.fn) a.fn(); };
+    actionsEl.appendChild(btn);
+  });
+  globalModal.classList.add('open');
+}
+
+function closeModal() {
+  globalModal.classList.remove('open');
+}
+
+globalModal.addEventListener('click', e => {
+  if (e.target === globalModal) closeModal();
+});
+
+// Enter key submits the primary (confirm/first) action in the modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && globalModal.classList.contains('open')) {
+    // Find the confirm button, or last button if no confirm class
+    const confirmBtn = globalModal.querySelector('.modal-btn.confirm') ||
+                       globalModal.querySelector('#modalActions .modal-btn:last-child');
+    if (confirmBtn) confirmBtn.click();
+  }
+  if (e.key === 'Escape' && globalModal.classList.contains('open')) closeModal();
+});
+
+/* ═══════════════════════════════════════════════
+   VIEW MANAGEMENT
+═══════════════════════════════════════════════ */
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const target = document.getElementById(id);
+  target.classList.add('active');
+
+  if (id === 'viewLeader') {
+    document.body.style.background = '#0a101d';
+    document.getElementById('leaderSidebar').style.display = 'flex';
+  } else {
+    document.body.style.background = 'var(--c)';
+    document.getElementById('leaderSidebar').style.display = 'none';
+    document.querySelectorAll('.ltp').forEach(t => t.classList.remove('ltp-active'));
+    const mainTab = document.querySelector('.ltp[data-lto="l-view-main"]');
+    if (mainTab) mainTab.classList.add('ltp-active');
+  }
+
+  gsap.fromTo(target, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' });
+}
+
+/* ═══════════════════════════════════════════════
+   LOGIN LOGIC
+═══════════════════════════════════════════════ */
+const loginFormContainer = document.getElementById('loginFormContainer');
+const emailInput = document.getElementById('emailInput');
+const passwordInput = document.getElementById('passwordInput');
+const authBtn = document.getElementById('authBtn');
+const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+const loginMsg = document.getElementById('loginMsg');
+
+const ENFORCE_STUDENT_EMAIL_DOMAIN = true;
+
+function showMsg(container, text, type) {
+  container.innerHTML = `<div class="msg ${type}">${text}</div>`;
+  gsap.fromTo(container.firstChild, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4 });
+}
+
+let selectedRole = 'student';
+const switchStudent = document.getElementById('switchStudent');
+const switchLeader = document.getElementById('switchLeader');
+const switchSlider = document.getElementById('switchSlider');
+
+function setRole(role) {
+  selectedRole = role;
+  loginMsg.innerHTML = '';
+  if (role === 'student') {
+    switchStudent.classList.add('active');
+    switchLeader.classList.remove('active');
+    gsap.to(switchSlider, { xPercent: 0, duration: 0.4, ease: 'power3.inOut' });
+    loginFormContainer.classList.remove('leader-mode');
+  } else {
+    switchLeader.classList.add('active');
+    switchStudent.classList.remove('active');
+    gsap.to(switchSlider, { xPercent: 100, duration: 0.4, ease: 'power3.inOut' });
+    loginFormContainer.classList.add('leader-mode');
+  }
+}
+
+switchStudent.addEventListener('click', () => setRole('student'));
+switchLeader.addEventListener('click', () => setRole('leader'));
+
+function animateLoginFormIn() {
+  loginFormContainer.style.display = 'block';
+  gsap.fromTo(loginFormContainer, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.out', delay: 0.1 });
+}
+
+forgotPasswordBtn.addEventListener('click', async () => {
+  const email = emailInput.value.trim().toLowerCase();
+  if (!email) { showMsg(loginMsg, 'Please enter your email address first.', 'error'); return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showMsg(loginMsg, 'Password reset email sent! Check your inbox.', 'success');
+  } catch (err) {
+    showMsg(loginMsg, 'Error: ' + err.message, 'error');
+  }
+});
+
+function getFriendlyError(errCode, defaultMsg) {
+  switch (errCode) {
+    case 'auth/weak-password': return 'Password needs to be 6+ characters.';
+    case 'auth/wrong-password': return 'Incorrect password. Please try again.';
+    case 'auth/invalid-credential': return 'Incorrect password or account not found.';
+    case 'auth/invalid-email': return 'Please enter a valid email address.';
+    case 'auth/email-already-in-use': return 'Email is already in use.';
+    case 'auth/user-not-found': return 'Account not found.';
+    default:
+      return defaultMsg.replace(/Firebase:\s*/i, '').replace(/\s*\(auth\/[a-zA-Z0-9-]+\)\.?/i, '').trim();
+  }
+}
+
+authBtn.addEventListener('click', async () => {
+  const email = emailInput.value.trim().toLowerCase();
+  const password = passwordInput.value;
+  if (!email || !password) { showMsg(loginMsg, 'Please enter both email and password.', 'error'); return; }
+
+  authBtn.disabled = true;
+  authBtn.textContent = 'Authenticating…';
+
+  if (selectedRole === 'student') {
+    if (ENFORCE_STUDENT_EMAIL_DOMAIN && !email.endsWith('@meadowbrook-ma.org')) {
+      showMsg(loginMsg, 'Only @meadowbrook-ma.org emails are allowed.', 'error');
+      authBtn.disabled = false; authBtn.textContent = 'Sign In / Sign Up'; return;
+    }
+  } else if (selectedRole === 'leader') {
+    let allowed = false;
+    if (email === PERMANENT_ADMIN) { allowed = true; }
+    else {
+      try {
+        const doc = await db.collection('config').doc('approved_leaders').get();
+        if (doc.exists) { const emails = doc.data().emails || []; allowed = emails.includes(email); }
+      } catch (e) { console.error('Firestore check failed:', e); }
+    }
+    if (!allowed) {
+      showMsg(loginMsg, 'This email is not authorized as a leader.', 'error');
+      authBtn.disabled = false; authBtn.textContent = 'Sign In / Sign Up'; return;
+    }
+  }
+
+  localStorage.setItem('signInRole', selectedRole);
+
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+  } catch (err) {
+    if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+      try {
+        await auth.createUserWithEmailAndPassword(email, password);
+      } catch (createErr) {
+        if (createErr.code === 'auth/email-already-in-use') {
+          showMsg(loginMsg, 'Incorrect password. Please try again.', 'error');
+        } else {
+          showMsg(loginMsg, getFriendlyError(createErr.code, createErr.message), 'error');
+        }
+        authBtn.disabled = false; authBtn.textContent = 'Sign In / Sign Up';
+      }
+    } else {
+      showMsg(loginMsg, getFriendlyError(err.code, err.message), 'error');
+      authBtn.disabled = false; authBtn.textContent = 'Sign In / Sign Up';
+    }
+  }
+});
+
+/* ═══════════════════════════════════════════════
+   AUTH STATE & LEADER INTERCEPTOR
+═══════════════════════════════════════════════ */
+async function checkIsLeader(email) {
+  if (email === PERMANENT_ADMIN) return true;
+  try {
+    const doc = await db.collection('config').doc('approved_leaders').get();
+    if (doc.exists) { const emails = doc.data().emails || []; return emails.includes(email); }
+  } catch (e) { console.error(e); }
+  return false;
+}
+
+let pendingLeaderUser = null;
+let currentUser = null;
+let currentUserName = '';
+
+const nameOverlay = document.getElementById('nameOverlay');
+const nameBox = document.getElementById('nameBox');
+const nameInput = document.getElementById('nameInput');
+const saveNameBtn = document.getElementById('saveNameBtn');
+const nameMsg = document.getElementById('nameMsg');
+const profileHeader = document.getElementById('profileHeader');
+const profileNameDisplay = document.getElementById('profileNameDisplay');
+const profileEmailDisplay = document.getElementById('profileEmailDisplay');
+const editNameBtn = document.getElementById('editNameBtn');
+const switchFromStudentBtn = document.getElementById('switchFromStudentBtn');
+const switchFromLeaderBtn = document.getElementById('switchFromLeaderBtn');
+
+function showNameOverlay() {
+  nameMsg.style.display = 'none';
+  nameInput.value = '';
+  nameOverlay.style.display = 'flex';
+  gsap.to(nameOverlay, { opacity: 1, duration: 0.3 });
+  gsap.fromTo(nameBox, { y: 20 }, { y: 0, duration: 0.4, ease: 'power2.out' });
+}
+
+function hideNameOverlay() {
+  gsap.to(nameOverlay, { opacity: 0, duration: 0.3, onComplete: () => { nameOverlay.style.display = 'none'; }});
+}
+
+function updateProfileHeader(name, email) {
+  profileNameDisplay.textContent = name;
+  profileEmailDisplay.textContent = email;
+  profileHeader.style.display = 'flex';
+  gsap.to(profileHeader, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+}
+
+saveNameBtn.addEventListener('click', async () => {
+  const name = nameInput.value.trim();
+  if (name.length < 3) {
+    nameMsg.textContent = 'Please enter your real first name.';
+    nameMsg.style.display = 'block';
+    return;
+  }
+  saveNameBtn.disabled = true;
+  saveNameBtn.textContent = 'Saving...';
+  try {
+    await db.collection('users').doc(currentUser.uid).set({
+      name: name,
+      email: currentUser.email.toLowerCase(),
+      nameLastEditedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    currentUserName = name;
+    hideNameOverlay();
+    updateProfileHeader(name, currentUser.email);
+    const email = currentUser.email.toLowerCase();
+    const isLeader = await checkIsLeader(email);
+    const clickedRole = localStorage.getItem('signInRole');
+    if (isLeader && clickedRole === 'student') {
+      showView('viewLeaderChoice');
+    } else {
+      routeUser(currentUser, isLeader ? 'leader' : 'student', isLeader);
+    }
+  } catch (err) {
+    nameMsg.textContent = err.message;
+    nameMsg.style.display = 'block';
+  }
+  saveNameBtn.disabled = false;
+  saveNameBtn.textContent = 'Save Name';
+});
+
+editNameBtn.addEventListener('click', async () => {
+  try {
+    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+    if (userDoc.exists) {
+      const lastEdited = userDoc.data().nameLastEditedAt?.toDate();
+      if (lastEdited) {
+        const daysSince = (Date.now() - lastEdited.getTime()) / (1000 * 3600 * 24);
+        if (daysSince < 7) {
+          showErrorToast(`You can only change your name once a week. Please wait ${Math.ceil(7 - daysSince)} more days.`);
+          return;
+        }
+      }
+    }
+    document.getElementById('nameOverlayTitle').textContent = 'Edit Name';
+    showNameOverlay();
+  } catch(e) { console.error(e); }
+});
+
+function showErrorToast(msg) {
+  const t = document.getElementById('errorToast');
+  if (!t) return;
+  t.textContent = msg;
+  t.style.top = '40px';
+  setTimeout(() => { t.style.top = '-100px'; }, 4000);
+}
+
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    currentUser = user;
+    const email = user.email.toLowerCase();
+    const isActuallyLeader = await checkIsLeader(email);
+
+    if (isActuallyLeader) switchFromStudentBtn.style.display = 'block';
+    else switchFromStudentBtn.style.display = 'none';
+
+    try {
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      db.collection('users').doc(user.uid).set({ email: email }, { merge: true }).catch(() => {});
+      if (!userDoc.exists || !userDoc.data().name) {
+        document.getElementById('nameOverlayTitle').textContent = 'Welcome.';
+        showNameOverlay();
+        return;
+      } else {
+        currentUserName = userDoc.data().name;
+        updateProfileHeader(currentUserName, email);
+      }
+    } catch (e) { console.error(e); }
+
+    const clickedRole = localStorage.getItem('signInRole');
+    if (isActuallyLeader && clickedRole === 'student') {
+      pendingLeaderUser = user;
+      showView('viewLeaderChoice');
+      return;
+    }
+    routeUser(user, isActuallyLeader ? 'leader' : 'student', isActuallyLeader);
+  } else {
+    currentUser = null;
+    currentUserName = '';
+    cleanupAllListeners();
+    profileHeader.style.display = 'none';
+    profileHeader.style.opacity = '0';
+    profileHeader.style.transform = 'translateY(-10px)';
+    showView('viewLogin');
+    setRole('student');
+    emailInput.value = '';
+    passwordInput.value = '';
+    authBtn.disabled = false;
+    authBtn.textContent = 'Sign In / Sign Up';
+    animateLoginFormIn();
+  }
+});
+
+function routeUser(user, finalRole, isLeader) {
+  if (finalRole === 'leader') {
+    document.getElementById('leaderWelcome').textContent = 'Welcome back!';
+    showView('viewLeader');
+    initDashboard();
+  } else {
+    document.getElementById('studentWelcome').textContent = 'Welcome back!';
+    showView('viewStudent');
+    initStudentDashboard();
+  }
+}
+
+switchFromStudentBtn.addEventListener('click', () => {
+  cleanupStudentListeners();
+  routeUser(currentUser, 'leader', true);
+});
+switchFromLeaderBtn.addEventListener('click', () => {
+  cleanupLeaderListeners();
+  routeUser(currentUser, 'student', true);
+});
+
+document.getElementById('choiceLeaderBtn').addEventListener('click', () => {
+  const user = pendingLeaderUser || currentUser;
+  if (user) routeUser(user, 'leader');
+});
+document.getElementById('choiceStudentBtn').addEventListener('click', () => {
+  const user = pendingLeaderUser || currentUser;
+  if (user) routeUser(user, 'student');
+});
+
+/* ═══════════════════════════════════════════════
+   SIGN OUT
+═══════════════════════════════════════════════ */
+async function signOut() {
+  cleanupAllListeners();
+  if (currentUser) {
+    try { await db.collection('presence').doc(currentUser.uid).delete(); } catch(e) {}
+  }
+  localStorage.removeItem('signInRole');
+  auth.signOut();
+}
+document.getElementById('signOutStudent').addEventListener('click', signOut);
+document.getElementById('signOutLeader').addEventListener('click', signOut);
+
+window.addEventListener('beforeunload', () => {
+  if (currentUser) {
+    db.collection('presence').doc(currentUser.uid).delete().catch(() => {});
+  }
+});
+
+/* ═══════════════════════════════════════════════
+   LISTENER REGISTRY
+═══════════════════════════════════════════════ */
+let studentListeners = [];
+let leaderListeners = [];
+let scheduledSurveyTimeouts = [];
+
+function cleanupStudentListeners() {
+  studentListeners.forEach(fn => fn());
+  studentListeners = [];
+}
+function cleanupLeaderListeners() {
+  leaderListeners.forEach(fn => fn());
+  leaderListeners = [];
+  scheduledSurveyTimeouts.forEach(t => clearTimeout(t));
+  scheduledSurveyTimeouts = [];
+  if (unsubSidebarPresence) { unsubSidebarPresence(); unsubSidebarPresence = null; }
+  if (unsubRequests) { unsubRequests(); unsubRequests = null; }
+}
+function cleanupAllListeners() {
+  cleanupStudentListeners();
+  cleanupLeaderListeners();
+}
+
+/* ═══════════════════════════════════════════════
+   STUDENT DASHBOARD
+═══════════════════════════════════════════════ */
+function initStudentDashboard() {
+  cleanupStudentListeners();
+  const area = document.getElementById('studentSurveyArea');
+  renderEmptyState(area);
+
+  const unsub = db.collection('surveys')
+    .where('status', '==', 'active')
+    .onSnapshot(async snap => {
+      if (snap.empty) {
+        animateToEmptyState(area);
+      } else {
+        // Sort client-side by openedAt desc, take first
+        const docs = snap.docs.slice().sort((a, b) => {
+          const ta = a.data().openedAt?.toMillis() || 0;
+          const tb = b.data().openedAt?.toMillis() || 0;
+          return tb - ta;
+        });
+        const doc = docs[0];
+        const survey = { id: doc.id, ...doc.data() };
+        await showStudentSurvey(area, survey);
+      }
+    }, err => { console.error('Survey listener error:', err); });
+
+  studentListeners.push(unsub);
+}
+
+function renderEmptyState(area) {
+  area.innerHTML = `
+    <div class="empty-state-card" id="emptyStateCard">
+      <div style="text-align:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#10b981;margin-bottom:12px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></div>
+      <h2>Nothing to do right now!</h2>
+      <p>Check back when a meeting survey is active.</p>
+    </div>`;
+}
+
+function animateToEmptyState(area) {
+  const headerWrap = document.getElementById('studentHeaderWrap');
+  if (headerWrap) headerWrap.style.display = 'block';
+
+  const existing = area.firstChild;
+  if (existing && existing.classList && existing.classList.contains('empty-state-card')) return;
+  if (existing) {
+    gsap.to(existing, { opacity: 0, y: -20, duration: 0.4, onComplete: () => {
+      renderEmptyState(area);
+      gsap.fromTo('#emptyStateCard', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+    }});
+  } else {
+    renderEmptyState(area);
+  }
+}
+
+async function showStudentSurvey(area, survey) {
+  if (!currentUser) return;
+  const uid = currentUser.uid;
+
+  const headerWrap = document.getElementById('studentHeaderWrap');
+  if (headerWrap) headerWrap.style.display = 'none';
+
+  // Check if already responded
+  try {
+    const respDoc = await db.collection('surveys').doc(survey.id).collection('responses').doc(uid).get();
+    if (respDoc.exists) {
+      animateToThankyou(area, survey);
+      return;
+    }
+  } catch(e) { console.error(e); }
+
+  const formattedDate = survey.openedAt ? formatDate(survey.openedAt.toDate()) : '';
+  const isStart = survey.type === 'meeting_start';
+
+  let stationsHTML = '';
+  if (isStart && survey.stations && survey.stations.length) {
+    stationsHTML = `
+      <span class="survey-question-label" style="font-weight:600;font-size:14px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:inline-block;">Choose Your Station</span>
+      <div class="station-grid" id="stationGrid">
+        ${survey.stations.map(s => `<div class="station-option" data-station="${escHtml(s)}">${escHtml(s)}</div>`).join('')}
+      </div>`;
+  }
+
+  let questionsHTML = '';
+  if (survey.questions && survey.questions.length) {
+    questionsHTML = survey.questions.map((q, i) => `
+      <div style="margin-bottom:28px;">
+        <span class="survey-question-label" style="font-size:15px;font-weight:500;margin-bottom:12px;display:block;color:rgba(255,255,255,0.9);">${escHtml(q.text || `Question ${i+1}`)}</span>
+        <textarea class="survey-textarea" id="sq_${q.id}" placeholder="Type your answer here…" rows="3"></textarea>
+      </div>`).join('');
+  }
+
+  const html = `
+    <div class="survey-card" id="activeSurveyCard" style="margin: 40px auto 0;">
+      <div class="survey-card-header" style="border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:16px;margin-bottom:24px;">
+        <span class="pulse-dot"></span>
+        <h3 style="font-family:'Playfair Display',serif; font-size:28px; margin:0; display:inline-block; font-weight:700; background:linear-gradient(135deg,#fff,#94a3b8); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${escHtml(survey.name || 'Meeting Survey')}</h3>
+      </div>
+      ${formattedDate ? `<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:4px;">${formattedDate}</div>` : ''}
+      <div class="survey-divider"></div>
+      ${stationsHTML}
+      ${questionsHTML}
+      <div id="surveyFormMsg"></div>
+      <button class="survey-submit-btn" id="surveySubmitBtn">Submit Response</button>
+    </div>`;
+
+  const bindListeners = () => {
+    // Station selection
+    if (isStart) {
+      area.querySelectorAll('.station-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          area.querySelectorAll('.station-option').forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+        });
+      });
+    }
+
+    // Submit
+    const btn = document.getElementById('surveySubmitBtn');
+    if (btn) {
+      btn.addEventListener('click', async () => {
+        let stationId = null;
+        if (isStart) {
+          const sel = area.querySelector('.station-option.selected');
+          if (!sel) { showSurveyMsg('Please select a station first.', 'error'); return; }
+          stationId = sel.dataset.station;
+        }
+
+        const textAnswers = {};
+        if (survey.questions) {
+          for (const q of survey.questions) {
+            const ta = document.getElementById('sq_' + q.id);
+            if (!ta || !ta.value.trim()) { showSurveyMsg('Please answer all questions.', 'error'); return; }
+            textAnswers[q.id] = ta.value.trim();
+          }
+        }
+
+        btn.disabled = true; btn.textContent = 'Submitting…';
+
+        try {
+          const userDoc = await db.collection('users').doc(uid).get();
+          const uName = userDoc.exists ? (userDoc.data().name || '') : currentUserName;
+          const uEmail = currentUser.email || '';
+
+          await db.collection('surveys').doc(survey.id).collection('responses').doc(uid).set({
+            userName: uName,
+            userEmail: uEmail,
+            stationId: stationId,
+            textAnswers: textAnswers,
+            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          animateToThankyou(area, survey);
+        } catch(e) {
+          console.error(e);
+          showSurveyMsg('Error submitting. Please try again.', 'error');
+          btn.disabled = false; btn.textContent = 'Submit Response';
+        }
+      });
+    }
+  };
+
+  const existingSurveyCard = area.querySelector('#activeSurveyCard');
+  const existingAny = area.firstElementChild;
+  if (existingSurveyCard) {
+    area.innerHTML = html;
+    bindListeners();
+  } else if (existingAny) {
+    gsap.to(existingAny, { opacity: 0, y: -20, duration: 0.35, onComplete: () => {
+      area.innerHTML = html;
+      bindListeners();
+      gsap.fromTo('#activeSurveyCard', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+    }});
+  } else {
+    area.innerHTML = html;
+    bindListeners();
+    gsap.fromTo('#activeSurveyCard', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+  }
+
+  function showSurveyMsg(msg, type) {
+    const el = document.getElementById('surveyFormMsg');
+    if (el) { el.innerHTML = `<div class="msg ${type}" style="max-width:100%;margin-top:12px;">${msg}</div>`; }
+  }
+}
+
+function animateToThankyou(area, survey = {}) {
+  const noteText = survey.postNote ? `<div style="margin-top:24px;padding:16px;background:rgba(255,255,255,0.05);border-radius:12px;font-size:15px;color:rgba(255,255,255,0.9);">${escHtml(survey.postNote)}</div>` : '';
+  const existing = area.firstChild;
+  const html = `
+    <div class="es-card" id="thankyouCard" style="text-align:center;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <h3>Thank you!</h3>
+      <p>Your response has been recorded.</p>
+      ${noteText}
+    </div>`;
+  if (existing) {
+    gsap.to(existing, { opacity: 0, y: -20, duration: 0.35, onComplete: () => {
+      area.innerHTML = html;
+      gsap.fromTo('#thankyouCard', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+    }});
+  } else {
+    area.innerHTML = html;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   LEADER DASHBOARD
+═══════════════════════════════════════════════ */
+let unsubMailing = null;
+let unsubLeaders = null;
+let unsubUsers = null;
+let unsubRequests = null;
+let latestLeaderEmails = [PERMANENT_ADMIN];
+let latestUsersData = [];
+let cachedRequests = [];
+
+function renderEmailList(container, emails, docPath, field, options = {}) {
+  container.innerHTML = '';
+  if (emails.length === 0) {
+    container.innerHTML = '<li class="loading-placeholder">No emails yet</li>';
+    return;
+  }
+  emails.forEach(email => {
+    const li = document.createElement('li');
+    li.className = 'email-item';
+    const isPermanent = options.hasPermanent && email === PERMANENT_ADMIN;
+    li.innerHTML = `
+      <span class="email-text">${email}</span>
+      ${isPermanent ? '<span class="permanent-tag">Admin</span>' : ''}
+      ${isPermanent ? '' : '<button class="remove-btn" title="Remove">×</button>'}`;
+    if (!isPermanent) {
+      li.querySelector('.remove-btn').addEventListener('click', async () => {
+        gsap.to(li, { height: 0, opacity: 0, padding: 0, margin: 0, duration: 0.3, onComplete: async () => {
+          try { await db.doc(docPath).update({ [field]: firebase.firestore.FieldValue.arrayRemove(email) }); }
+          catch (e) { console.error(e); }
+        }});
+      });
+    }
+    li.style.opacity = '0';
+    li.style.transform = 'translateY(-10px)';
+    container.appendChild(li);
+    gsap.to(li, { opacity: 1, y: 0, duration: 0.3 });
+  });
+}
+
+function renderUsersFromCache() {
+  const signedInLeaders = latestUsersData.filter(u => latestLeaderEmails.includes(u.email));
+  const students = latestUsersData.filter(u => !latestLeaderEmails.includes(u.email));
+  renderUsersList('signedInLeadersList', signedInLeaders, true);
+  renderUsersList('studentsList', students, false);
+}
+
+function loadUsersData() {
+  if (unsubUsers) { unsubUsers(); unsubUsers = null; }
+  unsubUsers = db.collection('users').onSnapshot(snap => {
+    latestUsersData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderUsersFromCache();
+  }, err => console.error(err));
+  leaderListeners.push(() => { if (unsubUsers) { unsubUsers(); unsubUsers = null; } });
+}
+
+function renderUsersList(containerId, users, isLeaderList) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  if (users.length === 0) {
+    container.innerHTML = '<div class="loading-placeholder">No users found.</div>';
+    return;
+  }
+  users.forEach(u => {
+    const d = document.createElement('div');
+    d.className = 'student-list-item';
+    d.dataset.uid = u.id;
+    d.innerHTML = `
+      <div class="student-info">
+        <span class="s-name">${u.name || 'No Name'}</span>
+        <span class="s-email">${u.email || ''}</span>
+      </div>
+      ${isLeaderList ? '' : '<div class="student-actions"><button class="s-edit-btn">Edit Name</button></div>'}`;
+    if (!isLeaderList) {
+      d.querySelector('.s-edit-btn').addEventListener('click', () => {
+        const nameSpan = d.querySelector('.s-name');
+        const actionsDiv = d.querySelector('.student-actions');
+        const currentName = nameSpan.textContent;
+        nameSpan.style.display = 'none';
+        const input = document.createElement('input');
+        input.value = currentName;
+        input.style.cssText = 'background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;padding:6px 10px;font-size:14px;font-family:inherit;outline:none;width:200px;';
+        d.querySelector('.student-info').insertBefore(input, nameSpan);
+        actionsDiv.innerHTML = '<button class="s-edit-btn" style="color:#22c55e;">Save</button> <button class="s-edit-btn" style="color:rgba(255,255,255,0.4);">Cancel</button>';
+        const [saveBtn, cancelBtn] = actionsDiv.querySelectorAll('button');
+        input.focus();
+        const doSave = () => {
+          const newName = input.value.trim();
+          if (newName && newName !== currentName) {
+            db.collection('users').doc(u.id).update({ name: newName }).catch(e => console.error(e));
+          } else { renderUsersFromCache(); }
+        };
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') doSave(); if (e.key === 'Escape') renderUsersFromCache(); });
+        saveBtn.addEventListener('click', doSave);
+        cancelBtn.addEventListener('click', () => renderUsersFromCache());
+      });
+    }
+    container.appendChild(d);
+  });
+}
+
+// Leader sub-tabs
+document.querySelectorAll('.ltp[data-lto]').forEach(tab => {
+  tab.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (tab.classList.contains('ltp-active')) return;
+    document.querySelectorAll('.ltp').forEach(t => t.classList.remove('ltp-active'));
+    tab.classList.add('ltp-active');
+    const targetId = tab.getAttribute('data-lto');
+    document.querySelectorAll('.l-view-inner').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById(targetId);
+    target.classList.add('active');
+    gsap.fromTo(target, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' });
+    if (targetId === 'l-view-survey') initSurveyTab();
+    if (targetId === 'l-view-tracker') initTrackerTab();
+    if (targetId === 'l-view-requests') initRequestsTab();
+    updatePresence({ currentView: targetId });
+  });
+});
+
+document.getElementById('switchFromLeaderBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  cleanupLeaderListeners();
+  showView('viewStudent');
+  initStudentDashboard();
+});
+
+function initDashboard() {
+  if (unsubMailing) unsubMailing();
+  if (unsubLeaders) unsubLeaders();
+  currentLeaderView = 'l-view-main';
+  updatePresence({ currentView: 'l-view-main' });
+  startSidebarPresenceListener();
+
+  const mailingList = document.getElementById('mailingList');
+  const leaderList = document.getElementById('leaderList');
+
+  unsubMailing = db.collection('config').doc('mailing_list').onSnapshot(snap => {
+    if (snap.exists) renderEmailList(mailingList, snap.data().emails || [], 'config/mailing_list', 'emails');
+    else mailingList.innerHTML = '<li class="loading-placeholder">No mailing list configured</li>';
+  }, err => { console.error(err); mailingList.innerHTML = '<li class="loading-placeholder">Error loading</li>'; });
+
+  unsubLeaders = db.collection('config').doc('approved_leaders').onSnapshot(snap => {
+    if (snap.exists) {
+      let emails = snap.data().emails || [];
+      if (!emails.includes(PERMANENT_ADMIN)) emails = [PERMANENT_ADMIN, ...emails];
+      latestLeaderEmails = emails;
+      renderEmailList(leaderList, emails, 'config/approved_leaders', 'emails', { hasPermanent: true });
+    } else {
+      latestLeaderEmails = [PERMANENT_ADMIN];
+      leaderList.innerHTML = '';
+      renderEmailList(leaderList, [PERMANENT_ADMIN], 'config/approved_leaders', 'emails', { hasPermanent: true });
+    }
+    renderUsersFromCache();
+  }, err => { console.error(err); leaderList.innerHTML = '<li class="loading-placeholder">Error loading</li>'; });
+
+  leaderListeners.push(unsubMailing, unsubLeaders);
+
+  const mailingAddBtn = document.getElementById('mailingAdd');
+  if (!mailingAddBtn.dataset.listenerAttached) {
+    mailingAddBtn.dataset.listenerAttached = '1';
+    mailingAddBtn.addEventListener('click', async () => {
+      const input = document.getElementById('mailingInput');
+      const email = input.value.trim().toLowerCase();
+      if (!email) return;
+      try {
+        await db.collection('config').doc('mailing_list').set({ emails: firebase.firestore.FieldValue.arrayUnion(email) }, { merge: true });
+        input.value = '';
+      } catch (e) { console.error(e); }
+    });
+  }
+
+  const leaderAddBtn = document.getElementById('leaderAdd');
+  if (!leaderAddBtn.dataset.listenerAttached) {
+    leaderAddBtn.dataset.listenerAttached = '1';
+    leaderAddBtn.addEventListener('click', async () => {
+      const input = document.getElementById('leaderInput');
+      const email = input.value.trim().toLowerCase();
+      if (!email) return;
+      try {
+        await db.collection('config').doc('approved_leaders').set({ emails: firebase.firestore.FieldValue.arrayUnion(email) }, { merge: true });
+        input.value = '';
+      } catch (e) { console.error(e); }
+    });
+  }
+
+  loadUsersData();
+  checkAndFireScheduledSurveys();
+}
+
+/* ═══════════════════════════════════════════════
+   SCHEDULING LOGIC
+═══════════════════════════════════════════════ */
+async function checkAndFireScheduledSurveys() {
+  try {
+    const snap = await db.collection('surveys').where('status', '==', 'scheduled').get();
+    snap.forEach(doc => {
+      const data = doc.data();
+      if (!data.scheduledAt) return;
+      const scheduledTime = data.scheduledAt.toDate().getTime();
+      const now = Date.now();
+      const diff = scheduledTime - now;
+      if (diff <= 5000) {
+        openSurveyNow(doc.id);
+      } else {
+        const tid = setTimeout(() => openSurveyNow(doc.id), diff);
+        scheduledSurveyTimeouts.push(tid);
+      }
+    });
+  } catch(e) { console.error(e); }
+}
+
+async function openSurveyNow(surveyId) {
+  try {
+    const surveyDoc = await db.collection('surveys').doc(surveyId).get();
+    const surveyName = surveyDoc.exists ? (surveyDoc.data().name || 'New Survey') : 'New Survey';
+
+    const activSnap = await db.collection('surveys').where('status', '==', 'active').get();
+    const batch = db.batch();
+    activSnap.forEach(d => { if (d.id !== surveyId) batch.update(d.ref, { status: 'closed', closedAt: firebase.firestore.FieldValue.serverTimestamp() }); });
+    batch.update(db.collection('surveys').doc(surveyId), { status: 'active', openedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await batch.commit();
+
+    notifyStudentsOfSurvey(surveyName).catch(e => console.error('Student notify failed:', e));
+  } catch(e) { console.error(e); }
+}
+
+async function notifyStudentsOfSurvey(surveyName) {
+  const SURVEY_NOTIFY_TEMPLATE = 'PASTE_YOUR_TEMPLATE_ID_HERE';
+
+  const studentEmails = latestUsersData
+    .map(u => u.email)
+    .filter(e => e && !latestLeaderEmails.includes(e));
+
+  if (studentEmails.length === 0) return;
+
+  const portalUrl = window.location.origin + '/student-portal.html';
+
+  await emailjs.send('service_8o1e33y', SURVEY_NOTIFY_TEMPLATE, {
+    to_emails:   studentEmails.join(','),
+    survey_name: surveyName,
+    portal_url:  portalUrl
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   SURVEY TAB
+═══════════════════════════════════════════════ */
+let currentDraftId = null;
+let currentDraftData = null;
+let unsubDraft = null;
+let unsubActiveSurvey = null;
+let unsubPresence = null;
+let unsubSurveyBank = null;
+let unsubResponses = null;
+let presenceInterval = null;
+let currentEditingQuestionId = null;
+
+function initSurveyTab() {
+  const container = document.getElementById('surveyTabContent');
+  container.innerHTML = '<div class="loading-placeholder" style="padding:40px;">Loading survey data…</div>';
+
+  // Cleanup old listeners
+  if (unsubDraft) { unsubDraft(); unsubDraft = null; }
+  if (unsubActiveSurvey) { unsubActiveSurvey(); unsubActiveSurvey = null; }
+  if (unsubPresence) { unsubPresence(); unsubPresence = null; }
+  if (unsubSurveyBank) { unsubSurveyBank(); unsubSurveyBank = null; }
+  if (unsubResponses) { unsubResponses(); unsubResponses = null; }
+  if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
+
+  startPresence();
+
+  // Listen for active survey
+  unsubActiveSurvey = db.collection('surveys').where('status', '==', 'active').onSnapshot(snap => {
+    if (!snap.empty) {
+      // Sort client-side, take most recent
+      const docs = snap.docs.slice().sort((a,b) => (b.data().openedAt?.toMillis()||0)-(a.data().openedAt?.toMillis()||0));
+      const doc = docs[0];
+      renderLiveResults(doc.id, { id: doc.id, ...doc.data() });
+    } else {
+      // Check for draft
+      checkForDraft();
+    }
+  }, err => console.error(err));
+
+  leaderListeners.push(() => {
+    if (unsubDraft) unsubDraft();
+    if (unsubActiveSurvey) unsubActiveSurvey();
+    if (unsubPresence) unsubPresence();
+    if (unsubSurveyBank) unsubSurveyBank();
+    if (unsubResponses) unsubResponses();
+    if (presenceInterval) clearInterval(presenceInterval);
+  });
+}
+
+async function checkForDraft() {
+  try {
+    const snap = await db.collection('surveys').where('status', '==', 'draft').get();
+    if (!snap.empty) {
+      // Sort client-side
+      const docs = snap.docs.slice().sort((a, b) => (b.data().createdAt?.toMillis()||0) - (a.data().createdAt?.toMillis()||0));
+      const doc = docs[0];
+      currentDraftId = doc.id;
+      listenToDraft(doc.id);
+    } else {
+      currentDraftId = null;
+      renderBuilderEmpty();
+    }
+  } catch(e) { console.error(e); renderBuilderEmpty(); }
+
+  // Listeners for Scheduled and Bank
+  listenToScheduledSurveys();
+  listenToSurveyBank();
+}
+
+let unsubScheduled = null;
+function listenToScheduledSurveys() {
+  if (unsubScheduled) { unsubScheduled(); unsubScheduled = null; }
+  unsubScheduled = db.collection('surveys').where('status', '==', 'scheduled').onSnapshot(snap => {
+    const container = document.getElementById('scheduledSurveysContainer');
+    if (!container) return;
+    if (snap.empty) {
+      container.innerHTML = '';
+      return;
+    }
+    const docs = snap.docs.slice()
+      .filter(d => d.data().scheduledAt) // Only strictly scheduled (not TBD locked drafts)
+      .sort((a,b) => (b.data().createdAt?.toMillis()||0) - (a.data().createdAt?.toMillis()||0));
+    
+    if (docs.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    const html = docs.map(d => {
+      const s = { id: d.id, ...d.data() };
+      return `
+        <div class="survey-bank-item">
+          <div class="survey-bank-header" style="cursor:default;">
+            <div class="survey-bank-header-left">
+              <div>
+                <div class="survey-bank-title">${escHtml(s.name || 'Survey')}</div>
+                <div class="survey-bank-type">Scheduled Release: ${s.scheduledAt ? formatDateShort(s.scheduledAt.toDate()) : 'TBD'}</div>
+              </div>
+            </div>
+            <div class="survey-bank-actions">
+              <button class="bank-action-btn" onclick="reopenScheduled('${s.id}')">Revert to Draft</button>
+              <button class="bank-action-btn" style="color:#10b981;border-color:rgba(16,185,129,0.3);" onclick="openScheduledNow('${s.id}')">Open Now</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    container.innerHTML = `<h3 style="margin-bottom:16px;">Scheduled Surveys</h3>${html}`;
+  });
+}
+
+function renderSurveyBank() { listenToSurveyBank(); }
+
+let unsubBank = null;
+function listenToSurveyBank() {
+  if (unsubBank) { unsubBank(); unsubBank = null; }
+  unsubBank = db.collection('surveys').where('status', '==', 'closed').onSnapshot(snap => {
+    if (snap.empty) {
+      document.getElementById('surveyBankContainer').innerHTML = '';
+      return;
+    }
+    const surveys = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b) => (b.closedAt?.toMillis()||0) - (a.closedAt?.toMillis()||0))
+      .slice(0, 10);
+    renderSurveyBankItems(surveys);
+  });
+}
+
+window.reopenScheduled = async function(id) {
+  try {
+    if (currentDraftId && currentDraftId !== id) {
+      openModal({
+        title: 'Save Current Survey?',
+        sub: 'You are currently working on a draft. Do you want to save it before opening this one?',
+        actions: [
+          { label: 'Cancel', cls: '' },
+          { label: 'Save & Open', cls: 'confirm', fn: async () => {
+              await db.collection('surveys').doc(currentDraftId).update({ status: 'scheduled', scheduledAt: null });
+              await db.collection('surveys').doc(id).update({ status: 'draft', scheduledAt: null });
+              currentDraftId = id;
+              listenToDraft(id);
+          }}
+        ]
+      });
+    } else {
+      closeModal();
+      // Set status to draft so listenToDraft's snapshot will render the editor
+      await db.collection('surveys').doc(id).update({ status: 'draft', scheduledAt: null });
+      currentDraftId = id;
+      listenToDraft(id);
+    }
+  } catch(e) { console.error(e); }
+};
+
+window.openScheduledNow = async function(id) {
+  closeModal();
+  try {
+    await db.collection('surveys').doc(id).update({ status: 'active', openedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  } catch(e) { console.error(e); }
+};
+
+window.openLockedDraftsModal = async function() {
+  try {
+    const snap = await db.collection('surveys').where('status', '==', 'scheduled').get();
+    const lockedDrafts = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => !d.scheduledAt);
+    
+    if (lockedDrafts.length === 0) {
+      openModal({ title: 'Saved Drafts', bodyHTML: '<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.5);">No saved drafts.</div>', actions: [{ label: 'Close', cls: '' }]});
+      return;
+    }
+
+    const html = lockedDrafts.map(s => `
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:600;font-size:15px;margin-bottom:4px;color:#fff;">${escHtml(s.name || 'Survey')}</div>
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);">${s.type === 'meeting_start' ? 'Meeting Start' : 'Meeting End'}</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="bank-action-btn" onclick="reopenScheduled('${s.id}')">Reopen</button>
+          <button class="bank-action-btn" style="color:#ef4444;" onclick="deleteLockedDraft('${s.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+
+    openModal({
+      title: 'Saved Drafts',
+      bodyHTML: `<div style="max-height:60vh;overflow-y:auto;padding-right:8px;">${html}</div>`,
+      actions: [{ label: 'Close', cls: '' }]
+    });
+  } catch(e) { console.error(e); }
+};
+
+window.deleteLockedDraft = async function(id) {
+  closeModal();
+  try { await db.collection('surveys').doc(id).delete(); } catch(e) { console.error(e); }
+};
+
+function renderBuilderEmpty() {
+  const container = document.getElementById('surveyTabContent');
+  container.innerHTML = `
+    <div class="survey-panel">
+      <div class="action-bar" id="surveyActionBar">
+        <button class="action-btn primary" id="newStartBtn">+ New Meeting Start Survey</button>
+        <button class="action-btn primary" id="newEndBtn">+ New Meeting End Survey</button>
+        <div style="position:relative;">
+          <button class="action-btn" id="copyPastBtn">Copy from Past Survey ▾</button>
+          <div class="dropdown-menu" id="copyPastMenu" style="display:none;position:absolute;top:100%;left:0;width:300px;background:#1e293b;border:1px solid rgba(255,255,255,0.1);border-radius:8px;z-index:100;max-height:300px;overflow-y:auto;box-shadow:0 10px 25px rgba(0,0,0,0.5);"></div>
+        </div>
+        <button class="action-btn" onclick="openLockedDraftsModal()">Open Saved Draft</button>
+      </div>
+      <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">
+        <div style="font-size:36px;margin-bottom:12px;"></div>
+        <div style="font-size:15px;">No active draft. Create a new survey above.</div>
+      </div>
+    </div>`;
+  bindBuilderEmptyActions();
+}
+
+function bindBuilderEmptyActions() {
+  const nb = document.getElementById('newStartBtn');
+  const ne = document.getElementById('newEndBtn');
+  const cp = document.getElementById('copyPastBtn');
+  if (nb) nb.addEventListener('click', () => createNewDraft('meeting_start'));
+  if (ne) ne.addEventListener('click', () => createNewDraft('meeting_end'));
+  if (cp) cp.addEventListener('click', () => openCopyFromPastModal());
+}
+
+async function createNewDraft(type, copyFrom = null) {
+  if (!currentUser) return;
+  // Check for existing draft
+  try {
+    const existSnap = await db.collection('surveys').where('status', '==', 'draft').get();
+    if (!existSnap.empty) {
+      openModal({
+        title: 'Replace Existing Draft?',
+        sub: 'A draft already exists. Creating a new one will delete it.',
+        actions: [
+          { label: 'Cancel', cls: '' },
+          { label: 'Delete & Create New', cls: 'danger', fn: async () => {
+            const batch = db.batch();
+            existSnap.forEach(d => batch.delete(d.ref));
+            await batch.commit();
+            doCreateDraft(type, copyFrom);
+          }}
+        ]
+      });
+    } else {
+      doCreateDraft(type, copyFrom);
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function doCreateDraft(type, copyFrom = null) {
+  if (!currentUser) return;
+  const isStart = type === 'meeting_start';
+  let stations = isStart ? ['Station A', 'Station B', 'Station C', 'Station D'] : [];
+  let questions = isStart
+    ? [{ id: genId(), type: 'text', text: 'What are you hoping to achieve in this session?', editorUid: null }]
+    : [
+        { id: genId(), type: 'text', text: 'What did you achieve during the session?', editorUid: null },
+        { id: genId(), type: 'text', text: 'What do you hope to continue doing next time?', editorUid: null }
+      ];
+
+  if (copyFrom) {
+    stations = copyFrom.stations || stations;
+    questions = (copyFrom.questions || questions).map(q => ({ ...q, id: genId(), editorUid: null }));
+  }
+
+  const now = new Date();
+  let baseName = copyFrom ? (copyFrom.name || '').replace(/ #\d+$/, '') : `${isStart ? 'Meeting Start' : 'Meeting End'} — ${formatDateShort(now)}`;
+  if (!baseName) baseName = 'Survey';
+  
+  let name = baseName;
+  try {
+    const matchSnap = await db.collection('surveys')
+      .where('name', '>=', baseName)
+      .where('name', '<=', baseName + '\uf8ff')
+      .get();
+      
+    let maxNum = 0;
+    let exactMatch = false;
+    matchSnap.forEach(d => {
+       const n = d.data().name;
+       if (n === baseName) exactMatch = true;
+       const match = n.match(/ #(\d+)$/);
+       if (match && n.startsWith(baseName)) {
+         maxNum = Math.max(maxNum, parseInt(match[1], 10));
+       }
+    });
+    if (exactMatch || maxNum > 0) {
+      name = `${baseName} #${Math.max(maxNum + 1, 2)}`;
+    }
+  } catch(e) { console.error('Error finding duplicates:', e); }
+
+  try {
+    const ref = await db.collection('surveys').add({
+      type,
+      name,
+      status: 'draft',
+      scheduledAt: null,
+      openedAt: null,
+      closedAt: null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdBy: currentUser.uid,
+      stations,
+      questions
+    });
+    currentDraftId = ref.id;
+    listenToDraft(ref.id);
+  } catch(e) { console.error(e); }
+}
+
+function listenToDraft(surveyId) {
+  if (unsubDraft) { unsubDraft(); unsubDraft = null; }
+  unsubDraft = db.collection('surveys').doc(surveyId).onSnapshot(snap => {
+    if (!snap.exists) { currentDraftId = null; currentDraftData = null; renderBuilderEmpty(); return; }
+    const data = { id: snap.id, ...snap.data() };
+    if (data.status === 'active' || (data.status === 'scheduled' && data.scheduledAt)) {
+      currentDraftId = null;
+      currentDraftData = null;
+      renderBuilderEmpty();
+    } else {
+      const prevLocked = currentDraftData?.status === 'scheduled';
+      const newLocked  = data.status === 'scheduled';
+      currentDraftData = data;
+      if (document.getElementById('draftEditorPanel') && prevLocked === newLocked) {
+        patchDraftEditor(data);
+      } else {
+        renderDraftEditor(data);
+      }
+    }
+  }, err => console.error(err));
+}
+
+function openAddStationModal(survey) {
+  openModal({
+    title: 'Add Station',
+    sub: 'Enter the name for the new station (max 15 characters).',
+    bodyHTML: '<input id="newStationInput" type="text" maxlength="15" style="width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;padding:12px 16px;font-size:14px;font-family:inherit;outline:none;" placeholder="Max 15 characters"><div id="stationCharCount" style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;text-align:right;">0 / 15</div>',
+    actions: [
+      { label: 'Cancel', cls: '' },
+      { label: 'Add', cls: 'confirm', fn: () => {
+        const val = document.getElementById('newStationInput').value.trim().slice(0, 15);
+        if (val) db.collection('surveys').doc(survey.id).update({ stations: firebase.firestore.FieldValue.arrayUnion(val) }).catch(e => console.error(e));
+      }}
+    ]
+  });
+  setTimeout(() => {
+    const el = document.getElementById('newStationInput');
+    const counter = document.getElementById('stationCharCount');
+    if (el) {
+      el.focus();
+      el.addEventListener('input', () => { if (counter) counter.textContent = `${el.value.length} / 15`; });
+    }
+  }, 50);
+}
+
+function bindSingleQuestionListeners(q, surveyId) {
+  const ta = document.getElementById('qtx_' + q.id);
+  if (!ta) return;
+  let qTimer;
+  ta.addEventListener('focus', () => { currentEditingQuestionId = q.id; updatePresence({ editingQuestionId: q.id }); });
+  ta.addEventListener('blur', () => { currentEditingQuestionId = null; updatePresence({ editingQuestionId: null }); });
+  ta.addEventListener('input', () => {
+    clearTimeout(qTimer);
+    qTimer = setTimeout(() => {
+      if (!currentDraftData) return;
+      const questions = currentDraftData.questions.map(qq => qq.id === q.id ? { ...qq, text: ta.value } : qq);
+      db.collection('surveys').doc(surveyId).update({ questions }).catch(e => console.error(e));
+    }, 700);
+  });
+}
+
+function patchDraftEditor(survey) {
+  const isLocked = survey.status === 'scheduled';
+
+  // Patch survey name
+  const nameInput = document.getElementById('draftNameInput');
+  if (nameInput && document.activeElement !== nameInput) nameInput.value = survey.name || '';
+
+  // Patch stations row (meeting_start only)
+  if (survey.type === 'meeting_start') {
+    const stationsRow = document.getElementById('stationsRow');
+    if (stationsRow) {
+      const existingStations = Array.from(stationsRow.querySelectorAll('.station-chip')).map(c => c.dataset.station);
+      const updatedStations = survey.stations || [];
+      if (JSON.stringify(existingStations) !== JSON.stringify(updatedStations)) {
+        const chips = updatedStations.map(s => `
+          <div class="station-chip" data-station="${escHtml(s)}">
+            <span>${escHtml(s)}</span>
+            ${isLocked ? '' : `<button class="station-chip-x" data-remove="${escHtml(s)}" title="Remove">×</button>`}
+          </div>`).join('');
+        stationsRow.innerHTML = chips + (isLocked ? '' : '<button class="action-btn" id="addStationBtn" style="padding:6px 14px;font-size:11px;">+ Add Station</button>');
+        stationsRow.querySelectorAll('.station-chip-x').forEach(btn => {
+          btn.addEventListener('click', () => {
+            db.collection('surveys').doc(survey.id).update({ stations: firebase.firestore.FieldValue.arrayRemove(btn.dataset.remove) }).catch(e => console.error(e));
+          });
+        });
+        const addStBtn = document.getElementById('addStationBtn');
+        if (addStBtn) addStBtn.addEventListener('click', () => openAddStationModal(survey));
+      }
+    }
+  }
+
+  // Patch questions
+  const questionsContainer = document.getElementById('questionsContainer');
+  if (questionsContainer) {
+    const newQuestions = survey.questions || [];
+    // Update existing or insert new
+    newQuestions.forEach((q, i) => {
+      const ta = document.getElementById('qtx_' + q.id);
+      if (ta) {
+        if (document.activeElement !== ta) ta.value = q.text || '';
+      } else {
+        const addQBtn = document.getElementById('addQuestionBtn');
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.id = 'qcard_' + q.id;
+        card.dataset.qid = q.id;
+        card.innerHTML = `
+          <label class="q-label">Question ${i + 1}</label>
+          <textarea class="question-textarea" id="qtx_${q.id}" rows="2">${escHtml(q.text || '')}</textarea>
+          <span class="q-label">Type: Text Answer</span>
+          <div class="question-editor-overlay" id="qeditor_${q.id}" style="display:none;"></div>`;
+        if (addQBtn) questionsContainer.insertBefore(card, addQBtn);
+        else questionsContainer.appendChild(card);
+        bindSingleQuestionListeners(q, survey.id);
+      }
+    });
+    // Remove deleted questions
+    const newQIds = new Set(newQuestions.map(q => q.id));
+    questionsContainer.querySelectorAll('.question-card').forEach(card => {
+      if (!newQIds.has(card.dataset.qid)) card.remove();
+    });
+    // Re-number labels
+    questionsContainer.querySelectorAll('.question-card').forEach((card, i) => {
+      const lbl = card.querySelector('.q-label');
+      if (lbl) lbl.textContent = `Question ${i + 1}`;
+    });
+  }
+
+  // Patch post-survey note
+  const postNoteInput = document.getElementById('postNoteInput');
+  if (postNoteInput && document.activeElement !== postNoteInput) postNoteInput.value = survey.postNote || '';
+}
+
+function renderDraftEditor(survey) {
+  const container = document.getElementById('surveyTabContent');
+  const isStart = survey.type === 'meeting_start';
+  const isLocked = survey.status === 'scheduled';
+
+  let stationsHTML = '';
+  if (isStart) {
+    const chips = (survey.stations || []).map(s => `
+      <div class="station-chip" data-station="${escHtml(s)}">
+        <span>${escHtml(s)}</span>
+        ${isLocked ? '' : `<button class="station-chip-x" data-remove="${escHtml(s)}" title="Remove">×</button>`}
+      </div>`).join('');
+    stationsHTML = `
+      <span class="section-label">Stations</span>
+      <div class="stations-row" id="stationsRow">
+        ${chips}
+        ${isLocked ? '' : `<button class="action-btn" id="addStationBtn" style="padding:6px 14px;font-size:11px;">+ Add Station</button>`}
+      </div>`;
+  }
+
+  const questionsHTML = (survey.questions || []).map((q, i) => {
+    const isBeingEdited = false; // Will be updated by presence
+    return `
+      <div class="question-card" id="qcard_${q.id}" data-qid="${q.id}">
+        <label class="q-label">Question ${i + 1}</label>
+        <textarea class="question-textarea" id="qtx_${q.id}" rows="2" ${isLocked ? 'disabled' : ''}>${escHtml(q.text || '')}</textarea>
+        <span class="q-label">Type: Text Answer</span>
+        <div class="question-editor-overlay" id="qeditor_${q.id}" style="display:none;"></div>
+      </div>`;
+  }).join('');
+
+  const postNoteHTML = `
+    <div style="margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.1);">
+      <span class="section-label">Post-Survey Note for Students (Optional)</span>
+      <textarea class="question-textarea" id="postNoteInput" rows="2" placeholder="e.g. Please close your laptops." ${isLocked ? 'disabled' : ''}>${escHtml(survey.postNote || '')}</textarea>
+    </div>
+  `;
+
+  const actionBtns = isLocked
+    ? `<button class="action-btn success" id="openNowBtn">Open to Students Now</button>
+       <button class="action-btn" id="scheduleBtn">Schedule Release ▾</button>
+       <button class="action-btn" id="unlockBtn">Unlock Survey</button>`
+    : `<button class="action-btn success" id="lockBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Save and Finish Survey Creation</button>
+       <button class="action-btn danger" id="deleteDraftBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Delete Draft</button>`;
+
+  container.innerHTML = `
+    <div class="survey-panel" id="draftEditorPanel">
+      <div class="action-bar" style="margin-bottom:12px;">
+        <button class="action-btn primary" id="newStartBtn2">+ New Meeting Start Survey</button>
+        <button class="action-btn primary" id="newEndBtn2">+ New Meeting End Survey</button>
+        <div style="position:relative;">
+          <button class="action-btn" id="copyPastBtn2">Copy from Past Survey ▾</button>
+          <div class="dropdown-menu" id="copyPastMenu2" style="display:none;position:absolute;top:100%;left:0;width:300px;background:#1e293b;border:1px solid rgba(255,255,255,0.1);border-radius:8px;z-index:100;max-height:300px;overflow-y:auto;box-shadow:0 10px 25px rgba(0,0,0,0.5);"></div>
+        </div>
+        <button class="action-btn" onclick="openLockedDraftsModal()">Open Saved Draft</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);">
+          ${isLocked ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> LOCKED' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> DRAFT'} — ${isStart ? 'Meeting Start' : 'Meeting End'} Survey
+        </span>
+      </div>
+      <input class="draft-name-input" id="draftNameInput" value="${escHtml(survey.name || '')}" placeholder="Survey Name…" ${isLocked ? 'disabled' : ''}>
+      <div class="presence-chips" id="presenceChips"></div>
+      ${stationsHTML}
+      <span class="section-label">Questions</span>
+      <div id="questionsContainer">
+        ${questionsHTML}
+        ${isLocked ? '' : `<button class="action-btn" id="addQuestionBtn" style="margin-top:8px;">+ Add Question</button>`}
+      </div>
+      ${postNoteHTML}
+      <div class="action-bar" style="margin-top:24px;">
+        ${actionBtns}
+      </div>
+    </div>`;
+
+  // Bind action bar
+  const nb2 = document.getElementById('newStartBtn2');
+  const ne2 = document.getElementById('newEndBtn2');
+  const cp2 = document.getElementById('copyPastBtn2');
+  if (nb2) nb2.addEventListener('click', () => createNewDraft('meeting_start'));
+  if (ne2) ne2.addEventListener('click', () => createNewDraft('meeting_end'));
+  if (cp2) cp2.addEventListener('click', () => openCopyFromPastModal());
+
+  if (!isLocked) {
+    // Name editing
+    const nameInput = document.getElementById('draftNameInput');
+    let nameTimer;
+    nameInput.addEventListener('input', () => {
+      clearTimeout(nameTimer);
+      nameTimer = setTimeout(() => {
+        db.collection('surveys').doc(survey.id).update({ name: nameInput.value.trim() }).catch(e => console.error(e));
+      }, 600);
+    });
+
+    // Station management
+    if (isStart) {
+      document.querySelectorAll('.station-chip-x').forEach(btn => {
+        btn.addEventListener('click', () => {
+          db.collection('surveys').doc(survey.id).update({
+            stations: firebase.firestore.FieldValue.arrayRemove(btn.dataset.remove)
+          }).catch(e => console.error(e));
+        });
+      });
+      const addStBtn = document.getElementById('addStationBtn');
+      if (addStBtn) addStBtn.addEventListener('click', () => openAddStationModal(survey));
+    }
+
+    // Note editing
+    const postNoteInput = document.getElementById('postNoteInput');
+    let postTimer;
+    if (postNoteInput) {
+      postNoteInput.addEventListener('input', () => {
+        clearTimeout(postTimer);
+        postTimer = setTimeout(() => {
+          db.collection('surveys').doc(survey.id).update({ postNote: postNoteInput.value.trim() }).catch(e=>console.error(e));
+        }, 800);
+      });
+    }
+
+    // Question editing with presence
+    (survey.questions || []).forEach(q => bindSingleQuestionListeners(q, survey.id));
+
+    // Add question
+    const aqBtn = document.getElementById('addQuestionBtn');
+    if (aqBtn) {
+      aqBtn.addEventListener('click', () => {
+        const newQ = { id: genId(), type: 'text', text: '', editorUid: null };
+        const questions = [...(survey.questions || []), newQ];
+        db.collection('surveys').doc(survey.id).update({ questions }).catch(e => console.error(e));
+      });
+    }
+
+    // Lock
+    const lockBtn = document.getElementById('lockBtn');
+    if (lockBtn) {
+      lockBtn.addEventListener('click', () => {
+        openModal({
+          title: 'Save Survey',
+          sub: 'What would you like to do with this survey?',
+          actions: [
+            { label: 'Cancel', cls: '' },
+            { label: 'Save as Draft', cls: '', fn: async () => {
+                await db.collection('surveys').doc(survey.id).update({ status: 'scheduled', scheduledAt: null }).catch(e => console.error(e));
+                currentDraftId = null;
+                renderBuilderEmpty();
+            }},
+            { label: 'Schedule...', cls: 'confirm', fn: async () => {
+              openScheduleModal(survey);
+            }},
+            { label: 'Open Now', cls: 'success', fn: async () => {
+              await openSurveyNow(survey.id);
+            }}
+          ]
+        });
+      });
+    }
+
+    // Delete
+    const delBtn = document.getElementById('deleteDraftBtn');
+    if (delBtn) {
+      delBtn.addEventListener('click', () => {
+        openModal({
+          title: 'Delete Draft?',
+          sub: 'This will permanently delete the current draft survey.',
+          actions: [
+            { label: 'Cancel', cls: '' },
+            { label: 'Delete', cls: 'danger', fn: async () => {
+              await db.collection('surveys').doc(survey.id).delete().catch(e => console.error(e));
+              currentDraftId = null;
+              renderBuilderEmpty();
+            }}
+          ]
+        });
+      });
+    }
+  } else {
+    // Locked actions
+    const openNowBtn = document.getElementById('openNowBtn');
+    const scheduleBtn = document.getElementById('scheduleBtn');
+    const unlockBtn = document.getElementById('unlockBtn');
+
+    if (openNowBtn) {
+      openNowBtn.addEventListener('click', async () => {
+        await openSurveyNow(survey.id);
+      });
+    }
+    if (scheduleBtn) {
+      scheduleBtn.addEventListener('click', () => openScheduleModal(survey));
+    }
+    if (unlockBtn) {
+      unlockBtn.addEventListener('click', () => {
+        db.collection('surveys').doc(survey.id).update({ status: 'draft', scheduledAt: null }).catch(e => console.error(e));
+      });
+    }
+  }
+
+  renderSurveyBank();
+  startPresenceListener(survey.id);
+}
+
+function openScheduleModal(survey) {
+  const isStart = survey.type === 'meeting_start';
+  const chips = generateScheduleChips(isStart);
+  let selectedTime = null;
+
+  const chipsHTML = chips.map((c, i) => `
+    <div class="schedule-chip" data-idx="${i}" data-time="${c.iso}">${c.label}</div>`).join('');
+
+  openModal({
+    title: 'Schedule Release',
+    sub: isStart ? 'Select one of the upcoming Friday 1:00 PM slots, or pick a custom time.' : 'Select a Friday 2:00–3:00 PM slot, or pick a custom time.',
+    bodyHTML: `
+      <div class="schedule-chips">${chipsHTML}</div>
+      <span class="more-options-toggle" id="moreOptsToggle">More options ▾</span>
+      <div class="schedule-datetime" id="scheduleCustom">
+        <input type="datetime-local" id="customDatetime">
+      </div>`,
+    actions: [
+      { label: 'Cancel', cls: '' },
+      { label: 'Schedule', cls: 'confirm', fn: async () => {
+        const customInput = document.getElementById('customDatetime');
+        let finalTime = selectedTime;
+        if (!finalTime && customInput && customInput.value) {
+          finalTime = new Date(customInput.value);
+        }
+        if (!finalTime) { showErrorToast('Please select a time.'); return; }
+        await db.collection('surveys').doc(survey.id).update({
+          status: 'scheduled',
+          scheduledAt: firebase.firestore.Timestamp.fromDate(finalTime)
+        });
+        if (currentDraftId === survey.id) {
+          currentDraftId = null;
+          renderBuilderEmpty();
+        }
+        // Set timeout for this session
+        const diff = finalTime.getTime() - Date.now();
+        if (diff > 0) {
+          const tid = setTimeout(() => openSurveyNow(survey.id), diff);
+          scheduledSurveyTimeouts.push(tid);
+        } else {
+          openSurveyNow(survey.id);
+        }
+      }}
+    ]
+  });
+
+  // Wire chips after modal opens
+  setTimeout(() => {
+    document.querySelectorAll('.schedule-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.schedule-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        selectedTime = new Date(chip.dataset.time);
+      });
+    });
+    // Auto-select first chip for meeting_end
+    if (!isStart) {
+      const firstChip = document.querySelector('.schedule-chip');
+      if (firstChip) { firstChip.classList.add('selected'); selectedTime = new Date(firstChip.dataset.time); }
+    }
+    const toggle = document.getElementById('moreOptsToggle');
+    const custom = document.getElementById('scheduleCustom');
+    if (toggle && custom) {
+      toggle.addEventListener('click', () => {
+        custom.style.display = custom.style.display === 'block' ? 'none' : 'block';
+      });
+    }
+  }, 50);
+}
+
+function generateScheduleChips(isStart) {
+  const chips = [];
+  const now = new Date();
+  if (isStart) {
+    // Next 4 Fridays at 1:00 PM
+    let d = new Date(now);
+    let count = 0;
+    while (count < 4) {
+      d = nextDayOfWeek(d, 5); // Friday
+      d.setHours(13, 0, 0, 0);
+      chips.push({ label: formatChipDate(d), iso: d.toISOString() });
+      d = new Date(d.getTime() + 24 * 3600 * 1000); // advance past this Friday
+      count++;
+    }
+  } else {
+    // This coming Friday, 2:00–3:00 PM in 10-min intervals
+    let friday = nextDayOfWeek(new Date(now), 5);
+    for (let min = 120; min <= 180; min += 10) {
+      const t = new Date(friday);
+      t.setHours(Math.floor(min / 60) + 12, min % 60, 0, 0);
+      chips.push({ label: formatTime(t), iso: t.toISOString() });
+    }
+  }
+  return chips;
+}
+
+function nextDayOfWeek(from, dayOfWeek) {
+  const d = new Date(from);
+  const diff = (dayOfWeek - d.getDay() + 7) % 7 || 7;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+function formatChipDate(d) {
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + ' — ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function formatTime(d) {
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+async function openCopyFromPastModal() {
+  try {
+    const snap = await db.collection('surveys').where('status', '==', 'closed').get();
+    if (snap.empty) {
+      openModal({ title: 'No Past Surveys', sub: 'There are no closed surveys to copy from.', actions: [{ label: 'OK', cls: '' }] });
+      return;
+    }
+    const items = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b) => (b.closedAt?.toMillis()||0)-(a.closedAt?.toMillis()||0))
+      .slice(0, 10);
+    const listHTML = `<div class="copy-survey-list">${items.map(s => `
+      <div class="copy-survey-item" data-id="${s.id}">
+        <div class="csi-name">${escHtml(s.name || 'Unnamed Survey')}</div>
+        <div class="csi-meta">${s.type === 'meeting_start' ? 'Meeting Start' : 'Meeting End'} · ${s.closedAt ? formatDateShort(s.closedAt.toDate()) : ''}</div>
+      </div>`).join('')}</div>`;
+    openModal({
+      title: 'Copy from Past Survey',
+      sub: 'Select a past survey to copy its stations and questions.',
+      bodyHTML: listHTML,
+      actions: [{ label: 'Cancel', cls: '' }]
+    });
+    setTimeout(() => {
+      document.querySelectorAll('.copy-survey-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const found = items.find(s => s.id === item.dataset.id);
+          if (found) { closeModal(); createNewDraft(found.type, found); }
+        });
+      });
+    }, 50);
+  } catch(e) { console.error(e); }
+}
+
+/* ═══════════════════════════════════════════════
+   LIVE RESULTS
+═══════════════════════════════════════════════ */
+function renderLiveResults(surveyId, survey) {
+  if (unsubDraft) { unsubDraft(); unsubDraft = null; }
+  if (unsubResponses) { unsubResponses(); unsubResponses = null; }
+
+  const container = document.getElementById('surveyTabContent');
+  const isStart = survey.type === 'meeting_start';
+
+  container.innerHTML = `
+    <div class="survey-panel" id="liveResultsPanel">
+      <div class="live-banner">
+        <span class="pulse-dot"></span>
+        <h4>LIVE — ${escHtml(survey.name || 'Survey')}</h4>
+        <span class="response-count" id="responseCountLabel">0 responses</span>
+      </div>
+      <div class="action-bar">
+        <button class="action-btn danger" id="closeSurveyBtn">Close Survey</button>
+        <button class="action-btn" id="viewRawBtn">View Raw Responses</button>
+      </div>
+      <div id="liveResultsBody" style="margin-top:16px;"></div>
+    </div>
+    <div id="surveyBankContainer"></div>`;
+
+  document.getElementById('closeSurveyBtn').addEventListener('click', () => {
+    openModal({
+      title: 'Close Survey?',
+      sub: 'This will stop accepting responses. For Meeting Start surveys, an assignment page will be created.',
+      actions: [
+        { label: 'Cancel', cls: '' },
+        { label: 'Close Survey', cls: 'danger', fn: async () => {
+          await closeSurveyAndCreatePage(surveyId, survey);
+        }}
+      ]
+    });
+  });
+
+  document.getElementById('viewRawBtn').addEventListener('click', async () => {
+    try {
+      const snap = await db.collection('surveys').doc(surveyId).collection('responses').get();
+      if (snap.empty) {
+        openModal({ title: 'Raw Responses', sub: 'No responses yet.', actions: [{ label: 'Close', cls: '' }] });
+        return;
+      }
+      const questions = survey.questions || [];
+      const isStart = survey.type === 'meeting_start';
+
+      // Header row
+      const headers = ['Name', 'Email'];
+      if (isStart) headers.push('Station');
+      questions.forEach((q, i) => headers.push(`Q${i+1}: ${q.text || `Question ${i+1}`}`));
+
+      const rows = snap.docs
+        .map(d => ({ uid: d.id, ...d.data() }))
+        .sort((a, b) => (a.userName || '').localeCompare(b.userName || ''));
+
+      const personCards = rows.map((r, ri) => {
+        const meta = [r.userEmail, isStart && r.stationId ? `Station: ${r.stationId}` : null].filter(Boolean).map(escHtml).join(' · ');
+        const qna = questions.map((q, i) => {
+          const ans = (r.textAnswers && r.textAnswers[q.id]) || '—';
+          return `
+            <div style="margin-bottom:14px;">
+              <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:5px;">Q${i+1}: ${escHtml(q.text || `Question ${i+1}`)}</div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.88);line-height:1.6;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;background:rgba(0,0,0,0.2);padding:10px 12px;border-radius:8px;">${escHtml(ans)}</div>
+            </div>`;
+        }).join('');
+        const divider = ri < rows.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:20px;padding-bottom:20px;' : '';
+        return `
+          <div style="${divider}">
+            <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+              <span style="font-size:15px;font-weight:700;color:#fff;">${escHtml(r.userName || 'Anonymous')}</span>
+              <span style="font-size:11px;color:rgba(255,255,255,0.4);">${meta}</span>
+            </div>
+            ${qna || '<div style="font-size:13px;color:rgba(255,255,255,0.3);">No answers.</div>'}
+          </div>`;
+      }).join('');
+
+      const bodyHTML = `<div style="overflow-y:auto;max-height:68vh;padding-right:4px;">${personCards}</div>`;
+
+      openModal({
+        title: 'Raw Responses',
+        sub: `${rows.length} response${rows.length !== 1 ? 's' : ''} · ${questions.length} question${questions.length !== 1 ? 's' : ''}`,
+        bodyHTML,
+        actions: [{ label: 'Close', cls: '' }]
+      });
+      setTimeout(() => {
+        const box = document.getElementById('globalModalBox');
+        if (box) { box.style.maxWidth = 'min(95vw, 720px)'; box.style.width = '95vw'; }
+      }, 10);
+    } catch(e) { console.error(e); }
+  });
+
+  // Real-time responses
+  unsubResponses = db.collection('surveys').doc(surveyId).collection('responses').onSnapshot(snap => {
+    const responses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    document.getElementById('responseCountLabel').textContent = `${responses.length} response${responses.length !== 1 ? 's' : ''}`;
+    renderLiveResultsBody(responses, survey, document.getElementById('liveResultsBody'));
+  }, err => console.error(err));
+
+  renderSurveyBank();
+}
+
+window.viewStudentResponses = function(payloadEncoded) {
+  let data;
+  try { data = JSON.parse(decodeURIComponent(payloadEncoded)); } catch(e) { return; }
+  const { name, answers, questions } = data;
+  const qnaHTML = (questions || []).map((q, i) => {
+    const ans = (answers && answers[q.id]) || '—';
+    return `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Q${i+1}: ${escHtml(q.text || '')}</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.9);line-height:1.6;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;background:rgba(0,0,0,0.2);padding:12px;border-radius:8px;">${escHtml(ans)}</div>
+      </div>`;
+  }).join('') || '<div style="color:rgba(255,255,255,0.4);">No responses recorded.</div>';
+  openModal({
+    title: (name || 'Unknown') + '\'s Responses',
+    bodyHTML: `<div style="max-height:70vh;overflow-y:auto;">${qnaHTML}</div>`,
+    actions: [{ label: 'Close', cls: '' }]
+  });
+};
+
+window.viewFullAnswer = function(name, question, answerRaw) {
+  openModal({
+    title: name + '\'s Answer',
+    sub: question,
+    bodyHTML: `<div style="font-size:15px;color:rgba(255,255,255,0.9);line-height:1.6;white-space:pre-wrap;background:rgba(0,0,0,0.2);padding:16px;border-radius:8px;">${escHtml(decodeURIComponent(answerRaw))}</div>`,
+    actions: [{ label: 'Close', cls: '' }]
+  });
+};
+
+function renderLiveResultsBody(responses, survey, container) {
+  if (!container) return;
+  const isStart = survey.type === 'meeting_start';
+  const questions = survey.questions || [];
+
+  if (isStart) {
+    const stations = survey.stations || [];
+    const cols = stations.map(s => {
+      const respondents = responses.filter(r => r.stationId === s);
+      const nameItems = respondents.map(r => {
+        const name = escHtml(r.userName || r.userEmail || 'Anonymous');
+        const payload = encodeURIComponent(JSON.stringify({ name: r.userName || r.userEmail || 'Anonymous', answers: r.textAnswers || {}, questions }));
+        return `
+          <div class="station-result-name" onclick="viewStudentResponses('${payload}')" style="padding:10px 12px;margin-bottom:6px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);cursor:pointer;transition:background 0.18s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+            <div style="font-weight:600;font-size:14px;color:#fff;">${name}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Click to view responses</div>
+          </div>`;
+      }).join('');
+      return `
+        <div class="station-result-col" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px;flex:1;min-width:300px;">
+          <h5 style="font-size:16px;color:#10b981;margin-bottom:4px;">${escHtml(s)}</h5>
+          <div class="station-result-count" style="margin-bottom:16px;">${respondents.length} respondent${respondents.length !== 1 ? 's' : ''}</div>
+          ${nameItems || '<div style="font-size:13px;color:rgba(255,255,255,0.3);">No responses yet.</div>'}
+        </div>`;
+    }).join('');
+    container.innerHTML = `<div class="stations-results-grid" style="display:flex;flex-wrap:wrap;gap:16px;">${cols}</div>`;
+  } else {
+    // Meeting End — name cards only, click to view responses
+    if (responses.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);">No responses yet.</div>';
+      return;
+    }
+    const sorted = responses.slice().sort((a, b) => (a.userName || '').localeCompare(b.userName || ''));
+    const nameCards = sorted.map(r => {
+      const name = escHtml(r.userName || r.userEmail || 'Anonymous');
+      const payload = encodeURIComponent(JSON.stringify({ name: r.userName || r.userEmail || 'Anonymous', answers: r.textAnswers || {}, questions }));
+      return `
+        <div onclick="viewStudentResponses('${payload}')" style="padding:10px 14px;margin-bottom:8px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);cursor:pointer;transition:background 0.18s;display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+          <span style="font-weight:600;font-size:14px;color:#fff;">${name}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.35);">View responses →</span>
+        </div>`;
+    }).join('');
+    container.innerHTML = `
+      <div style="max-width:520px;">
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:12px;">${sorted.length} respondent${sorted.length !== 1 ? 's' : ''}</div>
+        ${nameCards}
+      </div>`;
+  }
+}
+
+async function closeSurveyAndCreatePage(surveyId, survey) {
+  try {
+    await db.collection('surveys').doc(surveyId).update({
+      status: 'closed',
+      closedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // For meeting_start: create assignment_pages doc
+    if (survey.type === 'meeting_start') {
+      const respSnap = await db.collection('surveys').doc(surveyId).collection('responses').get();
+      const columns = {};
+      (survey.stations || []).forEach(s => { columns[s] = []; });
+      respSnap.forEach(d => {
+        const data = d.data();
+        if (data.stationId && columns[data.stationId] !== undefined) {
+          columns[data.stationId].push({ uid: d.id, name: data.userName || data.userEmail || 'Anonymous' });
+        }
+      });
+      await db.collection('assignment_pages').add({
+        surveyId,
+        surveyName: survey.name || 'Meeting Start Survey',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        finalized: false,
+        columns
+      });
+      showErrorToast('Survey closed! Assignment page created.');
+    }
+  } catch(e) { console.error(e); showErrorToast('Error closing survey.'); }
+}
+
+/* ═══════════════════════════════════════════════
+   SURVEY BANK
+═══════════════════════════════════════════════ */
+function renderSurveyBankItems(surveys) {
+  const container = document.getElementById('surveyBankContainer');
+  if (!container) return;
+  if (!surveys || !surveys.length) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = `
+    <h3 style="margin-bottom:16px;">Past Surveys</h3>
+    ${surveys.map(buildSurveyBankItemHTML).join('')}
+  `;
+  bindSurveyBankEvents(surveys);
+}
+
+function buildSurveyBankItemHTML(survey) {
+  return `
+    <div class="survey-bank-item" id="bankItem_${survey.id}">
+      <div class="survey-bank-header" style="cursor:default;">
+        <div class="survey-bank-header-left">
+          <div>
+            <div class="survey-bank-title" id="bankTitle_${survey.id}">${escHtml(survey.name || 'Survey')}</div>
+            <div class="survey-bank-type">${survey.type === 'meeting_start' ? 'Meeting Start' : 'Meeting End'} · Closed ${survey.closedAt ? formatDateShort(survey.closedAt.toDate()) : ''}</div>
+          </div>
+        </div>
+        <div class="survey-bank-actions">
+          <button class="bank-action-btn" onclick="openPastSurveyModal('${survey.id}')">View</button>
+          <button class="bank-action-btn" onclick="openRawResponses('${survey.id}')">Raw Responses</button>
+          <button class="bank-action-btn" id="bankRename_${survey.id}">Rename</button>
+          <button class="bank-action-btn" id="bankReopen_${survey.id}">Reopen</button>
+          <button class="bank-action-btn" id="bankDelete_${survey.id}" style="color:#ef4444;" title="Delete Survey"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function bindSurveyBankEvents(surveys) {
+  surveys.forEach(survey => {
+    const renameBtn = document.getElementById('bankRename_' + survey.id);
+    const reopenBtn = document.getElementById('bankReopen_' + survey.id);
+    const deleteBtn = document.getElementById('bankDelete_' + survey.id);
+
+    if (renameBtn) {
+      renameBtn.addEventListener('click', e => {
+        openModal({
+          title: 'Rename Survey',
+          bodyHTML: `<input id="bankRenameInput" type="text" value="${escHtml(survey.name || '')}" style="width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;padding:12px 16px;font-size:14px;font-family:inherit;outline:none;">`,
+          actions: [
+            { label: 'Cancel', cls: '' },
+            { label: 'Save', cls: 'confirm', fn: async () => {
+              const val = document.getElementById('bankRenameInput')?.value.trim();
+              if (val) await db.collection('surveys').doc(survey.id).update({ name: val });
+            }}
+          ]
+        });
+        setTimeout(() => { const el = document.getElementById('bankRenameInput'); if (el) el.focus(); }, 100);
+      });
+    }
+
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', e => {
+        openModal({
+          title: 'Delete Survey',
+          sub: 'Are you sure you want to permanently delete this survey? All associated student responses will be lost. This cannot be undone.',
+          actions: [
+            { label: 'Cancel', cls: '' },
+            { label: 'Delete', cls: 'danger', fn: async () => {
+              try { await db.collection('surveys').doc(survey.id).delete(); } catch(err) { console.error('Error deleting survey:', err); }
+            }}
+          ]
+        });
+      });
+    }
+
+    if (reopenBtn) {
+      reopenBtn.addEventListener('click', async e => {
+        openModal({
+          title: 'Reopen Survey?',
+          sub: 'This will close any currently active survey and reopen this one.',
+          actions: [
+            { label: 'Cancel', cls: '' },
+            { label: 'Reopen', cls: 'confirm', fn: async () => {
+              const activeDrafts = await db.collection('surveys').where('status', 'in', ['active', 'draft', 'scheduled']).get();
+              const batch = db.batch();
+              activeDrafts.forEach(d => {
+                if (d.data().status === 'active') {
+                  batch.update(d.ref, { status: 'closed', closedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                }
+              });
+              batch.update(db.collection('surveys').doc(survey.id), { status: 'active', openedAt: firebase.firestore.FieldValue.serverTimestamp() });
+              await batch.commit();
+            }}
+          ]
+        });
+      });
+    }
+  });
+}
+
+window.openRawResponses = async function(surveyId) {
+  try {
+    const [surveyDoc, respSnap] = await Promise.all([
+      db.collection('surveys').doc(surveyId).get(),
+      db.collection('surveys').doc(surveyId).collection('responses').get()
+    ]);
+    if (!surveyDoc.exists) return;
+    const survey = surveyDoc.data();
+    const questions = survey.questions || [];
+    const isStart = survey.type === 'meeting_start';
+
+    if (respSnap.empty) {
+      openModal({ title: 'Raw Responses', sub: 'No responses recorded for this survey.', actions: [{ label: 'Close', cls: '' }] });
+      return;
+    }
+
+    const rows = respSnap.docs
+      .map(d => ({ uid: d.id, ...d.data() }))
+      .sort((a, b) => (a.userName || '').localeCompare(b.userName || ''));
+
+    const personCards = rows.map((r, ri) => {
+      const meta = [r.userEmail, isStart && r.stationId ? `Station: ${r.stationId}` : null].filter(Boolean).map(escHtml).join(' · ');
+      const qna = questions.map((q, i) => {
+        const ans = (r.textAnswers && r.textAnswers[q.id]) || '—';
+        return `
+          <div style="margin-bottom:14px;">
+            <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:5px;">Q${i+1}: ${escHtml(q.text || `Question ${i+1}`)}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.88);line-height:1.6;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;background:rgba(0,0,0,0.2);padding:10px 12px;border-radius:8px;">${escHtml(ans)}</div>
+          </div>`;
+      }).join('');
+      const divider = ri < rows.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:20px;padding-bottom:20px;' : '';
+      return `
+        <div style="${divider}">
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+            <span style="font-size:15px;font-weight:700;color:#fff;">${escHtml(r.userName || 'Anonymous')}</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.4);">${meta}</span>
+          </div>
+          ${qna || '<div style="font-size:13px;color:rgba(255,255,255,0.3);">No answers.</div>'}
+        </div>`;
+    }).join('');
+
+    openModal({
+      title: 'Raw Responses',
+      sub: `${escHtml(survey.name || 'Survey')} · ${rows.length} response${rows.length !== 1 ? 's' : ''}`,
+      bodyHTML: `<div style="overflow-y:auto;max-height:68vh;padding-right:4px;">${personCards}</div>`,
+      actions: [{ label: 'Close', cls: '' }]
+    });
+    setTimeout(() => {
+      const box = document.getElementById('globalModalBox');
+      if (box) { box.style.maxWidth = 'min(95vw, 720px)'; box.style.width = '95vw'; }
+    }, 10);
+  } catch(e) { console.error(e); }
+};
+
+window.openPastSurveyModal = async function(id) {
+  try {
+    const doc = await db.collection('surveys').doc(id).get();
+    if (!doc.exists) return;
+    const data = doc.data();
+    
+    let stationsHTML = '';
+    if (data.type === 'meeting_start' && data.stations && data.stations.length > 0) {
+      stationsHTML = `<div style="margin-bottom:20px;">
+        <span class="section-label">Stations</span>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${data.stations.map(s => `<div class="station-chip">${escHtml(s)}</div>`).join('')}
+        </div>
+      </div>`;
+    }
+
+    let questionsHTML = '';
+    if (data.questions && data.questions.length > 0) {
+      questionsHTML = `<div style="margin-bottom:20px;">
+        <span class="section-label">Questions</span>
+        ${data.questions.map((q, i) => `
+          <div style="background:rgba(255,255,255,0.05);padding:12px 16px;border-radius:8px;margin-bottom:8px;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;">Question ${i+1}</div>
+            <div style="font-size:15px;color:#fff;">${escHtml(q.text || '')}</div>
+          </div>
+        `).join('')}
+      </div>`;
+    }
+
+    const postNoteHTML = data.postNote ? `
+      <div style="margin-bottom:20px;">
+        <span class="section-label">Post-Survey Note</span>
+        <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px 16px;border-radius:8px;color:#fff;font-size:14px;">
+          ${escHtml(data.postNote)}
+        </div>
+      </div>
+    ` : '';
+
+    openModal({
+      title: data.name || 'Survey Info',
+      bodyHTML: `
+        <div style="text-align:left;max-height:60vh;overflow-y:auto;padding-right:8px;">
+          ${stationsHTML}
+          ${questionsHTML}
+          ${postNoteHTML}
+        </div>
+      `,
+      actions: [
+        { label: 'Close', cls: '' }
+      ]
+    });
+  } catch(e) { console.error(e); }
+};
+
+/* ═══════════════════════════════════════════════
+   PRESENCE SYSTEM
+═══════════════════════════════════════════════ */
+const LEADER_COLORS = ['#6366f1','#f59e0b','#10b981','#ec4899','#3b82f6','#ef4444','#8b5cf6','#14b8a6'];
+const leaderColorMap = {};
+function getLeaderColor(uid) {
+  if (!leaderColorMap[uid]) {
+    const keys = Object.keys(leaderColorMap);
+    leaderColorMap[uid] = LEADER_COLORS[keys.length % LEADER_COLORS.length];
+  }
+  return leaderColorMap[uid];
+}
+
+let currentLeaderView = 'l-view-main';
+let unsubSidebarPresence = null;
+
+async function startPresence() {
+  if (!currentUser) return;
+  await updatePresence({ editingQuestionId: null, currentView: currentLeaderView });
+  presenceInterval = setInterval(() => updatePresence({}), 30000);
+  startSidebarPresenceListener();
+}
+
+async function updatePresence(extra = {}) {
+  if (!currentUser) return;
+  if (extra.currentView !== undefined) currentLeaderView = extra.currentView;
+  try {
+    await db.collection('presence').doc(currentUser.uid).set({
+      displayName: currentUserName || currentUser.email || 'Leader',
+      surveyId: currentDraftId || null,
+      editingQuestionId: extra.editingQuestionId !== undefined ? extra.editingQuestionId : (currentEditingQuestionId || null),
+      currentView: currentLeaderView,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch(e) { console.error(e); }
+}
+
+function startSidebarPresenceListener() {
+  if (unsubSidebarPresence) { unsubSidebarPresence(); unsubSidebarPresence = null; }
+  unsubSidebarPresence = db.collection('presence').onSnapshot(snap => {
+    const now = Date.now();
+    const byTab = {};
+    snap.forEach(d => {
+      if (d.id === currentUser?.uid) return;
+      const data = d.data();
+      if (!data.lastSeen || !data.currentView) return;
+      if (now - data.lastSeen.toDate().getTime() > 90000) return;
+      if (!byTab[data.currentView]) byTab[data.currentView] = [];
+      byTab[data.currentView].push({ uid: d.id, name: data.displayName || 'Leader' });
+    });
+    document.querySelectorAll('.ltp[data-lto]').forEach(tab => {
+      const view = tab.getAttribute('data-lto');
+      let avatarWrap = tab.querySelector('.ltp-avatars');
+      if (!avatarWrap) {
+        avatarWrap = document.createElement('div');
+        avatarWrap.className = 'ltp-avatars';
+        tab.appendChild(avatarWrap);
+      }
+      const leaders = byTab[view] || [];
+      avatarWrap.innerHTML = leaders.slice(0, 4).map(l => {
+        const color = getLeaderColor(l.uid);
+        const initial = (l.name || '?')[0].toUpperCase();
+        return `<div class="ltp-avatar" style="background:${color};" title="${escHtml(l.name)}">${initial}</div>`;
+      }).join('');
+    });
+  }, err => console.error(err));
+}
+
+function startPresenceListener(surveyId) {
+  if (unsubPresence) { unsubPresence(); unsubPresence = null; }
+  unsubPresence = db.collection('presence').onSnapshot(snap => {
+    const now = Date.now();
+    const others = [];
+    snap.forEach(d => {
+      if (d.id === currentUser?.uid) return;
+      const data = d.data();
+      if (data.surveyId !== surveyId) return;
+      if (!data.lastSeen) return;
+      const lastSeenMs = data.lastSeen.toDate().getTime();
+      if (now - lastSeenMs > 60000) return;
+      others.push({ uid: d.id, ...data });
+    });
+
+    // Update presence chips with colors
+    const presenceChips = document.getElementById('presenceChips');
+    if (presenceChips) {
+      presenceChips.innerHTML = others.map(o => {
+        const color = getLeaderColor(o.uid);
+        return `<div class="presence-chip" style="border-color:${color}40;background:${color}18;">
+          <div class="presence-chip-dot" style="background:${color};"></div>
+          <span style="color:${color};">${escHtml(o.displayName || 'Leader')}</span>
+        </div>`;
+      }).join('');
+    }
+
+    // Build map: questionId → list of leaders editing it
+    const editingMap = {};
+    others.forEach(o => {
+      if (o.editingQuestionId) {
+        if (!editingMap[o.editingQuestionId]) editingMap[o.editingQuestionId] = [];
+        editingMap[o.editingQuestionId].push(o);
+      }
+    });
+
+    // Update question editing overlays with colors
+    Object.entries(editingMap).forEach(([qid, editors]) => {
+      const card = document.getElementById('qcard_' + qid);
+      const overlay = document.getElementById('qeditor_' + qid);
+      if (card) {
+        const borderColor = getLeaderColor(editors[0].uid);
+        card.classList.add('being-edited');
+        card.style.borderColor = borderColor + '80';
+        card.style.boxShadow = `0 0 0 2px ${borderColor}33`;
+      }
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.innerHTML = editors.map(o => {
+          const color = getLeaderColor(o.uid);
+          const initial = (o.displayName || '?')[0].toUpperCase();
+          return `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:8px;padding:2px 8px;border-radius:100px;background:${color};color:#fff;font-size:11px;font-weight:600;">
+            <span style="font-size:12px;">${initial}</span>
+            ${escHtml(o.displayName || 'Someone')} is editing
+          </span>`;
+        }).join('');
+      }
+    });
+
+    // Clear overlays for questions nobody is editing
+    document.querySelectorAll('.question-card').forEach(card => {
+      const qid = card.dataset.qid;
+      if (!editingMap[qid]) {
+        card.classList.remove('being-edited');
+        card.style.borderColor = '';
+        card.style.boxShadow = '';
+        const ov = document.getElementById('qeditor_' + qid);
+        if (ov) { ov.style.display = 'none'; ov.innerHTML = ''; }
+      }
+    });
+  }, err => console.error(err));
+}
+
+/* ═══════════════════════════════════════════════
+   TRACKER TAB
+═══════════════════════════════════════════════ */
+let unsubAssignmentPages = null;
+let currentPageId = null;
+let currentPageData = null;
+let dragSrcName = null;
+let dragSrcStation = null;
+
+function initTrackerTab() {
+  if (unsubAssignmentPages) { unsubAssignmentPages(); unsubAssignmentPages = null; }
+  const container = document.getElementById('trackerTabContent');
+  container.innerHTML = '<div class="loading-placeholder" style="padding:40px;">Loading tracker…</div>';
+
+  unsubAssignmentPages = db.collection('assignment_pages')
+    .where('finalized', '==', false)
+    .onSnapshot(snap => {
+      if (snap.empty) {
+        renderTrackerEmpty(container);
+      } else {
+        // Sort client-side, take most recent
+        const docs = snap.docs.slice().sort((a,b)=>(b.data().createdAt?.toMillis()||0)-(a.data().createdAt?.toMillis()||0));
+        const doc = docs[0];
+        currentPageId = doc.id;
+        currentPageData = { id: doc.id, ...doc.data() };
+        renderActiveAssignmentPage(container, currentPageData);
+      }
+    }, err => { console.error(err); renderTrackerEmpty(container); });
+
+  leaderListeners.push(() => { if (unsubAssignmentPages) unsubAssignmentPages(); });
+  renderPastAssignmentPages(container);
+}
+
+function renderTrackerEmpty(container) {
+  container.innerHTML = `
+    <div class="survey-panel" style="text-align:center;max-width:600px;margin:0 auto;">
+      <h4 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:8px;">Meeting Assignments</h4>
+      <p style="font-size:14px;color:rgba(255,255,255,0.4);">No active assignment page yet. Close a Meeting Start survey to create one.</p>
+    </div>
+    <div id="pastPagesContainer"></div>`;
+  renderPastAssignmentPages(container);
+}
+
+function renderActiveAssignmentPage(container, page) {
+  const stations = Object.keys(page.columns || {});
+
+  const columnsHTML = stations.map(station => {
+    const members = page.columns[station] || [];
+    const cardsHTML = members.map(m => `
+      <div class="name-card" draggable="true" data-uid="${m.uid}" data-name="${escHtml(m.name)}" data-station="${escHtml(station)}">
+        <div class="nc-avatar">${(m.name || '?')[0].toUpperCase()}</div>
+        <span>${escHtml(m.name || 'Anonymous')}</span>
+      </div>`).join('');
+    return `
+      <div class="tracker-column" data-station="${escHtml(station)}" id="col_${escHtml(station).replace(/\s+/g,'_')}">
+        <h5>${escHtml(station)}</h5>
+        <div class="col-cards">${cardsHTML}</div>
+      </div>`;
+  }).join('');
+
+  const existingWrapper = container.querySelector('#trackerColumnsWrapper');
+  if (existingWrapper) {
+    existingWrapper.innerHTML = columnsHTML;
+    const titleEl = container.querySelector('#trackerTopTitle');
+    if (titleEl) titleEl.textContent = page.surveyName || 'Meeting Start';
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="survey-panel">
+      <div class="tracker-top-bar">
+        <div>
+          <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Assignment Page</div>
+          <h4 id="trackerTopTitle">${escHtml(page.surveyName || 'Meeting Start')}</h4>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="action-btn" id="fullscreenBtn">⛶ Full Screen</button>
+          <button class="action-btn success" id="finalizeBtn">Finalize</button>
+        </div>
+      </div>
+      <p style="font-size:13px;color:rgba(34,197,94,0.8);margin-bottom:20px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#10b981;vertical-align:-3px;margin-right:6px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Results published. Drag names between columns to reassign stations.</p>
+      <div class="tracker-columns-wrapper" id="trackerColumnsWrapper">
+        ${columnsHTML}
+      </div>
+    </div>
+    <div id="pastPagesContainer"></div>`;
+
+  // Full screen
+  document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    const wrapper = document.getElementById('trackerColumnsWrapper');
+    if (wrapper && wrapper.requestFullscreen) wrapper.requestFullscreen().catch(e => console.error(e));
+  });
+
+  // Finalize uses a global function to prevent scoping/DOM recreation issues
+  document.getElementById('finalizeBtn').addEventListener('click', () => {
+    openModal({
+      title: 'Finalize Assignment Page?',
+      sub: 'This will move the page to the Past Assignment Pages bank. You won\'t be able to edit it.',
+      actions: [
+        { label: 'Cancel', cls: '' },
+        { label: 'Finalize', cls: 'confirm', fn: async () => {
+          if (!currentPageId) return;
+          try {
+            await db.collection('assignment_pages').doc(currentPageId).update({ finalized: true });
+          } catch(e) { console.error('Error finalizing assignment page:', e); }
+        }}
+      ]
+    });
+  });
+
+  // Drag and drop
+  bindDragAndDrop(page);
+  renderPastAssignmentPages(container);
+}
+
+function bindDragAndDrop(page) {
+  const wrapper = document.getElementById('trackerColumnsWrapper');
+  if (!wrapper) return;
+
+  wrapper.addEventListener('dragstart', e => {
+    const card = e.target.closest('.name-card');
+    if (!card) return;
+    dragSrcName = { uid: card.dataset.uid, name: card.dataset.name };
+    dragSrcStation = card.dataset.station;
+    setTimeout(() => card.classList.add('dragging'), 0);
+    e.dataTransfer.effectAllowed = 'move';
+  });
+
+  wrapper.addEventListener('dragend', e => {
+    const card = e.target.closest('.name-card');
+    if (card) card.classList.remove('dragging');
+    wrapper.querySelectorAll('.tracker-column').forEach(col => col.classList.remove('drag-over'));
+  });
+
+  wrapper.addEventListener('dragover', e => {
+    e.preventDefault();
+    const col = e.target.closest('.tracker-column');
+    if (col) {
+      wrapper.querySelectorAll('.tracker-column').forEach(c => c.classList.remove('drag-over'));
+      col.classList.add('drag-over');
+    }
+    e.dataTransfer.dropEffect = 'move';
+  });
+
+  wrapper.addEventListener('dragleave', e => {
+    const col = e.target.closest('.tracker-column');
+    if (col && !col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+  });
+
+  wrapper.addEventListener('drop', async e => {
+    e.preventDefault();
+    const col = e.target.closest('.tracker-column');
+    if (!col || !dragSrcName || !dragSrcStation || !currentPageData) return;
+    const destStation = col.dataset.station;
+    if (destStation === dragSrcStation) return;
+    col.classList.remove('drag-over');
+
+    // Update local data from the LATEST state (currentPageData), not the stale closure
+    const newColumns = JSON.parse(JSON.stringify(currentPageData.columns || {}));
+    
+    // Remove from source
+    if (newColumns[dragSrcStation]) {
+      newColumns[dragSrcStation] = newColumns[dragSrcStation].filter(m => m.uid !== dragSrcName.uid);
+    }
+    // Add to dest
+    if (!newColumns[destStation]) newColumns[destStation] = [];
+    if (!newColumns[destStation].find(m => m.uid === dragSrcName.uid)) {
+      newColumns[destStation].push({ uid: dragSrcName.uid, name: dragSrcName.name });
+    }
+
+    try {
+      await db.collection('assignment_pages').doc(page.id).update({ columns: newColumns });
+    } catch(e) { console.error(e); showErrorToast('Error saving assignment.'); }
+  });
+}
+
+function renderPastAssignmentPages(parentContainer) {
+  let pastEl = document.getElementById('pastPagesContainer');
+  if (!pastEl) {
+    pastEl = document.createElement('div');
+    pastEl.id = 'pastPagesContainer';
+    parentContainer.appendChild(pastEl);
+  }
+
+  db.collection('assignment_pages').where('finalized', '==', true)
+    .get().then(snap => {
+      if (snap.empty) { pastEl.innerHTML = ''; return; }
+      const pages = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a,b) => (b.createdAt?.toMillis()||0)-(a.createdAt?.toMillis()||0))
+        .slice(0, 20);
+      pastEl.innerHTML = `
+        <div style="margin-top:28px;">
+          <span class="section-label" style="margin-bottom:16px;">Past Assignment Pages</span>
+          ${pages.map(p => `
+            <div class="assignment-bank-item" id="apage_${p.id}">
+              <div class="assignment-bank-header">
+                <div style="font-size:14px;font-weight:600;">${escHtml(p.surveyName || 'Assignment Page')} <span style="font-size:11px;color:rgba(255,255,255,0.4);">· ${p.createdAt ? formatDateShort(p.createdAt.toDate()) : ''}</span></div>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <button class="bank-action-btn" id="delPage_${p.id}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                  <span style="color:rgba(255,255,255,0.3);cursor:pointer;font-size:14px;" id="pageExpand_${p.id}">▾</span>
+                </div>
+              </div>
+              <div class="assignment-bank-body" id="pageBody_${p.id}"></div>
+            </div>`).join('')}
+          <div style="margin-top:20px;text-align:right;">
+            <button class="bank-action-btn" id="clearOldPagesBtn">Clear pages older than 9 months</button>
+          </div>
+        </div>`;
+
+      pages.forEach(p => {
+        const header = document.querySelector(`#apage_${p.id} .assignment-bank-header`);
+        const body = document.getElementById('pageBody_' + p.id);
+        const expandBtn = document.getElementById('pageExpand_' + p.id);
+        const delBtn = document.getElementById('delPage_' + p.id);
+
+        if (header) {
+          header.addEventListener('click', (e) => {
+            if (e.target.closest('button')) return;
+            if (body.classList.contains('open')) {
+              body.classList.remove('open');
+              if (expandBtn) expandBtn.textContent = '▾';
+            } else {
+              body.classList.add('open');
+              if (expandBtn) expandBtn.textContent = '▴';
+              const stations = Object.keys(p.columns || {});
+              const cols = stations.map(s => {
+                const members = p.columns[s] || [];
+                return `<div class="readonly-col">
+                  <h6>${escHtml(s)}</h6>
+                  ${members.map(m => `<div class="readonly-name">• ${escHtml(m.name || 'Anonymous')}</div>`).join('') || '<div class="readonly-name" style="color:rgba(255,255,255,0.3);">—</div>'}
+                </div>`;
+              }).join('');
+              body.innerHTML = `<div class="readonly-columns">${cols}</div>`;
+            }
+          });
+        }
+
+        if (delBtn) {
+          delBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            openModal({
+              title: 'Delete Assignment Page?',
+              sub: 'This cannot be undone.',
+              actions: [
+                { label: 'Cancel', cls: '' },
+                { label: 'Delete', cls: 'danger', fn: async () => {
+                  await db.collection('assignment_pages').doc(p.id).delete();
+                  renderPastAssignmentPages(parentContainer);
+                }}
+              ]
+            });
+          });
+        }
+      });
+
+      const clearBtn = document.getElementById('clearOldPagesBtn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          openModal({
+            title: 'Clear Old Pages?',
+            sub: 'This will permanently delete all finalized assignment pages older than 9 months.',
+            actions: [
+              { label: 'Cancel', cls: '' },
+              { label: 'Clear', cls: 'danger', fn: async () => {
+                const nineMonthsAgo = new Date();
+                nineMonthsAgo.setMonth(nineMonthsAgo.getMonth() - 9);
+                const oldSnap = await db.collection('assignment_pages').where('finalized', '==', true)
+                  .where('createdAt', '<', firebase.firestore.Timestamp.fromDate(nineMonthsAgo)).get();
+                const batch = db.batch();
+                oldSnap.forEach(d => batch.delete(d.ref));
+                await batch.commit();
+                renderPastAssignmentPages(parentContainer);
+              }}
+            ]
+          });
+        });
+      }
+    }).catch(e => console.error(e));
+}
+
+/* ═══════════════════════════════════════════════
+   REQUESTS TAB
+═══════════════════════════════════════════════ */
+function initRequestsTab() {
+  const container = document.getElementById('l-view-requests');
+  if (!container) return;
+  container.innerHTML = '<div class="loading-placeholder" style="padding:40px;">Loading requests…</div>';
+
+  if (unsubRequests) { unsubRequests(); unsubRequests = null; }
+
+  unsubRequests = db.collection('requests')
+    .orderBy('submittedAt', 'desc')
+    .onSnapshot(snap => {
+      cachedRequests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const currentFilter = container.dataset.reqFilter || 'all';
+      renderRequests(cachedRequests, currentFilter);
+    }, err => {
+      console.error(err);
+      container.innerHTML = '<div class="loading-placeholder">Error loading requests.</div>';
+    });
+
+}
+
+function renderRequests(requests, filter = 'all') {
+  const container = document.getElementById('l-view-requests');
+  if (!container) return;
+  container.dataset.reqFilter = filter;
+
+  const counts = {
+    all: requests.length,
+    pending: requests.filter(r => (r.status || 'pending') === 'pending').length,
+    'in-progress': requests.filter(r => r.status === 'in-progress').length,
+    fulfilled: requests.filter(r => r.status === 'fulfilled').length
+  };
+
+  const filtered = filter === 'all' ? requests : requests.filter(r => (r.status || 'pending') === filter);
+
+  const cardsHTML = filtered.length === 0
+    ? '<div class="loading-placeholder" style="padding:24px;">No requests found.</div>'
+    : filtered.map(req => {
+        const date = req.submittedAt ? formatDateShort(req.submittedAt.toDate()) : '—';
+        const status = req.status || 'pending';
+        const statusLabel = status === 'fulfilled' ? 'Fulfilled' : status === 'in-progress' ? 'In Progress' : 'Pending';
+        const meta = [
+          req.email,
+          req.organization && req.organization !== 'N/A' ? req.organization : null,
+          req.partner && req.partner !== 'None' ? req.partner : null,
+          date
+        ].filter(Boolean).map(escHtml).join(' · ');
+        const filesHTML = req.fileLink
+          ? `<div class="req-card-detail" style="margin-top:6px;">
+               <strong>File:</strong>
+               <a href="${escHtml(req.fileLink)}" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;margin-left:6px;">${escHtml(req.fileLink)}</a>
+             </div>`
+          : '';
+        return `
+          <div class="req-card status-${status}">
+            <div class="req-card-left">
+              <div class="req-card-title">${escHtml(req.name || 'Unknown')}</div>
+              <div class="req-card-meta">${meta}</div>
+              <div class="req-card-detail"><strong>Products:</strong> ${escHtml(req.products || '—')}</div>
+              <div class="req-card-detail"><strong>Address:</strong> ${escHtml(req.address || '—')}</div>
+              ${req.notes && req.notes !== 'None' ? `<div class="req-card-detail" style="margin-top:3px;"><strong>Notes:</strong> ${escHtml(req.notes)}</div>` : ''}
+              ${filesHTML}
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0;">
+              <button class="req-badge ${status}" onclick="cycleRequestStatus('${req.id}','${status}')" title="Click to cycle status">${statusLabel}</button>
+              <button class="req-delete-btn${status === 'fulfilled' ? ' glow' : ''}" onclick="deleteRequest('${req.id}')">Delete</button>
+            </div>
+          </div>`;
+      }).join('');
+
+  container.innerHTML = `
+    <div class="dash-card" style="width:100%;max-width:900px;margin-top:20px;text-align:left;">
+      <h3>Incoming Requests</h3>
+      <p class="card-sub">${counts.all} total · Click a status badge to cycle it</p>
+      <div class="req-filter-bar">
+        <button class="req-filter-btn ${filter==='all'?'active':''}" onclick="filterRequests('all')">All (${counts.all})</button>
+        <button class="req-filter-btn ${filter==='pending'?'active':''}" onclick="filterRequests('pending')">Pending (${counts.pending})</button>
+        <button class="req-filter-btn ${filter==='in-progress'?'active':''}" onclick="filterRequests('in-progress')">In Progress (${counts['in-progress']})</button>
+        <button class="req-filter-btn ${filter==='fulfilled'?'active':''}" onclick="filterRequests('fulfilled')">Fulfilled (${counts.fulfilled})</button>
+      </div>
+      ${cardsHTML}
+    </div>`;
+}
+
+window.filterRequests = function(filter) {
+  renderRequests(cachedRequests, filter);
+};
+
+window.deleteRequest = function(id) {
+  openModal({
+    title: 'Delete Request?',
+    sub: 'This permanently removes the request from the dashboard.',
+    actions: [
+      { label: 'Cancel', cls: '' },
+      { label: 'Delete', cls: 'danger', fn: async () => {
+        try { await db.collection('requests').doc(id).delete(); }
+        catch(e) { console.error(e); showErrorToast('Error deleting request.'); }
+      }}
+    ]
+  });
+};
+
+window.cycleRequestStatus = async function(id, currentStatus) {
+  const next = { 'pending': 'in-progress', 'in-progress': 'fulfilled', 'fulfilled': 'pending' };
+  try {
+    await db.collection('requests').doc(id).update({ status: next[currentStatus] || 'in-progress' });
+  } catch(e) { console.error(e); showErrorToast('Error updating status.'); }
+};
+
+/* ═══════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════ */
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function genId() {
+  return db.collection('surveys').doc().id;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function formatDateShort(d) {
+  if (!d) return '';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+/* ═══════════════════════════════════════════════
+   PAGE ENTER ANIMATION
+═══════════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  const wipe = document.getElementById('wipe');
+  gsap.to(wipe, {
+    clipPath: 'polygon(105% 0,105% 0,105% 100%,105% 100%)',
+    duration: 0.7, ease: 'power3.inOut', delay: 0.1
+  });
+
+  const tl = gsap.timeline({ delay: 0.5 });
+  gsap.set('#loginLabel', { opacity: 1, y: 0, clipPath: 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)' });
+  gsap.set('#loginHeading', { opacity: 1, y: 0, clipPath: 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)' });
+
+  tl.to('#loginLabel', { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)', duration: .7, ease: 'power2.out' })
+    .to('#loginHeading', { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)', duration: .9, ease: 'power3.inOut' }, '-=.4')
+    .to('#loginFormContainer', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=.6');
+
+  gsap.to('.ring', {
+    scale: 1.04, duration: 4, yoyo: true, repeat: -1,
+    ease: 'sine.inOut', stagger: 0.8
+  });
+});
+
+/* magnetic tabs */
+document.querySelectorAll('.tp:not(.tp-active)').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const r = btn.getBoundingClientRect();
+    gsap.to(btn, { y: (e.clientY - r.top - r.height / 2) * .18, duration: .3, ease: 'power2.out' });
+  });
+  btn.addEventListener('mouseleave', () => gsap.to(btn, { y: 0, duration: .7, ease: 'elastic.out(1,.4)' }));
+});
+</script>
+</body>
+</html>

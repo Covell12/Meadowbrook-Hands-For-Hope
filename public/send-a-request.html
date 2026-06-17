@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send A Request — Hands for Hope</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--c:#3b82f6;--cd:#2563eb;--w:#fff;--w6:rgba(255,255,255,.6)}
+html,body{height:100%;}
+body{background:var(--c);color:var(--w);font-family:'Inter',sans-serif;overflow:hidden;display:flex;flex-direction:column}
+
+
+
+#wipe{position:fixed;inset:0;z-index:9990;background:#091530;clip-path:polygon(0 0,105% 0,105% 100%,0 100%);pointer-events:none}
+
+#tabs{
+  position:fixed;right:0;top:50%;transform:translateY(-50%) translateX(0);
+  z-index:700;display:flex;flex-direction:column;gap:8px;
+  align-items:flex-end;transition:transform 0.4s cubic-bezier(0.2,1,0.3,1);
+}
+#tabs.hidden{transform:translateY(-50%) translateX(100%)}
+
+#tabHandle{
+  position:absolute;left:-32px;top:50%;transform:translateY(-50%);
+  width:32px;height:60px;background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(8px);border-radius:8px 0 0 8px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;opacity:0;pointer-events:none;transition:opacity 0.3s;
+  border:1px solid rgba(255,255,255,0.1);border-right:none;
+}
+#tabs.hidden #tabHandle{opacity:1;pointer-events:auto}
+
+.tp{
+  display:flex;align-items:center;height:44px;
+  padding:0 20px 0 24px;border-radius:100px 0 0 100px;
+  font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);
+  text-decoration:none;white-space:nowrap;cursor:pointer;
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.15);border-right:none;
+  box-shadow:-4px 4px 20px rgba(0,0,0,0.3);
+  transition:width 0.3s, background 0.3s, color 0.3s;
+  width:140px;justify-content:flex-start;
+}
+.tp:hover{width:160px;color:#fff;}
+.tp.tp-active{width:180px;color:#fff;pointer-events:none;border-color:rgba(255,255,255,0.4)}
+
+#tp-main{background:rgba(9,21,48,0.6)}
+#tp-main:hover{background:rgba(9,21,48,0.85)}
+#tp-main.tp-active{background:rgba(9,21,48,1)}
+
+#tp-student{background:rgba(29,78,216,0.6)}
+#tp-student:hover{background:rgba(29,78,216,0.85)}
+#tp-student.tp-active{background:rgba(29,78,216,1)}
+
+#tp-request{background:rgba(59,130,246,0.6)}
+#tp-request:hover{background:rgba(59,130,246,0.85)}
+#tp-request.tp-active{background:rgba(59,130,246,1)}
+
+.ring{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.07);pointer-events:none}
+
+main{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;padding:60px;text-align:center;
+}
+
+.page-label{font-size:10px;letter-spacing:6px;text-transform:uppercase;color:var(--w6);margin-bottom:28px;display:block;opacity:0;transform:translateY(20px)}
+h1{font-family:'Playfair Display',serif;font-size:clamp(60px,10vw,120px);font-weight:900;line-height:.95;opacity:0;transform:translateY(40px)}
+h1 em{font-weight:400;font-style:italic}
+.sub{font-size:17px;color:var(--w6);max-width:520px;line-height:1.75;margin-top:36px;opacity:0;transform:translateY(20px)}
+.back-btn{
+  display:inline-flex;align-items:center;gap:10px;margin-top:52px;
+  border:1.5px solid rgba(255,255,255,.3);border-radius:100px;
+  padding:15px 36px;font-size:11px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:#fff;text-decoration:none;cursor:pointer;
+  opacity:0;transition:border-color .3s,background .3s;
+}
+.back-btn:hover{border-color:#fff;background:rgba(255,255,255,.1)}
+
+.ghost{
+  position:absolute;font-family:'Playfair Display',serif;
+  font-size:clamp(120px,18vw,260px);font-weight:900;
+  color:rgba(255,255,255,.04);line-height:1;pointer-events:none;user-select:none;white-space:nowrap;
+}
+
+#contentWrap{
+  position:relative;width:100%;max-width:600px;
+  display:flex;flex-direction:column;align-items:center;
+  margin-top:15vh; /* Starts centered */
+  z-index:10;
+}
+
+.primary-btn{
+  background:#fff;color:var(--c);border:none;border-radius:100px;
+  padding:18px 48px;font-size:13px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  transition:transform 0.3s,box-shadow 0.3s;margin-top:30px;
+}
+.primary-btn:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,0.3)}
+
+#initialView{width:100%;display:flex;flex-direction:column;align-items:center}
+
+#formWrap{
+  display:none;width:100%;max-width:800px;background:rgba(0,0,0,0.15);
+  border:1px solid rgba(255,255,255,0.1);border-radius:24px;
+  padding:50px;backdrop-filter:blur(12px);margin-top:20px;
+  text-align:left;position:relative;
+}
+.form-step{display:none}
+.form-step.active{display:block; animation:fadeInUp 0.5s ease;}
+@keyframes fadeInUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.form-grid.full{grid-template-columns:1fr;}
+
+.input-group{display:flex;flex-direction:column}
+.input-group label{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--w6);margin-bottom:10px;font-weight:700}
+.input-group input,.input-group textarea,.custom-select .select-selected{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);
+  border-radius:12px;padding:18px;color:#fff;font-family:'Inter',sans-serif;
+  font-size:16px;outline:none;transition:border-color 0.3s,background 0.3s;
+  cursor:text;
+}
+.input-group input:focus,.input-group textarea:focus,.custom-select.active .select-selected{
+  border-color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.1);
+}
+.input-group textarea{resize:vertical;min-height:100px}
+
+/* Custom Dropdown */
+.custom-select { position: relative; width: 100%; user-select: none; }
+.custom-select .select-selected { cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.custom-select .select-selected::after { content: "▼"; font-size: 10px; margin-left: 10px; transition: transform 0.3s; }
+.custom-select.active .select-selected::after { transform: rotate(180deg); }
+.select-items {
+  position: absolute; background: rgba(10,20,40,0.95); backdrop-filter: blur(20px);
+  top: 100%; left: 0; right: 0; z-index: 99;
+  border: 1px solid rgba(255,255,255,0.2); border-radius: 12px;
+  margin-top: 8px; max-height: 250px; overflow-y: auto;
+  opacity: 0; pointer-events: none; transform: translateY(-10px); transition: all 0.3s ease;
+}
+.custom-select.active .select-items { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.select-items div {
+  padding: 14px 18px; cursor: pointer; color: #fff; font-size: 15px;
+  transition: background 0.2s;
+}
+.select-items div:hover { background: rgba(255,255,255,0.1); }
+.select-items div.same-as-selected { background: rgba(255,255,255,0.15); font-weight: bold; }
+.form-actions{display:flex;justify-content:space-between;margin-top:40px}
+.secondary-btn{
+  background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.3);
+  border-radius:100px;padding:14px 32px;font-size:12px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background 0.3s;
+}
+.secondary-btn:hover{background:rgba(255,255,255,0.1)}
+.next-btn{
+  background:#fff;color:var(--c);border:none;border-radius:100px;
+  padding:14px 32px;font-size:12px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;transition:transform 0.3s;
+}
+.next-btn:hover{transform:translateY(-2px)}
+.progress-bar{display:flex;gap:8px;margin-bottom:40px}
+.progress-dot{flex:1;height:4px;background:rgba(255,255,255,0.1);border-radius:4px;transition:background 0.3s}
+.progress-dot.active{background:#fff}
+
+#successView{display:none;flex-direction:column;align-items:center;text-align:center;padding:40px 0}
+.check-circle{
+  width:80px;height:80px;border-radius:50%;background:rgba(74,222,128,0.2);
+  border:2px solid #4ade80;display:flex;align-items:center;justify-content:center;margin-bottom:24px;
+}
+
+@media(max-width:768px){
+  #tabs:not(.tabs-visible){transform:translateY(-50%) translateX(100%)}
+  #tabs.tabs-visible{transform:translateY(-50%) translateX(0) !important}
+  #tabs #tabHandle{opacity:1;pointer-events:auto}
+  main{padding:40px 20px 60px;}
+  h1{font-size:clamp(48px,14vw,80px)}
+  .sub{font-size:15px;margin-top:24px}
+  #contentWrap{margin-top:10vh;max-width:100%}
+  #formWrap{padding:32px 24px;border-radius:20px;margin-top:16px}
+  .form-grid{grid-template-columns:1fr}
+  .form-actions{flex-direction:column;gap:12px;align-items:stretch}
+  .form-actions > button,.form-actions > div{width:100%}
+  .form-actions > div{display:flex;flex-direction:column;gap:10px}
+  .secondary-btn,.next-btn{width:100%;text-align:center}
+  .file-upload-text{max-width:160px}
+  .ghost{font-size:clamp(80px,22vw,160px)}
+  .ring{display:none}
+}
+@media(max-width:480px){
+  h1{font-size:clamp(40px,16vw,64px)}
+  #formWrap{padding:24px 16px}
+  .primary-btn{width:100%}
+}
+</style>
+</head>
+<body>
+
+<div id="wipe"></div>
+
+<nav id="tabs">
+  <div id="tabHandle">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </div>
+  <a class="tp"             id="tp-main"    data-to="index.html">Main</a>
+  <a class="tp"             id="tp-student" data-to="student-portal.html">Student Portal</a>
+  <a class="tp tp-active"   id="tp-request" data-to="send-a-request.html">Send A Request</a>
+</nav>
+
+<main style="justify-content:flex-start; overflow-y:auto;">
+  <div class="ring" style="width:700px;height:700px;top:40%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="ring" style="width:950px;height:950px;top:40%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="ring" style="width:480px;height:480px;top:40%;left:50%;transform:translate(-50%,-50%)"></div>
+
+  <div class="ghost" style="bottom:-60px;right:-40px">Request</div>
+
+  <!-- Cancel Modal -->
+  <div id="cancelModal" style="display:none; position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); align-items:center; justify-content:center;">
+    <div style="background:var(--cd); padding:40px; border-radius:24px; border:1px solid rgba(255,255,255,0.1); max-width:400px; text-align:center;">
+      <h3 style="font-size:20px; margin-bottom:16px;">Cancel Request?</h3>
+      <p style="color:var(--w6); font-size:14px; margin-bottom:30px;">Are you sure you want to cancel? Any filled information will be lost.</p>
+      <div style="display:flex; gap:16px; justify-content:center;">
+        <button class="secondary-btn" onclick="closeCancelModal()">No, Continue</button>
+        <button class="primary-btn" style="margin-top:0; background:#ef4444; color:#fff;" onclick="confirmCancel()">Yes, Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="contentWrap">
+    <div id="headerTitle" style="text-align:center; transition: all 0.6s ease; overflow:hidden; padding-bottom: 20px; margin-bottom: -20px;">
+      <span class="page-label" id="label">Hands for Hope</span>
+      <h1 id="heading">Send A<br><em>Request</em></h1>
+    </div>
+    
+    <div id="initialView">
+      <button class="primary-btn" id="startReqBtn">Start New Request</button>
+    </div>
+
+    <div id="formWrap">
+      <div class="progress-bar">
+        <div class="progress-dot active" id="dot1"></div>
+        <div class="progress-dot" id="dot2"></div>
+        <div class="progress-dot" id="dot3"></div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="form-step active" id="step1">
+        <div class="form-grid">
+          <div class="input-group">
+            <label>Full Name</label>
+            <input type="text" id="reqName" required>
+          </div>
+          <div class="input-group">
+            <label>Contact Email</label>
+            <input type="email" id="reqEmail" required>
+          </div>
+        </div>
+        <div class="form-grid" style="margin-top:24px">
+          <div class="input-group">
+            <label>Organization (Optional)</label>
+            <input type="text" id="reqOrg">
+          </div>
+        </div>
+        <div class="form-grid full" style="margin-top:24px">
+          <div class="input-group">
+            <label>Are you a partner?</label>
+            <div class="custom-select" id="partnerSelectWrap">
+              <div class="select-selected" id="partnerSelectedText">None / Independent</div>
+              <div class="select-items" id="partnerOptions">
+                <div data-val="None">None / Independent</div>
+                <div data-val="Brandeis University">Brandeis University</div>
+                <div data-val="ENABLE">ENABLE</div>
+                <div data-val="Makers Making Change">Makers Making Change</div>
+                <div data-val="Better Good">Better Good</div>
+                <div data-val="Seven Hills Foundation">Seven Hills Foundation</div>
+                <div data-val="Bionic5K">Bionic5K</div>
+                <div data-val="Boston Children's Hospital">Boston Children's Hospital</div>
+                <div data-val="MakeGood">MakeGood</div>
+                <div data-val="Comfy Cases">Comfy Cases</div>
+                <div data-val="Rare By Design">Rare By Design</div>
+              </div>
+            </div>
+            <input type="hidden" id="reqPartner" value="None">
+          </div>
+        </div>
+        <div class="form-actions" style="justify-content:space-between">
+          <button class="secondary-btn" style="border-color:rgba(239, 68, 68, 0.4); color:#fca5a5;" onclick="cancelForm()">Cancel</button>
+          <button class="next-btn" onclick="nextStep(2)">Next Step →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="form-step" id="step2">
+        <div class="form-grid full">
+          <div class="input-group">
+            <label>Product(s) Requested</label>
+            <input type="text" id="reqProduct" required>
+          </div>
+          <div class="input-group" style="margin-top:24px">
+            <label>Shipping Address</label>
+            <textarea id="reqAddress" required></textarea>
+          </div>
+        </div>
+        <div class="form-actions" style="justify-content:space-between">
+          <button class="secondary-btn" style="border-color:rgba(239, 68, 68, 0.4); color:#fca5a5;" onclick="cancelForm()">Cancel</button>
+          <div style="display:flex; gap:16px;">
+            <button class="secondary-btn" onclick="nextStep(1)">← Back</button>
+            <button class="next-btn" onclick="nextStep(3)">Next Step →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="form-step" id="step3">
+        <div class="form-grid full">
+          <div class="input-group">
+            <label>Additional Thoughts / Measurements <span style="font-weight:400;opacity:.55;font-size:10px;letter-spacing:1px;">(Optional)</span></label>
+            <textarea id="reqThoughts"></textarea>
+          </div>
+          <div class="input-group" style="margin-top:24px">
+            <label>File Link <span style="font-weight:400;opacity:.55;font-size:10px;letter-spacing:1px;">(Optional — Google Drive, Dropbox, etc.)</span></label>
+            <input type="url" id="reqFileLink" placeholder="https://drive.google.com/…">
+          </div>
+        </div>
+        <div class="form-actions" style="justify-content:space-between">
+          <button class="secondary-btn" style="border-color:rgba(239, 68, 68, 0.4); color:#fca5a5;" onclick="cancelForm()">Cancel</button>
+          <div style="display:flex; gap:16px;">
+            <button class="secondary-btn" onclick="nextStep(2)">← Back</button>
+            <button class="next-btn" id="submitBtn" onclick="submitForm()">Submit Request</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUCCESS VIEW -->
+      <div id="successView">
+        <div class="check-circle">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+        </div>
+        <h2 style="font-size:24px;margin-bottom:10px;">Request Sent!</h2>
+        <p style="color:var(--w6);font-size:16px;max-width:400px;margin:0 auto 30px;">An email with your details has been sent to the Hands for Hope team! You should receive a response within the next week. Thank you!</p>
+        <button class="secondary-btn" onclick="resetForm()">Return</button>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+/* tabs scroll */
+let lastScrollY=window.scrollY;
+const tabsEl=document.getElementById('tabs');
+const tabHandle=document.getElementById('tabHandle');
+window.addEventListener('scroll',()=>{
+  const sy=window.scrollY;
+  if(sy>lastScrollY && sy>100) tabsEl.classList.add('hidden');
+  else if(sy<lastScrollY-5) tabsEl.classList.remove('hidden');
+  lastScrollY=sy;
+});
+tabHandle.addEventListener('click',()=>{
+  if(window.innerWidth<=768) tabsEl.classList.toggle('tabs-visible');
+  else tabsEl.classList.remove('hidden');
+});
+
+function inkNav(url){
+  const w=document.getElementById('wipe');
+  w.style.pointerEvents='all';
+  gsap.fromTo(w,
+    {clipPath:'polygon(0 0,0 0,0 100%,0 100%)'},
+    {clipPath:'polygon(0 0,105% 0,105% 100%,0 100%)',duration:.7,ease:'power3.inOut',
+     onComplete:()=>{window.location.href=url}});
+}
+document.querySelectorAll('[data-to]').forEach(el=>{
+  el.addEventListener('click',e=>{
+    e.preventDefault();
+    if(el.classList.contains('tp-active')) return;
+    if (typeof currentStep !== 'undefined' && currentStep > 1 && document.getElementById('formWrap').style.display !== 'none') {
+      const confirmLeave = confirm("You have unsaved progress on your request. Are you sure you want to leave this page?");
+      if (!confirmLeave) return;
+    }
+    inkNav(el.dataset.to);
+  });
+});
+
+window.addEventListener('beforeunload', (e) => {
+  if (typeof currentStep !== 'undefined' && currentStep > 1 && document.getElementById('formWrap').style.display !== 'none') {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+window.addEventListener('load',()=>{
+  gsap.to('#wipe',{
+    clipPath:'polygon(105% 0,105% 0,105% 100%,105% 100%)',
+    duration:.7,ease:'power3.inOut',delay:.1
+  });
+  
+  // Load initial view
+  gsap.fromTo('#initialView', {opacity:0, y:20}, {opacity:1, y:0, duration:.8, delay:1.2, ease:'power2.out'});
+
+  const tl=gsap.timeline({delay:.5});
+  tl.to('#label',  {opacity:1,y:0,duration:.7,ease:'power2.out'})
+    .to('#heading',{opacity:1,y:0,duration:.9,ease:'power3.out'},'-=.4');
+
+  gsap.to('.ring',{scale:1.05,duration:5,yoyo:true,repeat:-1,ease:'sine.inOut',stagger:1});
+});
+
+
+// Custom Dropdown Logic
+const pWrap = document.getElementById('partnerSelectWrap');
+const pSel = document.getElementById('partnerSelectedText');
+const pOpts = document.getElementById('partnerOptions').querySelectorAll('div');
+const pInput = document.getElementById('reqPartner');
+
+pSel.addEventListener('click', () => {
+  pWrap.classList.toggle('active');
+});
+
+pOpts.forEach(opt => {
+  opt.addEventListener('click', () => {
+    pSel.innerText = opt.innerText;
+    pInput.value = opt.getAttribute('data-val');
+    pWrap.classList.remove('active');
+    pOpts.forEach(o => o.classList.remove('same-as-selected'));
+    opt.classList.add('same-as-selected');
+  });
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e => {
+  if (!pWrap.contains(e.target)) pWrap.classList.remove('active');
+});
+
+// Start Request Animation
+document.getElementById('startReqBtn').addEventListener('click', () => {
+  // Hide the big text header
+  gsap.to('#headerTitle', {opacity: 0, height: 0, marginTop: 0, duration: 0.6, ease: 'power2.inOut'});
+  
+  gsap.to('#initialView', {opacity: 0, y: -20, duration: 0.4, onComplete: () => {
+    document.getElementById('initialView').style.display = 'none';
+    
+    // Slide up the container
+    gsap.to('#contentWrap', {marginTop: '5vh', maxWidth: '800px', duration: 0.8, ease: 'power3.inOut'});
+    
+    // Show form
+    const fw = document.getElementById('formWrap');
+    fw.style.display = 'block';
+    gsap.fromTo(fw, {opacity: 0, y: 50}, {opacity: 1, y: 0, duration: 0.6, delay: 0.4, ease: 'power2.out'});
+  }});
+});
+
+// Multi-step logic
+let currentStep = 1;
+window.nextStep = (step) => {
+  if (step > currentStep) {
+    const inputs = document.querySelectorAll(`#step${currentStep} [required]`);
+    let valid = true;
+    inputs.forEach(i => {
+      if (!i.value.trim()) { i.style.borderColor = '#ef4444'; valid = false; }
+      else { i.style.borderColor = 'rgba(255,255,255,0.2)'; }
+    });
+    if (!valid) return;
+  }
+  
+  gsap.to(`#step${currentStep}`, {opacity: 0, y: -20, duration: 0.3, onComplete: () => {
+    document.getElementById(`step${currentStep}`).classList.remove('active');
+    currentStep = step;
+    document.getElementById(`step${currentStep}`).classList.add('active');
+    
+    for(let i=1; i<=3; i++) {
+      document.getElementById(`dot${i}`).classList.toggle('active', i <= currentStep);
+    }
+    
+    gsap.fromTo(`#step${currentStep}`, {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 0.4, ease: 'power2.out'});
+  }});
+};
+
+// Firebase + EmailJS Init
+firebase.initializeApp({
+  apiKey: "AIzaSyCo2GASOseatMm8_MNSDNqkotZn5cFdveY",
+  authDomain: "hands-forhope.firebaseapp.com",
+  projectId: "hands-forhope",
+  storageBucket: "hands-forhope.firebasestorage.app",
+  messagingSenderId: "445689777206",
+  appId: "1:445689777206:web:4d5dae8fe1eb6cada49c97"
+});
+const db = firebase.firestore();
+emailjs.init('hWWVlP_UVjFGbJkFZ');
+
+// Form Submission
+window.submitForm = async () => {
+  const inputs = document.querySelectorAll(`#step3 [required]`);
+  let valid = true;
+  inputs.forEach(i => {
+    if (!i.value.trim()) { i.style.borderColor = '#ef4444'; valid = false; }
+    else { i.style.borderColor = 'rgba(255,255,255,0.2)'; }
+  });
+  if (!valid) return;
+
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Sending...';
+  btn.style.pointerEvents = 'none';
+
+  const formData = {
+    name:         document.getElementById('reqName').value.trim(),
+    email:        document.getElementById('reqEmail').value.trim(),
+    organization: document.getElementById('reqOrg').value.trim() || 'N/A',
+    partner:      document.getElementById('reqPartner').value,
+    products:     document.getElementById('reqProduct').value.trim(),
+    address:      document.getElementById('reqAddress').value.trim(),
+    notes:        document.getElementById('reqThoughts').value.trim() || 'None',
+    fileLink:     document.getElementById('reqFileLink').value.trim() || null,
+    status:       'pending',
+    submittedAt:  firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    // 1. Read mailing list (public read — no auth required)
+    const mlDoc = await db.collection('config').doc('mailing_list').get();
+    let recipients = 'covell.bernstein@gmail.com';
+    if (mlDoc.exists && mlDoc.data().emails && mlDoc.data().emails.length > 0) {
+      recipients = mlDoc.data().emails.join(',');
+    }
+
+    // 2. Log submission to Firestore (so the leader dashboard can show it)
+    await db.collection('requests').add(formData);
+
+    // 3. Notify the leaders via EmailJS
+    const fileLinkText = formData.fileLink ? `\n\nFile link: ${formData.fileLink}` : '';
+    await emailjs.send('service_8o1e33y', 'template_rzmz5x5', {
+      to_emails:     recipients,
+      from_name:     formData.name,
+      contact_email: formData.email,
+      organization:  formData.organization,
+      partner:       formData.partner,
+      products:      formData.products,
+      address:       formData.address,
+      notes:         formData.notes + fileLinkText
+    });
+
+    // 5. Send confirmation email to the requester (non-blocking)
+    emailjs.send('service_8o1e33y', 'template_confirm', {
+      to_email:  formData.email,
+      from_name: formData.name,
+      products:  formData.products
+    }).catch(() => {});
+
+    // 5. Show success
+    gsap.to('.form-step, .progress-bar', {opacity: 0, duration: 0.3, onComplete: () => {
+      document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+      document.querySelector('.progress-bar').style.display = 'none';
+      const sv = document.getElementById('successView');
+      sv.style.display = 'flex';
+      gsap.fromTo(sv, {opacity: 0, scale: 0.9}, {opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.5)'});
+    }});
+  } catch (err) {
+    console.error('Request submission failed:', err);
+    btn.textContent = 'Error — Try Again';
+    btn.style.pointerEvents = 'auto';
+    btn.style.background = '#ef4444';
+    btn.style.color = '#fff';
+  }
+};
+
+// Cancel Form Logic
+window.cancelForm = () => {
+  const m = document.getElementById('cancelModal');
+  m.style.display = 'flex';
+  gsap.fromTo(m.children[0], {scale:0.9, opacity:0}, {scale:1, opacity:1, duration:0.3, ease:'back.out(1.5)'});
+}
+window.closeCancelModal = () => {
+  document.getElementById('cancelModal').style.display = 'none';
+}
+window.confirmCancel = () => {
+  document.getElementById('cancelModal').style.display = 'none';
+  
+  gsap.to('#formWrap', {opacity: 0, y: 50, duration: 0.4, onComplete: () => {
+    document.getElementById('formWrap').style.display = 'none';
+    
+    // Clear inputs
+    document.querySelectorAll('input, textarea').forEach(i => i.value = '');
+    document.getElementById('fileNamesText').textContent = 'No files chosen';
+    document.getElementById('fileNamesText').style.color = 'var(--w6)';
+    document.getElementById('reqPartner').value = 'None';
+    document.getElementById('partnerSelectedText').innerText = 'None / Independent';
+    
+    // Reset steps
+    document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step1').classList.add('active');
+    currentStep = 1;
+    for(let i=1; i<=3; i++) {
+      document.getElementById(`dot${i}`).classList.toggle('active', i === 1);
+    }
+    
+    // Animate initial view back
+    document.getElementById('initialView').style.display = 'flex';
+    gsap.fromTo('#initialView', {opacity:0, y:-20}, {opacity:1, y:0, duration:0.4, delay: 0.2});
+    
+    // Animate title and container back
+    gsap.to('#headerTitle', {opacity: 1, height: 'auto', duration: 0.6, ease: 'power2.inOut'});
+    gsap.to('#contentWrap', {marginTop: '15vh', maxWidth: '600px', duration: 0.8, ease: 'power3.inOut'});
+  }});
+}
+
+window.resetForm = () => {
+  location.reload();
+};
+
+document.querySelectorAll('.back-btn,.primary-btn,.secondary-btn,.next-btn').forEach(b=>{
+  b.addEventListener('mousemove',e=>{
+    const r=b.getBoundingClientRect();
+    gsap.to(b,{x:(e.clientX-r.left-r.width/2)*.25,y:(e.clientY-r.top-r.height/2)*.25,duration:.4,ease:'power2.out'});
+  });
+  b.addEventListener('mouseleave',()=>gsap.to(b,{x:0,y:0,duration:.7,ease:'elastic.out(1,.4)'}));
+});
+document.querySelectorAll('.tp:not(.tp-active)').forEach(btn=>{
+  btn.addEventListener('mousemove',e=>{
+    const r=btn.getBoundingClientRect();
+    gsap.to(btn,{y:(e.clientY-r.top-r.height/2)*.18,duration:.3,ease:'power2.out'});
+  });
+  btn.addEventListener('mouseleave',()=>gsap.to(btn,{y:0,duration:.7,ease:'elastic.out(1,.4)'}));
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isLeader() {
+      return request.auth != null && (
+        request.auth.token.email == 'cbernstein27@meadowbrook-ma.org' ||
+        (exists(/databases/$(database)/documents/config/approved_leaders) &&
+         request.auth.token.email in
+           get(/databases/$(database)/documents/config/approved_leaders).data.emails)
+      );
+    }
+
+    // Mailing list: public read so the unauthenticated request form can fetch recipients
+    match /config/mailing_list {
+      allow read:  if true;
+      allow write: if isLeader();
+    }
+
+    // Approved leaders list: any authenticated user can read (client-side login check)
+    match /config/approved_leaders {
+      allow read:  if request.auth != null;
+      allow write: if isLeader();
+    }
+
+    // Block any other config docs to leaders only
+    match /config/{docId} {
+      allow read:  if request.auth != null;
+      allow write: if isLeader();
+    }
+
+    // Users: each user owns their doc; leaders can read/update any (edit-name feature)
+    match /users/{uid} {
+      allow read:   if request.auth != null && (request.auth.uid == uid || isLeader());
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update: if request.auth != null && (request.auth.uid == uid || isLeader());
+      allow delete: if isLeader();
+    }
+
+    // Surveys: leaders manage; authenticated students can read
+    match /surveys/{surveyId} {
+      allow read:                   if request.auth != null;
+      allow create, update, delete: if isLeader();
+
+      // Responses: students submit own (create only); leaders read all
+      match /responses/{uid} {
+        allow create: if request.auth != null && request.auth.uid == uid;
+        allow read:   if request.auth != null && (request.auth.uid == uid || isLeader());
+        allow update, delete: if isLeader();
+      }
+    }
+
+    // Requests from the public form: anyone can create; leaders manage
+    match /requests/{requestId} {
+      allow create: if true;
+      allow read, update, delete: if isLeader();
+    }
+
+    // Assignment pages: leaders only
+    match /assignment_pages/{pageId} {
+      allow read, write: if isLeader();
+    }
+
+    // Presence: each user writes own; leaders read all
+    match /presence/{uid} {
+      allow write: if request.auth != null && request.auth.uid == uid;
+      allow read:  if request.auth != null && (request.auth.uid == uid || isLeader());
+    }
+  }
+}
