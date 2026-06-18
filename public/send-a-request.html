@@ -585,8 +585,6 @@ window.confirmCancel = () => {
     
     // Clear inputs
     document.querySelectorAll('input, textarea').forEach(i => i.value = '');
-    document.getElementById('fileNamesText').textContent = 'No files chosen';
-    document.getElementById('fileNamesText').style.color = 'var(--w6)';
     document.getElementById('reqPartner').value = 'None';
     document.getElementById('partnerSelectedText').innerText = 'None / Independent';
     
