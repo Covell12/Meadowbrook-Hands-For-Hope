@@ -37,32 +37,29 @@ body{background:var(--c);color:var(--w);font-family:'Inter',sans-serif;overflow:
 }
 #tabs.hidden #tabHandle{opacity:1;pointer-events:auto}
 
+/* ribbon bookmarks: notched tip on the left, stitched edges, active one sticks out furthest */
 .tp{
-  display:flex;align-items:center;height:44px;
-  padding:0 20px 0 24px;border-radius:100px 0 0 100px;
+  position:relative;right:-26px;
+  display:flex;align-items:center;gap:10px;height:42px;width:236px;
+  padding:0 18px 0 34px;
   font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;
-  letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);
+  letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.8);
   text-decoration:none;white-space:nowrap;cursor:pointer;
-  backdrop-filter:blur(10px);
-  border:1px solid rgba(255,255,255,0.15);border-right:none;
-  box-shadow:-4px 4px 20px rgba(0,0,0,0.3);
-  transition:width 0.3s, background 0.3s, color 0.3s;
-  width:140px;justify-content:flex-start;
+  clip-path:polygon(0 0,100% 0,100% 100%,0 100%,16px 50%);
+  filter:drop-shadow(-4px 4px 8px rgba(0,0,0,0.3));
+  transition:right 0.35s cubic-bezier(0.2,1,0.3,1), color 0.3s, filter 0.3s;
 }
-.tp:hover{width:160px;color:#fff;}
-.tp.tp-active{width:180px;color:#fff;pointer-events:none;border-color:rgba(255,255,255,0.4)}
+.tp::before{
+  content:"";position:absolute;left:20px;right:0;top:4px;bottom:4px;pointer-events:none;
+  border-top:1px dashed rgba(255,255,255,0.35);border-bottom:1px dashed rgba(255,255,255,0.35);
+}
+.tp svg{width:15px;height:15px;flex:none}
+.tp:hover{right:-12px;color:#fff;filter:drop-shadow(-6px 6px 12px rgba(0,0,0,0.4))}
+.tp.tp-active{right:0;width:236px;color:#fff;pointer-events:none}
 
-#tp-main{background:rgba(9,21,48,0.6)}
-#tp-main:hover{background:rgba(9,21,48,0.85)}
-#tp-main.tp-active{background:rgba(9,21,48,1)}
-
-#tp-student{background:rgba(29,78,216,0.6)}
-#tp-student:hover{background:rgba(29,78,216,0.85)}
-#tp-student.tp-active{background:rgba(29,78,216,1)}
-
-#tp-request{background:rgba(59,130,246,0.6)}
-#tp-request:hover{background:rgba(59,130,246,0.85)}
-#tp-request.tp-active{background:rgba(59,130,246,1)}
+#tp-main{background:linear-gradient(180deg,#14275a,#091530)}
+#tp-student{background:linear-gradient(180deg,#3366f5,#1d4ed8)}
+#tp-request{background:linear-gradient(180deg,#68a5ff,#3b82f6)}
 
 .ring{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.07);pointer-events:none}
 
@@ -781,9 +778,9 @@ h1 em{font-weight:400;font-style:italic}
   <div id="tabHandle">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
   </div>
-  <a class="tp"           id="tp-main"    data-to="index.html">Main</a>
-  <a class="tp tp-active" id="tp-student" data-to="student-portal.html">Student Portal</a>
-  <a class="tp"           id="tp-request" data-to="send-a-request.html">Send A Request</a>
+  <a class="tp"           id="tp-main"    data-to="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Main</span></a>
+  <a class="tp tp-active" id="tp-student" data-to="student-portal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg><span>Student Portal</span></a>
+  <a class="tp"           id="tp-request" data-to="send-a-request.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg><span>Send a Request</span></a>
 </nav>
 
 <!-- LEADER SIDEBAR -->

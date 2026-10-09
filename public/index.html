@@ -19,32 +19,17 @@
   --cm:#091530;--cg:#1d4ed8;--co:#3b82f6;
   --a1:#1d4ed8;--a2:#3b82f6;--a3:#93c5fd;
 }
-html{overflow-x:hidden;cursor:none;scroll-behavior:auto}
+html{overflow-x:hidden;scroll-behavior:auto}
 body{background:var(--b);color:var(--w);font-family:'Inter',sans-serif;overflow-x:hidden;line-height:1.7}
 
 /* ── WEBGL BG ── */
 #glBg{position:fixed;inset:0;z-index:0;width:100%;height:100%;pointer-events:none}
 
-/* ── CURSOR ── */
-#cHand{
-  position:fixed;pointer-events:none;z-index:9998;
-  transform:translate(0px, 0px);
-  transition: filter 0.25s, opacity 0.2s;
-  filter:drop-shadow(0 0 4px rgba(0,0,0,0.5));
-}
-#cHand img{
-  transition:transform 0.2s cubic-bezier(0.2,1,0.3,1);
-  transform-origin:0 0;
-}
-body.cursor-hover #cHand{
-  opacity:0;
-}
-
 /* ── INK WIPE ── */
 #wipe{position:fixed;inset:0;z-index:9990;background:var(--b);clip-path:polygon(0 0,0 0,0 100%,0 100%);pointer-events:none}
 
 /* ── MEADOWBROOK LOGO ── */
-#mlogo-wrap{position:fixed;top:20px;left:20px;z-index:750;display:flex;align-items:center;cursor:none;opacity:0}
+#mlogo-wrap{position:fixed;top:20px;left:20px;z-index:750;display:flex;align-items:center;opacity:0}
 #mlogo-img{width:144px;height:144px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 0 16px rgba(109,40,217,.5))}
 #mlogo-fallback{
   width:144px;height:144px;flex-shrink:0;border-radius:50%;
@@ -79,32 +64,29 @@ body.cursor-hover #cHand{
 }
 #tabs.hidden #tabHandle{opacity:1;pointer-events:auto}
 
+/* ribbon bookmarks: notched tip on the left, stitched edges, active one sticks out furthest */
 .tp{
-  display:flex;align-items:center;height:44px;
-  padding:0 20px 0 24px;border-radius:100px 0 0 100px;
+  position:relative;right:-26px;
+  display:flex;align-items:center;gap:10px;height:42px;width:236px;
+  padding:0 18px 0 34px;
   font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;
-  letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);
-  text-decoration:none;white-space:nowrap;cursor:none;
-  backdrop-filter:blur(10px);
-  border:1px solid rgba(255,255,255,0.15);border-right:none;
-  box-shadow:-4px 4px 20px rgba(0,0,0,0.3);
-  transition:width 0.3s, background 0.3s, color 0.3s;
-  width:140px;justify-content:flex-start;
+  letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.8);
+  text-decoration:none;white-space:nowrap;cursor:pointer;
+  clip-path:polygon(0 0,100% 0,100% 100%,0 100%,16px 50%);
+  filter:drop-shadow(-4px 4px 8px rgba(0,0,0,0.3));
+  transition:right 0.35s cubic-bezier(0.2,1,0.3,1), color 0.3s, filter 0.3s;
 }
-.tp:hover{width:160px;color:#fff;}
-.tp.tp-active{width:180px;color:#fff;pointer-events:none;border-color:rgba(255,255,255,0.4)}
+.tp::before{
+  content:"";position:absolute;left:20px;right:0;top:4px;bottom:4px;pointer-events:none;
+  border-top:1px dashed rgba(255,255,255,0.35);border-bottom:1px dashed rgba(255,255,255,0.35);
+}
+.tp svg{width:15px;height:15px;flex:none}
+.tp:hover{right:-12px;color:#fff;filter:drop-shadow(-6px 6px 12px rgba(0,0,0,0.4))}
+.tp.tp-active{right:0;width:236px;color:#fff;pointer-events:none}
 
-#tp-main{background:rgba(9,21,48,0.6)}
-#tp-main:hover{background:rgba(9,21,48,0.85)}
-#tp-main.tp-active{background:rgba(9,21,48,1)}
-
-#tp-student{background:rgba(29,78,216,0.6)}
-#tp-student:hover{background:rgba(29,78,216,0.85)}
-#tp-student.tp-active{background:rgba(29,78,216,1)}
-
-#tp-request{background:rgba(59,130,246,0.6)}
-#tp-request:hover{background:rgba(59,130,246,0.85)}
-#tp-request.tp-active{background:rgba(59,130,246,1)}
+#tp-main{background:linear-gradient(180deg,#14275a,#091530)}
+#tp-student{background:linear-gradient(180deg,#3366f5,#1d4ed8)}
+#tp-request{background:linear-gradient(180deg,#68a5ff,#3b82f6)}
 
 /* ── SERPENTINES — lives OUTSIDE #site ── */
 #serpWrap{position:absolute;top:0;left:-10vw;width:120vw;pointer-events:none;overflow:hidden}
@@ -192,7 +174,7 @@ body.cursor-hover #cHand{
   border:1.5px solid rgba(255,255,255,.35);border-radius:100px;
   padding:13px 32px;font-size:12px;font-weight:600;letter-spacing:1.5px;
   text-transform:uppercase;color:#fff;background:transparent;
-  cursor:none;text-decoration:none;font-family:'Space Grotesk',sans-serif;
+  cursor:pointer;text-decoration:none;font-family:'Space Grotesk',sans-serif;
   transition:border-color .3s,background .3s;opacity:0;
 }
 #heroCta:hover{border-color:#fff;background:rgba(255,255,255,.1)}
@@ -253,7 +235,7 @@ body.cursor-hover #cHand{
 #procLeft .eyebrow{margin-bottom:20px}
 #procLeft .flow-title{margin-bottom:32px}
 #procDots{display:flex;gap:10px}
-.pdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .4s;cursor:none}
+.pdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .4s}
 .pdot.active{background:#fff;width:24px;border-radius:3px}
 #procRight{position:relative;height:340px}
 #procBigNum{
@@ -286,7 +268,7 @@ body.cursor-hover #cHand{
   flex-shrink:0;width:236px;
   background:rgba(255,255,255,.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border:1px solid rgba(255,255,255,.11);border-radius:20px;padding:28px 24px;
-  position:relative;cursor:none;transition:background .3s,border-color .3s,transform .3s;
+  position:relative;transition:background .3s,border-color .3s,transform .3s;
 }
 .partner-card:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.22);transform:translateY(-5px)}
 .partner-card.upcoming{border-color:rgba(249,115,22,.28)}
@@ -323,7 +305,7 @@ blockquote#mQ{
 #mQ::before{content:'\201C';font-size:200px;line-height:0;color:rgba(255,255,255,.04);position:absolute;top:80px;left:-40px;font-family:'Playfair Display',serif}
 #mQ::after{content:'\201D';font-size:200px;line-height:0;color:rgba(255,255,255,.04);position:absolute;bottom:-50px;right:-40px;font-family:'Playfair Display',serif}
 #valWords{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
-.val{border:1px solid rgba(255,255,255,.18);border-radius:100px;padding:12px 28px;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.62);cursor:none;transition:all .3s;font-family:'Space Grotesk',sans-serif}
+.val{border:1px solid rgba(255,255,255,.18);border-radius:100px;padding:12px 28px;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.62);transition:all .3s;font-family:'Space Grotesk',sans-serif}
 .val:hover{background:#fff;color:var(--b);border-color:#fff}
 
 /* ── FOOTER ── */
@@ -344,7 +326,7 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
   border:2px solid rgba(255,255,255,.5);border-radius:100px;
   padding:28px 80px;font-size:18px;font-weight:700;letter-spacing:3px;
   text-transform:uppercase;color:#fff;font-family:'Space Grotesk',sans-serif;
-  text-decoration:none;cursor:none;pointer-events:all;
+  text-decoration:none;cursor:pointer;pointer-events:all;
   background:rgba(255,255,255,.06);
   box-shadow:0 0 40px rgba(109,40,217,.25),inset 0 1px 0 rgba(255,255,255,.1);
   transition:border-color .3s,background .3s,box-shadow .3s;
@@ -357,13 +339,11 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
 .sr-r{opacity:0;transform:translateX(48px)}
 
 /* ── MAG BTN ── */
-.mag-btn{display:inline-flex;align-items:center;gap:10px;border:1.5px solid rgba(255,255,255,.35);border-radius:100px;padding:16px 40px;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#fff;background:transparent;cursor:none;text-decoration:none;transition:border-color .3s,background .3s;font-family:'Space Grotesk',sans-serif}
+.mag-btn{display:inline-flex;align-items:center;gap:10px;border:1.5px solid rgba(255,255,255,.35);border-radius:100px;padding:16px 40px;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#fff;background:transparent;cursor:pointer;text-decoration:none;transition:border-color .3s,background .3s;font-family:'Space Grotesk',sans-serif}
 .mag-btn:hover{border-color:#fff;background:rgba(255,255,255,.08)}
 
 /* ── MOBILE ── */
 @media(max-width:768px){
-  html{cursor:auto}
-  #cHand{display:none}
 
   /* Tabs — hidden by default on mobile; handle opens them */
   #tabs:not(.tabs-visible){transform:translateY(-50%) translateX(100%)}
@@ -436,11 +416,6 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
 <!-- WEBGL BACKGROUND — always renders, z-index:0 -->
 <canvas id="glBg"></canvas>
 
-<!-- CURSOR -->
-<div id="cHand">
-  <img src="cursor.png" alt="" style="width:40px;height:auto;display:block;">
-</div>
-
 <!-- INK WIPE -->
 <div id="wipe"></div>
 
@@ -461,9 +436,9 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
   <div id="tabHandle">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
   </div>
-  <a class="tp tp-active" id="tp-main"    data-to="index.html">Main</a>
-  <a class="tp"            id="tp-student" data-to="student-portal.html">Student Portal</a>
-  <a class="tp"            id="tp-request" data-to="send-a-request.html">Send A Request</a>
+  <a class="tp tp-active" id="tp-main"    data-to="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Main</span></a>
+  <a class="tp"            id="tp-student" data-to="student-portal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg><span>Student Portal</span></a>
+  <a class="tp"            id="tp-request" data-to="send-a-request.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg><span>Send a Request</span></a>
 </nav>
 
 <!-- ═══ SERPENTINES — OUTSIDE #site so they always show through transparent sections ═══ -->
@@ -729,16 +704,6 @@ const lenis=new Lenis({lerp:0.09,smoothWheel:true});
 lenis.on('scroll',ScrollTrigger.update);
 gsap.ticker.add(t=>lenis.raf(t*1000));
 gsap.ticker.lagSmoothing(0);
-
-/* ══════════════════════════════════════════════════
-   CURSOR
-══════════════════════════════════════════════════ */
-const cHand=document.getElementById('cHand');
-document.addEventListener('mousemove',e=>gsap.set(cHand,{x:e.clientX,y:e.clientY}));
-document.querySelectorAll('a,button,.val,.pdot,#tabHandle').forEach(el=>{
-  el.addEventListener('mouseenter',()=>document.body.classList.add('cursor-hover'));
-  el.addEventListener('mouseleave',()=>document.body.classList.remove('cursor-hover'));
-});
 
 /* ── TABS SCROLL & CLICK LOGIC ── */
 let lastScrollY=window.scrollY;
