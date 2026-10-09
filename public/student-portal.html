@@ -30,7 +30,7 @@ body{background:var(--c);color:var(--w);font-family:'Inter',sans-serif;overflow:
 #tabHandle{
   position:absolute;left:-32px;top:50%;transform:translateY(-50%);
   width:32px;height:60px;background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(8px);border-radius:8px 0 0 8px;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px 0 0 8px;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;opacity:0;pointer-events:none;transition:opacity 0.3s;
   border:1px solid rgba(255,255,255,0.1);border-right:none;
@@ -123,7 +123,7 @@ h1 em{font-weight:400;font-style:italic}
 .form-container {
   width:100%;max-width:480px;background:rgba(255,255,255,0.03);
   border:1px solid rgba(255,255,255,0.1);border-radius:24px;
-  padding:50px;backdrop-filter:blur(24px);margin-top:40px;
+  padding:50px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);margin-top:40px;
   text-align:left;position:relative; z-index: 10;
   box-shadow: 0 20px 50px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1);
   transition: background 0.4s, border-color 0.4s, transform 0.4s cubic-bezier(0.2,1,0.3,1), box-shadow 0.4s cubic-bezier(0.2,1,0.3,1);
@@ -196,7 +196,7 @@ h1 em{font-weight:400;font-style:italic}
 #studentSurveyArea { width:100%; max-width:620px; }
 .empty-state-card {
   background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-  border-radius:24px;padding:60px 40px;backdrop-filter:blur(12px);
+  border-radius:24px;padding:60px 40px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   max-width:620px;width:100%;text-align:center;
 }
 .empty-state-card .es-emoji { font-size:56px; display:block; margin-bottom:20px; }
@@ -205,7 +205,7 @@ h1 em{font-weight:400;font-style:italic}
 
 .survey-card {
   background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-  border-radius:24px;padding:36px;backdrop-filter:blur(12px);
+  border-radius:24px;padding:36px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   width:100%;text-align:left;
 }
 .survey-card-header { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
@@ -256,7 +256,7 @@ h1 em{font-weight:400;font-style:italic}
 
 .dash-card{
   background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-  border-radius:24px;padding:36px 32px;backdrop-filter:blur(12px);
+  border-radius:24px;padding:36px 32px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   text-align:left;
 }
 .dash-card h3{
@@ -326,7 +326,7 @@ h1 em{font-weight:400;font-style:italic}
 
 .name-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999;
-  background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+  background: rgba(0,0,0,0.85); backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   display: none; align-items: center; justify-content: center;
   opacity: 0;
 }
@@ -560,7 +560,7 @@ h1 em{font-weight:400;font-style:italic}
 
 /* ═══ MODAL ═══ */
 .modal-overlay {
-  position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px);
+  position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   display:flex; align-items:center; justify-content:center; z-index:9000;
   opacity:0; pointer-events:none; transition:opacity 0.3s;
 }
@@ -616,7 +616,7 @@ h1 em{font-weight:400;font-style:italic}
 .es-card {
   background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
   border-radius:24px; padding:48px 32px; max-width:440px; margin:0 auto; text-align:center;
-  backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   box-shadow: 0 24px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
 }
 .es-card h3 { font-family:'Playfair Display',serif; font-size:28px; margin-bottom:12px; font-weight:700; background:linear-gradient(135deg,#fff,#94a3b8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
@@ -625,7 +625,7 @@ h1 em{font-weight:400;font-style:italic}
 .survey-card {
   background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);
   border-radius:24px; padding:40px; max-width:640px; margin:0 auto; text-align:left;
-  backdrop-filter:blur(24px); box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px); box-shadow: 0 24px 64px rgba(0,0,0,0.5);
 }
 .survey-card h3 { font-family:'Playfair Display',serif; font-size:26px; margin-bottom:24px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:16px; }
 
@@ -706,7 +706,7 @@ h1 em{font-weight:400;font-style:italic}
   .l-sidebar {
     position:fixed; top:0; left:0; right:0; width:100%;
     transform:none; flex-direction:row; overflow-x:auto; overflow-y:hidden;
-    background:rgba(10,16,29,0.96); backdrop-filter:blur(12px);
+    background:rgba(10,16,29,0.96); backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     border-bottom:1px solid rgba(255,255,255,0.08);
     z-index:200; padding:8px 12px; gap:6px; align-items:center; height:auto;
     scrollbar-width:none;
