@@ -306,18 +306,57 @@ body{background:var(--b);color:var(--w);font-family:'Inter',sans-serif;overflow-
 .hi-body p{font-size:15px;line-height:1.85;color:rgba(255,255,255,.62);max-width:560px}
 
 /* ── MISSION ── */
-#mission{background:transparent;min-height:100vh;display:flex;align-items:center;position:relative;z-index:2}
-.mission-inner{text-align:center;padding-top:120px;padding-bottom:120px}
+#mission{background:transparent;min-height:100vh;display:flex;align-items:center;position:relative;z-index:2;overflow:hidden}
+.mission-inner{text-align:center;padding-top:140px;padding-bottom:140px;width:100%}
+
+/* Slowly turning emblem and orbit rings behind the quote */
+.mission-orbit{
+  position:absolute;left:50%;top:50%;width:min(820px,120vw);aspect-ratio:1;
+  transform:translate(-50%,-50%);pointer-events:none;z-index:0;
+}
+.mo-ring{position:absolute;inset:0;border-radius:50%;border:1px dashed rgba(147,197,253,.16)}
+.mo-ring.r2{inset:12%;border-style:solid;border-color:rgba(147,197,253,.08)}
+.mo-ring.r3{inset:26%;border-color:rgba(147,197,253,.12)}
+.mo-ring.r1{animation:moSpin 90s linear infinite}
+.mo-ring.r3{animation:moSpin 60s linear infinite reverse}
+.mo-ring.r1::before,.mo-ring.r3::before{
+  content:"";position:absolute;top:-4px;left:50%;width:8px;height:8px;margin-left:-4px;border-radius:50%;
+  background:var(--a2);box-shadow:0 0 14px 3px rgba(59,130,246,.6);
+}
+.mo-glow{position:absolute;inset:22%;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.22),transparent 68%)}
+.mo-emblem{position:absolute;inset:30%;width:40%;height:40%;object-fit:contain;opacity:.06;animation:moSpin 120s linear infinite}
+@keyframes moSpin{to{transform:rotate(360deg)}}
+
+.mission-inner .eyebrow,.mission-inner .flow-title,#mQ,#valWords{position:relative;z-index:1}
+.mq-mark{
+  display:block;font-family:'Playfair Display',serif;font-size:120px;line-height:.6;height:56px;margin-bottom:10px;
+  background:linear-gradient(180deg,var(--a3),var(--a1));-webkit-background-clip:text;background-clip:text;color:transparent;
+}
 blockquote#mQ{
   font-family:'Playfair Display',serif;font-style:italic;
-  font-size:clamp(24px,3.2vw,44px);font-weight:400;line-height:1.45;
-  max-width:900px;margin:0 auto 72px;position:relative;
+  font-size:clamp(26px,3.6vw,50px);font-weight:400;line-height:1.38;
+  max-width:980px;margin:0 auto 72px;
 }
-#mQ::before{content:'\201C';font-size:200px;line-height:0;color:rgba(255,255,255,.04);position:absolute;top:80px;left:-40px;font-family:'Playfair Display',serif}
-#mQ::after{content:'\201D';font-size:200px;line-height:0;color:rgba(255,255,255,.04);position:absolute;bottom:-50px;right:-40px;font-family:'Playfair Display',serif}
-#valWords{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
-.val{border:1px solid rgba(255,255,255,.18);border-radius:100px;padding:12px 28px;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.62);transition:all .3s;font-family:'Space Grotesk',sans-serif}
-.val:hover{background:#fff;color:var(--b);border-color:#fff}
+/* Words light up one by one as the quote scrolls through the screen */
+#mQ .w{opacity:.16;transition:none}
+#mQ .w.hl{
+  font-weight:700;
+  background:linear-gradient(90deg,#93c5fd,#60a5fa 45%,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+
+#valWords{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;max-width:1120px;margin:0 auto}
+.val{
+  display:inline-flex;align-items:center;gap:10px;padding:13px 24px 13px 16px;border-radius:100px;
+  font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;
+  color:rgba(255,255,255,.82);
+  background:linear-gradient(rgba(14,24,52,.9),rgba(14,24,52,.9)) padding-box,
+             linear-gradient(120deg,rgba(147,197,253,.55),rgba(167,139,250,.35),rgba(147,197,253,.12)) border-box;
+  border:1px solid transparent;
+  transition:transform .35s cubic-bezier(.2,1,.3,1),box-shadow .35s,color .35s;
+}
+.val svg{width:18px;height:18px;flex:none;color:var(--a3)}
+.val:hover{transform:translateY(-4px);color:#fff;box-shadow:0 12px 30px rgba(37,99,235,.35),0 0 0 1px rgba(147,197,253,.4)}
+@media(prefers-reduced-motion:reduce){.mo-ring,.mo-emblem{animation:none}#mQ .w{opacity:1}}
 
 /* ── FOOTER ── */
 footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.28);border-top:1px solid rgba(255,255,255,.05);position:relative;z-index:2;background:transparent;font-family:'Space Grotesk',sans-serif}
@@ -406,8 +445,9 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
 
   /* Mission */
   .mission-inner{padding-top:80px;padding-bottom:80px}
-  blockquote#mQ{font-size:clamp(18px,4.5vw,28px)}
-  #mQ::before,#mQ::after{display:none}
+  blockquote#mQ{font-size:clamp(22px,6vw,30px)}
+  .mq-mark{font-size:90px;height:42px}
+  .val{padding:11px 18px 11px 13px;font-size:10px;letter-spacing:2px}
 
   /* Outro */
   #outroBtn{padding:20px 40px;font-size:14px}
@@ -628,14 +668,23 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
 
   <!-- ═══ MISSION ═══ -->
   <section id="mission">
+    <div class="mission-orbit" aria-hidden="true">
+      <div class="mo-glow"></div>
+      <div class="mo-ring r1"></div><div class="mo-ring r2"></div><div class="mo-ring r3"></div>
+      <img class="mo-emblem" src="logo.png" alt="" loading="lazy" decoding="async">
+    </div>
     <div class="s-inner mission-inner">
       <span class="eyebrow sr" style="display:block">What Hands for Hope strives to do</span>
-      <h2 class="flow-title sr" style="max-width:600px;margin:0 auto 60px">Our <em>Mission</em></h2>
-      <blockquote id="mQ" class="sr">To utilize our school's incredible utilities to make change in the disabled community, powered by student-led work and devotion.</blockquote>
+      <h2 class="flow-title sr" style="max-width:600px;margin:0 auto 56px">Our <em>Mission</em></h2>
+      <span class="mq-mark" aria-hidden="true">&ldquo;</span>
+      <blockquote id="mQ">To utilize our school's incredible utilities to make change in the <span class="hl">disabled community</span>, powered by <span class="hl">student-led work</span> and devotion.</blockquote>
       <div id="valWords">
-        <span class="val sr">Compassion</span><span class="val sr">Integrity</span>
-        <span class="val sr">Equity</span><span class="val sr">Change</span>
-        <span class="val sr">Community</span><span class="val sr">Kindness</span>
+        <span class="val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>Compassion</span>
+        <span class="val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 20 5.5v6c0 5-3.4 8.7-8 10.5C7.4 20.2 4 16.5 4 11.5v-6Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Integrity</span>
+        <span class="val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M7 21h10M4 7h16"/><path d="M6 7 3 14a3.2 3.2 0 0 0 6 0Z"/><path d="m18 7-3 7a3.2 3.2 0 0 0 6 0Z"/></svg>Equity</span>
+        <span class="val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/></svg>Change</span>
+        <span class="val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.6"/><path d="M16.5 14.2c2.6.3 4.5 2.4 5 5.3"/></svg>Community</span>
+        <span class="val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 13.9 8l4.6.4-3.5 3 1.1 4.6-4.1-2.5-4.1 2.5 1.1-4.6-3.5-3 4.6-.4Z"/><path d="M5 20.5h14"/></svg>Kindness</span>
       </div>
     </div>
   </section>
@@ -975,6 +1024,18 @@ function initOutro(){
 }
 
 /* ══════════════════════════════════════════════════
+   MISSION QUOTE — split into words that light up with scroll
+══════════════════════════════════════════════════ */
+function initMissionQuote(){
+  const q=document.getElementById('mQ');
+  const wrap=(text,cls)=>text.split(/(\s+)/).map(t=>/^\s+$/.test(t)||!t?t:`<span class="w${cls}">${t}</span>`).join('');
+  q.innerHTML=[...q.childNodes].map(n=>n.nodeType===3?wrap(n.textContent,''):wrap(n.textContent,' hl')).join('');
+  if(REDUCED_MOTION) return;
+  gsap.to(q.querySelectorAll('.w'),{opacity:1,stagger:.1,ease:'none',
+    scrollTrigger:{trigger:q,start:'top 82%',end:'bottom 48%',scrub:.5}});
+}
+
+/* ══════════════════════════════════════════════════
    SCROLL ANIMATIONS
 ══════════════════════════════════════════════════ */
 function initScrollAnimations(){
@@ -996,10 +1057,11 @@ function initScrollAnimations(){
   document.querySelectorAll('.hi').forEach((hi,i)=>{
     gsap.fromTo(hi,{opacity:0,x:-40},{opacity:1,x:0,duration:.8,delay:i*.08,ease:'power2.out',scrollTrigger:{trigger:hi,start:'top 88%'}});
   });
-  document.querySelectorAll('.val').forEach((v,i)=>{
-    gsap.fromTo(v,{opacity:0,scale:.7},{opacity:1,scale:1,duration:.5,delay:i*.07,ease:'back.out(1.7)',scrollTrigger:{trigger:v,start:'top 90%'}});
-  });
-  gsap.fromTo('#mQ',{opacity:0,y:40},{opacity:1,y:0,duration:1.1,ease:'power3.out',scrollTrigger:{trigger:'#mQ',start:'top 85%'}});
+  // Value pills pop in one after another
+  gsap.fromTo('.val',{opacity:0,y:24,scale:.85},{opacity:1,y:0,scale:1,duration:.55,stagger:.08,ease:'back.out(1.7)',
+    scrollTrigger:{trigger:'#valWords',start:'top 90%'}});
+  gsap.fromTo('.mq-mark',{opacity:0,y:30},{opacity:1,y:0,duration:.9,ease:'power3.out',scrollTrigger:{trigger:'#mQ',start:'top 90%'}});
+  initMissionQuote();
   gsap.to('#heroImg',{y:'12%',ease:'none',scrollTrigger:{trigger:'#hero',start:'top top',end:'bottom top',scrub:true}});
 }
 
