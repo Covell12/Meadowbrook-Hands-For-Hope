@@ -222,22 +222,28 @@ body{background:var(--b);color:var(--w);font-family:'Inter',sans-serif;overflow-
 #procDots{display:flex;gap:10px}
 .pdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .4s}
 .pdot.active{background:#fff;width:24px;border-radius:3px}
-#procRight{position:relative;height:340px}
-#procBigNum{
-  position:absolute;bottom:-24px;right:-24px;
-  font-family:'Playfair Display',serif;font-size:180px;font-weight:900;
-  color:rgba(255,255,255,.04);line-height:1;pointer-events:none;user-select:none;
+/* Steps are stacked in one grid cell; GSAP slides them up through it */
+#procRight{position:relative;display:grid;align-items:center;min-height:440px}
+.proc-step{grid-area:1/1;position:relative;opacity:0;will-change:transform,opacity}
+.ps-num{
+  display:flex;align-items:center;gap:14px;margin-bottom:24px;
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:5px;
+  text-transform:uppercase;color:var(--a2);
 }
-.proc-card{
-  position:absolute;top:0;left:0;width:100%;height:100%;
-  background:linear-gradient(160deg,#1d2b58,#131d42);
-  border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:36px 40px;
-  box-shadow:0 32px 80px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.12);
-  opacity:0;will-change:transform,opacity;
+.ps-num::after{content:"";width:64px;height:1px;background:linear-gradient(90deg,var(--a2),transparent)}
+.proc-step h3{
+  font-family:'Playfair Display',serif;font-size:clamp(40px,5vw,76px);font-weight:900;
+  line-height:1.02;margin-bottom:24px;
 }
-.proc-card .pc-num{display:block;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--a2);margin-bottom:18px}
-.proc-card h3{font-family:'Playfair Display',serif;font-size:clamp(22px,2.4vw,30px);font-weight:700;margin-bottom:12px}
-.proc-card p{font-size:15px;line-height:1.82;color:rgba(255,255,255,.65);max-width:420px}
+.proc-step p{font-size:clamp(16px,1.35vw,20px);line-height:1.7;color:rgba(255,255,255,.72);max-width:560px}
+.ps-big{
+  position:absolute;right:-10px;top:50%;transform:translateY(-50%);z-index:-1;
+  font-family:'Playfair Display',serif;font-size:clamp(160px,20vw,300px);font-weight:900;line-height:1;
+  color:transparent;-webkit-text-stroke:1.5px rgba(147,197,253,.14);
+  pointer-events:none;user-select:none;
+}
+#procCount{margin-top:18px;font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:3px;color:rgba(255,255,255,.45)}
+#procCount b{color:#fff;font-weight:600}
 
 /* ── PARTNERS ── */
 #partners{background:transparent;position:relative;z-index:2;padding:120px 0 140px}
@@ -247,27 +253,44 @@ body{background:var(--b);color:var(--w);font-family:'Inter',sans-serif;overflow-
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
   mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
 }
-.carousel-track{display:flex;gap:20px;width:max-content;will-change:transform}
+.carousel-track{display:flex;gap:22px;width:max-content;will-change:transform;padding:14px 0 24px}
+/* Each card is tinted with its organisation's colour (--pc) */
 .partner-card{
-  flex-shrink:0;width:236px;
-  background:rgba(22,34,68,.92);
-  border:1px solid rgba(255,255,255,.11);border-radius:20px;padding:28px 24px;
-  position:relative;transition:background .3s,border-color .3s,transform .3s;
+  --pc:#3b82f6;
+  flex-shrink:0;width:280px;height:196px;border-radius:22px;padding:22px 24px;
+  position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;
+  background:#13204a;
+  background:linear-gradient(150deg,color-mix(in srgb,var(--pc) 42%,#0e1834) 0%,#0e1834 64%);
+  border:1px solid rgba(255,255,255,.14);
+  border:1px solid color-mix(in srgb,var(--pc) 50%,transparent);
+  box-shadow:0 18px 40px rgba(0,0,0,.35);
+  transition:transform .35s cubic-bezier(.2,1,.3,1),box-shadow .35s,border-color .35s;
 }
-.partner-card:hover{background:rgba(32,46,86,.95);border-color:rgba(255,255,255,.22);transform:translateY(-5px)}
-.partner-card.upcoming{border-color:rgba(249,115,22,.28)}
-.upcoming-tag{
-  position:absolute;top:14px;right:14px;background:var(--a3);color:#fff;
-  font-family:'Space Grotesk',sans-serif;font-size:8px;font-weight:700;
-  letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border-radius:100px;
+.partner-card::before{
+  content:"";position:absolute;width:240px;height:240px;right:-80px;top:-110px;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--pc) 75%,transparent),transparent 70%);
+  opacity:.5;pointer-events:none;
 }
-.pc-icon{
-  width:50px;height:50px;border-radius:12px;
+.partner-card:hover{
+  transform:translateY(-6px);box-shadow:0 26px 50px rgba(0,0,0,.45);
+  border-color:color-mix(in srgb,var(--pc) 70%,#fff);
+}
+.pc-top{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.pc-mark{
+  height:58px;min-width:58px;padding:0 14px;border-radius:15px;
   display:flex;align-items:center;justify-content:center;
-  margin-bottom:18px;
+  background:#fff;color:var(--pc);box-shadow:0 8px 22px rgba(0,0,0,.28);
+  font-family:'Playfair Display',serif;font-size:23px;font-weight:900;letter-spacing:-.5px;
 }
-.pc-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;line-height:1.25;margin-bottom:8px}
-.pc-cat{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.38)}
+.pc-mark img{display:block;max-height:40px;max-width:140px;object-fit:contain}
+.pc-status{
+  font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;padding:5px 10px;border-radius:100px;white-space:nowrap;
+  background:rgba(255,255,255,.1);color:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.16);
+}
+.partner-card.upcoming .pc-status{background:rgba(251,191,36,.14);color:#fcd34d;border-color:rgba(251,191,36,.4)}
+.pc-name{position:relative;font-family:'Playfair Display',serif;font-size:21px;font-weight:700;line-height:1.2}
+.pc-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--pc)}
 
 /* ── HISTORY ── */
 #history{background:transparent;position:relative;z-index:2}
@@ -363,10 +386,10 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
   /* Process */
   #proc{height:auto;padding:80px 0}
   #procInner{grid-template-columns:1fr;padding:0 24px;gap:40px}
-  #procRight{height:320px}
-  #procBigNum{font-size:100px;bottom:-12px;right:-8px}
-  .proc-card{padding:24px}
-  .proc-card p{font-size:14px;line-height:1.7}
+  #procRight{min-height:380px}
+  .proc-step h3{font-size:clamp(34px,10vw,48px);margin-bottom:16px}
+  .proc-step p{font-size:15px}
+  .ps-big{font-size:150px;right:-4px}
   .flow-title{font-size:clamp(36px,8vw,56px);margin-bottom:40px}
 
   /* Partners */
@@ -543,31 +566,33 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
           <div class="pdot"></div>
           <div class="pdot"></div>
         </div>
+        <div id="procCount"><b>01</b> / 04</div>
       </div>
       <div id="procRight">
-        <div id="procCards">
-          <div class="proc-card" id="pc0">
-            <span class="pc-num">Step 01</span>
-            <h3>Submit a Request</h3>
-            <p>Individuals or organizations describe what they need through the request form, or we reach out to them. From September to June, we will respond within a few days, with follow up questions or notice that we are in progress fulfilling your request.</p>
-          </div>
-          <div class="proc-card" id="pc1">
-            <span class="pc-num">Step 02</span>
-            <h3>Logistics</h3>
-            <p>We get in contact, nail down logistics, and begin development.</p>
-          </div>
-          <div class="proc-card" id="pc2">
-            <span class="pc-num">Step 03</span>
-            <h3>Development</h3>
-            <p>At the beginning of one of our Friday Hands for Hope meetings, we select some students to spend the time period focused on developing the product. If it is a multi-week project, we keep the individual or organization up-to-date on the progress.</p>
-          </div>
-          <div class="proc-card" id="pc3">
-            <span class="pc-num">Step 04</span>
-            <h3>Shipment</h3>
-            <p>We ship the finished product, and await confirmation from the recipient.</p>
-          </div>
+        <div class="proc-step">
+          <span class="ps-big" aria-hidden="true">01</span>
+          <span class="ps-num">Step 01</span>
+          <h3>Submit a Request</h3>
+          <p>Individuals or organizations describe what they need through the request form, or we reach out to them. From September to June, we will respond within a few days, with follow up questions or notice that we are in progress fulfilling your request.</p>
         </div>
-        <div id="procBigNum">01</div>
+        <div class="proc-step">
+          <span class="ps-big" aria-hidden="true">02</span>
+          <span class="ps-num">Step 02</span>
+          <h3>Logistics</h3>
+          <p>We get in contact, nail down logistics, and begin development.</p>
+        </div>
+        <div class="proc-step">
+          <span class="ps-big" aria-hidden="true">03</span>
+          <span class="ps-num">Step 03</span>
+          <h3>Development</h3>
+          <p>At the beginning of one of our Friday Hands for Hope meetings, we select some students to spend the time period focused on developing the product. If it is a multi-week project, we keep the individual or organization up-to-date on the progress.</p>
+        </div>
+        <div class="proc-step">
+          <span class="ps-big" aria-hidden="true">04</span>
+          <span class="ps-num">Step 04</span>
+          <h3>Shipment</h3>
+          <p>We ship the finished product, and await confirmation from the recipient.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -806,82 +831,86 @@ function refreshSerpentineHeight(){
    PROCESS — ScrollTrigger pin:true locks the page
 ══════════════════════════════════════════════════ */
 function initProcess(){
-  const cards=[...document.querySelectorAll('.proc-card')];
+  const steps=[...document.querySelectorAll('.proc-step')];
   const dots=[...document.querySelectorAll('.pdot')];
-  const bigNum=document.getElementById('procBigNum');
+  const count=document.querySelector('#procCount b');
+  const travel=()=>Math.min(innerHeight*0.45,360);   // how far a step travels in/out
 
-  // All cards start off-screen right
-  cards.forEach((c,i)=>gsap.set(c,{zIndex:i+1,x:'110%',rotateY:-10,opacity:0,transformOrigin:'right center'}));
+  gsap.set(steps,{opacity:0,y:travel});
 
-  // Timeline scrubbed over the pinned scroll distance
+  // Step swaps happen at these points of the pinned scroll (0..1)
+  const swaps=[0.25,0.5,0.75];
+  let shown=-1;
+  function setActive(i){
+    if(i===shown) return; shown=i;
+    dots.forEach((d,di)=>d.classList.toggle('active',di===i));
+    count.textContent=`0${i+1}`;
+  }
+
+  // The page stays put while this timeline is scrubbed by the scroll wheel
   const procTL=gsap.timeline({
+    defaults:{ease:'none'},
     scrollTrigger:{
       trigger:'#proc',
       start:'top top',
       end:'+=400%',        // 400vh of scroll while visually locked
       pin:true,
-      scrub:true,
-      // Use enter/leave callbacks — reliable regardless of when ST calculates start/end
+      scrub:0.6,
+      invalidateOnRefresh:true,
       onEnter()     { _inProcPin=true;  _procPinEntryScroll=window.scrollY; },
       onLeave()     { _inProcPin=false; },
       onEnterBack() { _inProcPin=true;  _procPinEntryScroll=window.scrollY; },
       onLeaveBack() { _inProcPin=false; },
+    },
+    onUpdate(){
+      const t=procTL.progress();
+      setActive(swaps.filter(p=>t>=p).length);
     }
   });
 
-  // Arrival positions within the timeline (0..1 representing full duration)
-  const arrives=[0.02, 0.28, 0.54, 0.78];
-
-  cards.forEach((card,i)=>{
-    const p=arrives[i];
-    // Card flies in from right
-    procTL.to(card,{x:0,rotateY:0,opacity:1,duration:0.16,ease:'power2.out'},p);
-
-    // Previous cards recede (stack depth)
-    for(let j=0;j<i;j++){
-      const depth=i-j;
-      procTL.to(cards[j],{y:depth*-9,scale:1-depth*.03,opacity:Math.max(.12,.9-depth*.28),duration:0.12},p);
-    }
-
-    // Update dots + large background number
-    procTL.call(()=>{
-      dots.forEach((d,di)=>d.classList.toggle('active',di===i));
-      bigNum.textContent=`0${i+1}`;
-    },[],p+.08);
+  // First step rises into place as the section locks
+  procTL.to(steps[0],{y:0,opacity:1,duration:0.08,ease:'power2.out'},0);
+  // Each later step comes up from below while the previous one flies out the top
+  swaps.forEach((p,k)=>{
+    procTL.to(steps[k],{y:()=>-travel(),opacity:0,duration:0.09,ease:'power2.in'},p-0.06);
+    procTL.fromTo(steps[k+1],{y:travel,opacity:0},{y:0,opacity:1,duration:0.09,ease:'power2.out',immediateRender:false},p-0.01);
   });
 
-  // Animate the serpentines side-to-side (parallax effect) instead of down
-  procTL.to('#serpWrap',{x:'-15vw',duration:0.96,ease:'none'}, 0);
-
-  // Hold final state until scroll ends
-  procTL.to({}  ,{duration:0.18},0.96);
+  // Serpentines drift sideways while the page is held
+  procTL.to('#serpWrap',{x:'-15vw',duration:1},0);
+  setActive(0);
 }
 
 /* ══════════════════════════════════════════════════
    PARTNERS CAROUSEL
 ══════════════════════════════════════════════════ */
+// mark: monogram shown on the card's badge.
+// logo: optional image in /public (e.g. 'partners/brandeis.png'); when set it replaces the monogram.
 const PARTNERS=[
-  {name:'Brandeis University',         cat:'',          color:'#1e3a8a',upcoming:false},
-  {name:'ENABLE',                       cat:'',      color:'#065f46',upcoming:false},
-  {name:'Makers Making Change',         cat:'',         color:'#5b21b6',upcoming:false},
-  {name:'Better Good',                  cat:'',     color:'#7c3aed',upcoming:false},
-  {name:'Seven Hills Foundation',       cat:'',    color:'#1e3a5f',upcoming:true},
-  {name:'Bionic5K',                     cat:'',   color:'#047857',upcoming:false},
-  {name:"Boston Children's Hospital",   cat:'',         color:'#1d4ed8',upcoming:false},
-  {name:'MakeGood',                     cat:'',   color:'#6d28d9',upcoming:false},
-  {name:'Comfy Cases',                  cat:'',           color:'#9a3412',upcoming:false},
-  {name:'Rare By Design',              cat:'',          color:'#7e1d5f',upcoming:true},
+  {name:'Brandeis University',        mark:'BU',  logo:'', color:'#2563eb', upcoming:false},
+  {name:'ENABLE',                     mark:'e',   logo:'', color:'#059669', upcoming:false},
+  {name:'Makers Making Change',       mark:'MMC', logo:'', color:'#7c3aed', upcoming:false},
+  {name:'Better Good',                mark:'BG',  logo:'', color:'#8b5cf6', upcoming:false},
+  {name:'Seven Hills Foundation',     mark:'7H',  logo:'', color:'#0ea5e9', upcoming:true},
+  {name:'Bionic5K',                   mark:'B5K', logo:'', color:'#10b981', upcoming:false},
+  {name:"Boston Children's Hospital", mark:'BCH', logo:'', color:'#3b82f6', upcoming:false},
+  {name:'MakeGood',                   mark:'MG',  logo:'', color:'#a855f7', upcoming:false},
+  {name:'Comfy Cases',                mark:'CC',  logo:'', color:'#ea580c', upcoming:false},
+  {name:'Rare By Design',             mark:'RbD', logo:'', color:'#db2777', upcoming:true},
 ];
 
 function buildPartnerCard(p){
   const d=document.createElement('div');
   d.className='partner-card'+(p.upcoming?' upcoming':'');
+  d.style.setProperty('--pc',p.color);
+  const badge=p.logo?`<img src="${p.logo}" alt="${p.name} logo" loading="lazy" decoding="async">`:p.mark;
   d.innerHTML=`
-    ${p.upcoming?`<div class="upcoming-tag">Upcoming</div>`:''}
-    <div class="pc-icon" style="background:${p.color}22;border:1px solid ${p.color}55">
-      <span style="color:${p.color};font-family:'Playfair Display',serif;font-size:22px;font-weight:900">${p.name.charAt(0)}</span>
+    <div class="pc-top">
+      <div class="pc-mark">${badge}</div>
+      <span class="pc-status">${p.upcoming?'Upcoming':'Partner'}</span>
     </div>
-    <div class="pc-name">${p.name}</div>`;
+    <div class="pc-name">${p.name}</div>
+    <div class="pc-bar"></div>`;
   return d;
 }
 
@@ -895,7 +924,12 @@ function initPartnersCarousel(){
     x:-halfW,duration:40,ease:'none',repeat:-1,paused:true,
     modifiers:{x:gsap.utils.unitize(x=>parseFloat(x)%halfW)}
   });
-  ScrollTrigger.create({trigger:'#partners',start:'top bottom',end:'bottom top',onToggle:self=>self.isActive?loop.play():loop.pause()});
+  let onScreen=false, hovered=false;
+  const sync=()=>(onScreen&&!hovered)?loop.play():loop.pause();
+  ScrollTrigger.create({trigger:'#partners',start:'top bottom',end:'bottom top',onToggle:self=>{onScreen=self.isActive;sync();}});
+  // Pause while the pointer is over the cards so they can be read
+  track.addEventListener('mouseenter',()=>{hovered=true;sync();});
+  track.addEventListener('mouseleave',()=>{hovered=false;sync();});
 }
 
 /* ══════════════════════════════════════════════════
