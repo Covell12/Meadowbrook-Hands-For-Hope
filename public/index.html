@@ -283,6 +283,7 @@ body{background:var(--b);color:var(--w);font-family:'Inter',sans-serif;overflow-
   font-family:'Playfair Display',serif;font-size:23px;font-weight:900;letter-spacing:-.5px;
 }
 .pc-mark img{display:block;max-height:40px;max-width:140px;object-fit:contain}
+.pc-mark svg{width:30px;height:30px;display:block}
 .pc-status{
   font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;
   text-transform:uppercase;padding:5px 10px;border-radius:100px;white-space:nowrap;
@@ -884,26 +885,41 @@ function initProcess(){
 /* ══════════════════════════════════════════════════
    PARTNERS CAROUSEL
 ══════════════════════════════════════════════════ */
-// mark: monogram shown on the card's badge.
-// logo: optional image in /public (e.g. 'partners/brandeis.png'); when set it replaces the monogram.
+// icon: an emblem drawn for what each organisation does (see PARTNER_ICONS).
+// logo: optional image in /public (e.g. 'partners/brandeis.png'); when set it replaces the icon.
 const PARTNERS=[
-  {name:'Brandeis University',        mark:'BU',  logo:'', color:'#2563eb', upcoming:false},
-  {name:'ENABLE',                     mark:'e',   logo:'', color:'#059669', upcoming:false},
-  {name:'Makers Making Change',       mark:'MMC', logo:'', color:'#7c3aed', upcoming:false},
-  {name:'Better Good',                mark:'BG',  logo:'', color:'#8b5cf6', upcoming:false},
-  {name:'Seven Hills Foundation',     mark:'7H',  logo:'', color:'#0ea5e9', upcoming:true},
-  {name:'Bionic5K',                   mark:'B5K', logo:'', color:'#10b981', upcoming:false},
-  {name:"Boston Children's Hospital", mark:'BCH', logo:'', color:'#3b82f6', upcoming:false},
-  {name:'MakeGood',                   mark:'MG',  logo:'', color:'#a855f7', upcoming:false},
-  {name:'Comfy Cases',                mark:'CC',  logo:'', color:'#ea580c', upcoming:false},
-  {name:'Rare By Design',             mark:'RbD', logo:'', color:'#db2777', upcoming:true},
+  {name:'Brandeis University',        icon:'university', logo:'', color:'#2563eb', upcoming:false},
+  {name:'ENABLE',                     icon:'hand',       logo:'', color:'#059669', upcoming:false},
+  {name:'Makers Making Change',       icon:'wrench',     logo:'', color:'#7c3aed', upcoming:false},
+  {name:'Better Good',                icon:'heart',      logo:'', color:'#8b5cf6', upcoming:false},
+  {name:'Seven Hills Foundation',     icon:'hills',      logo:'', color:'#0ea5e9', upcoming:true},
+  {name:'Bionic5K',                   icon:'medal',      logo:'', color:'#10b981', upcoming:false},
+  {name:"Boston Children's Hospital", icon:'hospital',   logo:'', color:'#3b82f6', upcoming:false},
+  {name:'MakeGood',                   icon:'bulb',       logo:'', color:'#a855f7', upcoming:false},
+  {name:'Comfy Cases',                icon:'pillow',     logo:'', color:'#ea580c', upcoming:false},
+  {name:'Rare By Design',             icon:'gem',        logo:'', color:'#db2777', upcoming:true},
 ];
+// 24×24 line icons, drawn in the partner's colour
+const PARTNER_ICONS={
+  university:'<path d="M3 9.5 12 4l9 5.5"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/>',
+  hand:'<path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>',
+  wrench:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/>',
+  heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 9v6M9 12h6"/>',
+  hills:'<path d="M2 20 8.5 9l4 6.5L15.5 11 22 20Z"/><circle cx="17.5" cy="5.5" r="2"/>',
+  medal:'<path d="M7.2 2h3.6L12 6l1.2-4h3.6L14 9.5"/><path d="M10 9.5 7.2 2"/><circle cx="12" cy="15" r="6"/><path d="m12 12 .9 1.9 2 .2-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.2Z"/>',
+  hospital:'<rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 7.5v9M7.5 12h9"/>',
+  bulb:'<path d="M9 18h6M10 21.5h4"/><path d="M12 2.5a6.5 6.5 0 0 0-3.8 11.8c.5.4.8 1 .8 1.6V16h6v-.1c0-.6.3-1.2.8-1.6A6.5 6.5 0 0 0 12 2.5Z"/>',
+  pillow:'<path d="M5 6.5C5 4.6 6 4 7.5 4h9C18 4 19 4.6 19 6.5c1.3 1.4 2 3.2 2 5.5s-.7 4.1-2 5.5c0 1.9-1 2.5-2.5 2.5h-9C6 20 5 19.4 5 17.5 3.7 16.1 3 14.3 3 12s.7-4.1 2-5.5Z"/><path d="M8.5 10.5c1 .8 2.2 1.2 3.5 1.2s2.5-.4 3.5-1.2"/>',
+  gem:'<path d="M6 3h12l4 6-10 12L2 9Z"/><path d="M2 9h20"/><path d="M12 21 8 9l2-6M12 21l4-12-2-6"/>',
+};
 
 function buildPartnerCard(p){
   const d=document.createElement('div');
   d.className='partner-card'+(p.upcoming?' upcoming':'');
   d.style.setProperty('--pc',p.color);
-  const badge=p.logo?`<img src="${p.logo}" alt="${p.name} logo" loading="lazy" decoding="async">`:p.mark;
+  const badge=p.logo
+    ?`<img src="${p.logo}" alt="${p.name} logo" loading="lazy" decoding="async">`
+    :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PARTNER_ICONS[p.icon]||''}</svg>`;
   d.innerHTML=`
     <div class="pc-top">
       <div class="pc-mark">${badge}</div>
