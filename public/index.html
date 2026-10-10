@@ -39,8 +39,8 @@ body{background:var(--b);color:var(--w);font-family:'Inter',sans-serif;overflow-
 }
 #mlogo-text-wrap{overflow:hidden;max-width:0;display:flex;flex-direction:column;align-items:flex-start;margin-left:15px}
 #mlogo-text{
-  font-family:'Cormorant Garamond',serif;font-style:italic;font-size:30px;font-weight:600;
-  letter-spacing:2px;color:#fff;white-space:nowrap;
+  font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;
+  letter-spacing:3.5px;text-transform:uppercase;color:#fff;white-space:nowrap;
   transform:translateX(-110%);opacity:0;
 }
 #mlogo-underline{height:1px;width:0%;background:linear-gradient(90deg,var(--a1),var(--a2));margin-top:3px}
@@ -120,13 +120,13 @@ body{background:var(--b);color:var(--w);font-family:'Inter',sans-serif;overflow-
 /* Photo (and its shade) fade out at the bottom, revealing the WebGL canvas beneath */
 #heroImgWrap{
   position:absolute;inset:0;z-index:0;
-  -webkit-mask-image:linear-gradient(to bottom, black 0%, black 55%, rgba(0,0,0,.7) 78%, transparent 100%);
-  mask-image:linear-gradient(to bottom, black 0%, black 55%, rgba(0,0,0,.7) 78%, transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
+  mask-image:linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
 }
 #heroImg{width:100%;height:100%;object-fit:cover;object-position:center 35%;will-change:transform}
 #heroShade{
   position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 70% 62% at 50% 52%,rgba(9,21,48,.6),rgba(9,21,48,.92) 78%);
+  background:radial-gradient(ellipse 75% 70% at 50% 50%,rgba(9,21,48,.55),rgba(9,21,48,.85) 85%);
 }
 
 #heroContent{
@@ -298,6 +298,7 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
 /* ── OUTRO ── */
 #outroZone{height:220vh;position:relative;z-index:2}
 #outroOverlay{position:fixed;inset:0;z-index:9500;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+#outroCredit{position:absolute;left:20px;bottom:14px;z-index:2;font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:1px;color:#1a2546;opacity:0}
 #outroBg{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,#0a0520 0%,#050a18 100%);clip-path:circle(0% at 50% 50%);will-change:clip-path}
 #outroLogoWrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;opacity:0}
 #outroLogo{width:160px;height:160px;object-fit:contain;will-change:transform}
@@ -340,13 +341,15 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
   #mlogo-wrap{top:12px;left:12px}
   #mlogo-img,#mlogo-fallback{width:64px;height:64px}
   #mlogo-fallback{font-size:26px}
+  #mlogo-text-wrap{margin-left:10px}
+  #mlogo-text{font-size:10px;letter-spacing:1.5px}
 
   /* Shared section padding */
   .s-inner{padding:80px 24px}
 
   /* Hero */
   #heroContent{padding:80px 20px 40px}
-  #heroKicker{font-size:10px;letter-spacing:4px}
+  #heroKicker{font-size:10px;letter-spacing:2.5px;line-height:1.8}
   .hero-btn{padding:14px 22px;font-size:11px}
   #heroTags{display:none}
 
@@ -456,6 +459,7 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
     </div>
     <a id="outroBtn" data-to="send-a-request.html">Send a Request →</a>
   </div>
+  <span id="outroCredit">Made by Covell &rsquo;27</span>
 </div>
 
 <!-- ═══════════════════════ SITE ═══════════════════════ -->
@@ -464,13 +468,13 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
   <!-- ═══ HERO ═══ -->
   <section id="hero">
     <div id="heroImgWrap">
-      <img id="heroImg" src="hero_bg.jpg" alt="A student assembling a 3D-printed prosthetic hand in the makerspace"
+      <img id="heroImg" src="hero.jpg" alt="A student assembling a 3D-printed prosthetic hand in the makerspace"
            onerror="this.parentElement.style.background='linear-gradient(135deg,#0a0f28,#18083a)'">
       <div id="heroShade"></div>
     </div>
 
     <div id="heroContent">
-      <span id="heroKicker">Student-led &middot; Since 2016</span>
+      <span id="heroKicker">The Meadowbrook School of Weston &ndash; Founded in 2016</span>
       <h1 id="heroTitle">Hands for Hope</h1>
       <p id="heroBody">Students using our makerspace to build prosthetic hands, assistive devices and merchandise for people and nonprofits who need them.</p>
       <div id="heroCtas">
@@ -906,6 +910,7 @@ function initOutro(){
   tl.to('#outroForHope',   {x:'85vw',duration:.5,ease:'power3.inOut'},0.6);
   // Outro button: start higher and larger (CSS handles size, GSAP just drives opacity/y)
   tl.to('#outroBtn', {opacity:1,y:0,duration:.35,ease:'back.out(1.5)'},0.82);
+  tl.to('#outroCredit',{opacity:1,duration:.2},0.9);
 
   ScrollTrigger.create({
     trigger:'#outroZone',
