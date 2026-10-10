@@ -114,91 +114,78 @@ body{background:var(--b);color:var(--w);font-family:'Inter',sans-serif;overflow-
 /* ── SITE ── */
 #site{position:relative;z-index:3}
 
-/* ── HERO ── */
-/* Mask the entire hero so it fades to transparent at the bottom,
-   revealing the WebGL canvas beneath — perfectly seamless into #wwd */
-#hero{
-  height:100vh;height:100svh;position:relative;overflow:hidden;display:flex;align-items:stretch;
-  -webkit-mask-image:linear-gradient(to bottom, black 0%, black 52%, rgba(0,0,0,.7) 75%, transparent 100%);
-  mask-image:linear-gradient(to bottom, black 0%, black 52%, rgba(0,0,0,.7) 75%, transparent 100%);
-}
+/* ── HERO ── full-bleed photo, centred content */
+#hero{height:100vh;height:100svh;min-height:600px;position:relative;overflow:hidden}
 
+/* Photo (and its shade) fade out at the bottom, revealing the WebGL canvas beneath */
 #heroImgWrap{
   position:absolute;inset:0;z-index:0;
-  -webkit-mask-image:linear-gradient(to bottom, black 0%, black 52%, rgba(0,0,0,.7) 75%, transparent 100%);
-  mask-image:linear-gradient(to bottom, black 0%, black 52%, rgba(0,0,0,.7) 75%, transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom, black 0%, black 55%, rgba(0,0,0,.7) 78%, transparent 100%);
+  mask-image:linear-gradient(to bottom, black 0%, black 55%, rgba(0,0,0,.7) 78%, transparent 100%);
 }
-#heroImg{width:100%;height:100%;object-fit:cover;object-position:center;will-change:transform}
-
-/* Quarter-circle arc SVG — spans full hero */
-#arcSvg{
-  position:absolute;inset:0;z-index:1;
-  width:100%;height:100%;
-  pointer-events:none;overflow:visible;
+#heroImg{width:100%;height:100%;object-fit:cover;object-position:center 35%;will-change:transform}
+#heroShade{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 62% at 50% 52%,rgba(9,21,48,.6),rgba(9,21,48,.92) 78%);
 }
 
-/* Content overlay — positioned in left quarter */
 #heroContent{
-  position:absolute;z-index:2;
-  top:50%;left:clamp(44px,5vw,88px);
-  transform:translateY(-44%);
-  max-width:clamp(300px,38vw,480px);
+  position:absolute;inset:0;z-index:2;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:150px 24px 70px;  /* top padding clears the fixed school logo */
+}
+#heroKicker{
+  font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:500;letter-spacing:6px;
+  text-transform:uppercase;color:var(--a3);margin-bottom:22px;
+  opacity:0;transform:translateY(14px);
+}
+#heroTitle{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+  font-size:clamp(56px,10.5vw,150px);line-height:.95;color:#fff;
+  text-shadow:0 10px 60px rgba(0,0,0,.5);
+  opacity:0;transform:translateY(18px);
 }
 #heroBody{
-  font-family:'Space Grotesk',sans-serif;font-weight:400;
-  font-size:clamp(12px,0.95vw,14px);line-height:1.7;color:rgba(255,255,255,.65);
-  max-width:320px;margin-bottom:32px;opacity:0;transform:translateY(22px);
+  font-size:clamp(15px,1.25vw,18px);line-height:1.65;color:rgba(255,255,255,.8);
+  max-width:620px;margin:26px 0 34px;
+  opacity:0;transform:translateY(22px);
 }
-/* ── HERO TITLE (replaces curved arc text) ── */
-#heroTitle{
-  font-family:'Cormorant Garamond',serif;font-style:italic;
-  font-size:clamp(46px,6.5vw,96px);
-  font-weight:700;line-height:1.05;
-  margin-bottom:12px;color:#fff;
-  text-shadow:0 2px 40px rgba(109,40,217,.45);
-  opacity:0;transform:translateY(18px);
-  white-space:nowrap;
-}
-#wordCarousel{height:40px;overflow:hidden;position:relative;margin-bottom:36px}
-
-.word-slide{
-  position:absolute;top:0;left:0;width:100%;
-  font-family:'Space Grotesk',sans-serif;font-size:clamp(14px,1.3vw,18px);
-  font-weight:600;letter-spacing:2.5px;text-transform:uppercase;
-  color:var(--a2);transform:translateY(100%);opacity:0;
-}
-.word-slide.active{transform:translateY(0);opacity:1}
-#heroCta{
+#heroCtas{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;opacity:0}
+.hero-btn{
   display:inline-flex;align-items:center;gap:10px;
-  border:1.5px solid rgba(255,255,255,.35);border-radius:100px;
-  padding:13px 32px;font-size:12px;font-weight:600;letter-spacing:1.5px;
-  text-transform:uppercase;color:#fff;background:transparent;
-  cursor:pointer;text-decoration:none;font-family:'Space Grotesk',sans-serif;
-  transition:border-color .3s,background .3s;opacity:0;
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;padding:17px 30px;border-radius:100px;text-decoration:none;cursor:pointer;
+  transition:background .3s,border-color .3s,box-shadow .3s;
 }
-#heroCta:hover{border-color:#fff;background:rgba(255,255,255,.1)}
+.hero-btn.primary{background:#fff;color:#1d4ed8;box-shadow:0 14px 34px rgba(0,0,0,.3)}
+.hero-btn.primary:hover{background:#eef4ff;box-shadow:0 18px 44px rgba(0,0,0,.4)}
+.hero-btn.ghost{color:#fff;border:1.5px solid rgba(255,255,255,.4)}
+.hero-btn.ghost:hover{border-color:#fff;background:rgba(255,255,255,.08)}
 
-/* Scroll cue — classic mouse / bead design */
-#scrollCue{
-  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;opacity:0;z-index:4;
+/* Scroll cue — mouse outline with a rolling wheel; hidden once the page scrolls */
+#scrollCue{margin-top:48px;display:block;padding:6px;opacity:0;visibility:hidden;cursor:pointer}
+#scrollMouse{display:block;position:relative;width:26px;height:42px;border-radius:14px;border:2px solid rgba(255,255,255,.6)}
+#scrollWheel{
+  position:absolute;left:50%;top:7px;width:4px;height:8px;margin-left:-2px;border-radius:2px;
+  background:#fff;animation:wheelRoll 1.8s cubic-bezier(.65,0,.35,1) infinite;
 }
-#scrollMouse{
-  width:26px;height:42px;border-radius:13px;
-  border:1.5px solid rgba(255,255,255,.38);
-  display:flex;justify-content:center;align-items:flex-start;padding-top:7px;
-  box-shadow:0 0 16px rgba(109,40,217,.25);
+@keyframes wheelRoll{
+  0%{transform:translateY(0);opacity:0}
+  15%{transform:translateY(0);opacity:1}
+  65%{transform:translateY(14px);opacity:0}
+  100%{transform:translateY(14px);opacity:0}
 }
-#scrollBead{
-  width:4px;height:9px;border-radius:2px;
-  background:rgba(255,255,255,.75);
-  animation:beadDrop 1.9s ease-in-out infinite;
+#scrollCue:hover #scrollMouse{border-color:#fff}
+
+#heroTags{
+  position:absolute;z-index:2;left:0;right:0;bottom:40px;padding:0 24px;
+  display:flex;flex-wrap:wrap;justify-content:center;gap:10px 34px;
+  font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:3px;
+  text-transform:uppercase;color:rgba(255,255,255,.6);opacity:0;
 }
-@keyframes beadDrop{
-  0%{transform:translateY(0);opacity:1}
-  65%{transform:translateY(14px);opacity:.25}
-  100%{transform:translateY(0);opacity:1}
-}
+#heroTags span::before{content:"\2726";color:var(--a2);margin-right:10px}
+@media(max-height:760px){#heroTags{display:none}#scrollCue{margin-top:36px}}
+@media(prefers-reduced-motion:reduce){#scrollWheel{animation:none;opacity:1;transform:translateY(5px)}}
 
 /* ── SHARED SECTION ── */
 .s-inner{max-width:1200px;margin:0 auto;padding:140px 80px;position:relative;z-index:2}
@@ -218,7 +205,6 @@ body{background:var(--b);color:var(--w);font-family:'Inter',sans-serif;overflow-
 .si-l p{font-size:16px;line-height:1.85;color:rgba(255,255,255,.65);max-width:440px}
 .img-r{border-radius:50%;overflow:hidden;aspect-ratio:1/1;border:1px solid rgba(255,255,255,.15);background:var(--w1)}
 .img-r img{width:100%;height:100%;object-fit:cover;display:block}
-.img-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;letter-spacing:4px;color:rgba(255,255,255,.3);text-transform:uppercase}
 
 /* ── PROCESS ── ScrollTrigger handles pin, section is 100vh base */
 #proc{
@@ -359,11 +345,10 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
   .s-inner{padding:80px 24px}
 
   /* Hero */
-  #heroContent{left:20px;right:20px;max-width:calc(100vw - 40px);top:44%;transform:translateY(-44%)}
-  #heroTitle{white-space:normal;font-size:clamp(38px,9vw,60px)}
-  #wordCarousel{height:32px}
-  .word-slide{font-size:clamp(11px,3vw,16px)}
-  #heroCta{padding:11px 24px;font-size:11px}
+  #heroContent{padding:80px 20px 40px}
+  #heroKicker{font-size:10px;letter-spacing:4px}
+  .hero-btn{padding:14px 22px;font-size:11px}
+  #heroTags{display:none}
 
   /* What We Do */
   .service-item,.service-item.rev{flex-direction:column!important;gap:36px}
@@ -406,7 +391,6 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
   .s-inner{padding:60px 16px}
   .s-header{padding:0 16px 32px}
   footer{padding:24px 16px}
-  #heroCta{display:none}
 }
 </style>
 </head>
@@ -479,48 +463,26 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
 
   <!-- ═══ HERO ═══ -->
   <section id="hero">
-    <!-- Full-viewport background image -->
     <div id="heroImgWrap">
-      <img id="heroImg" src="hero_bg.jpg" alt="Students volunteering"
+      <img id="heroImg" src="hero_bg.jpg" alt="A student assembling a 3D-printed prosthetic hand in the makerspace"
            onerror="this.parentElement.style.background='linear-gradient(135deg,#0a0f28,#18083a)'">
+      <div id="heroShade"></div>
     </div>
 
-    <!-- Quarter-circle filled SVG — radius = 100vh, drawn dynamically in JS -->
-    <svg id="arcSvg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <filter id="titleGlow" x="-10%" y="-30%" width="120%" height="160%">
-          <feGaussianBlur stdDeviation="3" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-        <!-- Gradient: solid from centre, fades to transparent only at the very arc edge -->
-        <radialGradient id="arcEdgeGrad" gradientUnits="userSpaceOnUse" cx="0" cy="900" r="900">
-          <stop offset="0%"   stop-color="#091530" stop-opacity="1"/>
-          <stop offset="82%"  stop-color="#091530" stop-opacity="1"/>
-          <stop offset="94%"  stop-color="#091530" stop-opacity="0.6"/>
-          <stop offset="100%" stop-color="#091530" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-
-      <!-- Quarter-circle: solid fill, edge fades into hero image -->
-      <path id="arcFill" d="" fill="url(#arcEdgeGrad)"/>
-    </svg>
-
-    <!-- Content: normal title, body, carousel, CTA -->
     <div id="heroContent">
+      <span id="heroKicker">Student-led &middot; Since 2016</span>
       <h1 id="heroTitle">Hands for Hope</h1>
-      <p id="heroBody">A student-led school organization focused on utilizing school makerspace resources to make change on a broad scale. Originated from 3D-printed prosthetic hands, and now focused on developing and producing a range of assistive devices and branded merchandise for other nonprofit organizations.</p>
-      <div id="wordCarousel">
-        <div class="word-slide active">Student-Led</div>
-        <div class="word-slide">Nonprofit</div>
-        <div class="word-slide">Committed to Change</div>
-        <div class="word-slide">Impact-Focused</div>
+      <p id="heroBody">Students using our makerspace to build prosthetic hands, assistive devices and merchandise for people and nonprofits who need them.</p>
+      <div id="heroCtas">
+        <a class="hero-btn primary" href="send-a-request.html" data-to="send-a-request.html">Send a Request &rarr;</a>
+        <a class="hero-btn ghost" href="#wwd" onclick="smoothTo('wwd');return false;">Discover Our Work</a>
       </div>
-      <a href="#" id="heroCta" onclick="smoothTo('wwd');return false;">Discover More →</a>
+      <a id="scrollCue" href="#wwd" aria-label="Scroll down" onclick="smoothTo('wwd');return false;">
+        <span id="scrollMouse"><span id="scrollWheel"></span></span>
+      </a>
     </div>
 
-    <div id="scrollCue">
-      <div id="scrollMouse"><div id="scrollBead"></div></div>
-    </div>
+    <div id="heroTags"><span>Student-Led</span><span>Nonprofit</span><span>Committed to Change</span><span>Impact-Focused</span></div>
   </section>
 
   <!-- ═══ WHAT WE DO ═══ -->
@@ -535,7 +497,7 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
             <h3>ENABLE</h3>
             <p>Our longest-running activity, we print and assemble ENABLE prosthetic hands throughout the year to compile into one big shipment in the spring.</p>
           </div>
-          <div class="si-r"><div class="img-r" style="position:relative"><span class="img-label">image2.jpg</span><img src="image2.jpg" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'"></div></div>
+          <div class="si-r"><div class="img-r" style="position:relative"><img src="image2.jpg" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'"></div></div>
         </div>
         <div class="service-item rev sr">
           <div class="si-l">
@@ -543,7 +505,7 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
             <h3>Makers Making Change</h3>
             <p>Makers Making Change is a site that allows our student body to fulfill requests for assistive devices from people across the continent, expanding our program's reach.</p>
           </div>
-          <div class="si-r"><div class="img-r" style="position:relative"><span class="img-label">image3.jpg</span><img src="image3.jpg" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'"></div></div>
+          <div class="si-r"><div class="img-r" style="position:relative"><img src="image3.jpg" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'"></div></div>
         </div>
         <div class="service-item sr">
           <div class="si-l">
@@ -551,7 +513,7 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
             <h3>Merchandise Creation</h3>
             <p>A more recent addition to the program, we utilize our Makerspace's heatpress and vinyl cutter to imprint logos onto sweaters, shirts, and more, for both our own program and our partnered organizations.</p>
           </div>
-          <div class="si-r"><div class="img-r" style="position:relative"><span class="img-label">image4.jpg</span><img src="image4.jpg" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'"></div></div>
+          <div class="si-r"><div class="img-r" style="position:relative"><img src="image4.jpg" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'"></div></div>
         </div>
         <div class="service-item rev sr">
           <div class="si-l">
@@ -559,7 +521,7 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
             <h3>Partnerships</h3>
             <p>We have partnered with many nonprofit organizations that also help those with disabilities. We've produced and shipped them products ranging from pillows to assistive gaming buttons, completely free of cost, to help them drive positive change in their communities.</p>
           </div>
-          <div class="si-r"><div class="img-r" style="position:relative"><span class="img-label">image5.jpg</span><img src="image5.jpg" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'"></div></div>
+          <div class="si-r"><div class="img-r" style="position:relative"><img src="image5.jpg" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'"></div></div>
         </div>
       </div>
     </div>
@@ -744,47 +706,6 @@ document.querySelectorAll('[data-to]').forEach(el=>{
   });
 });
 function smoothTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:REDUCED_MOTION?'auto':'smooth'});}
-
-/* ══════════════════════════════════════════════════
-   Center of quarter circle: bottom-left corner (0, H)
-   Arc from (0,0) top → (H, H) right
-══════════════════════════════════════════════════ */
-function buildArc(){
-  const W=innerWidth, H=innerHeight;
-  const svg=document.getElementById('arcSvg');
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-
-  const R=H * 1.37; // radius = 137% viewport height
-
-  // Quarter-circle centered at top-left (0,0)
-  // M 0,0 L R,0 A R,R 0 0,1 0,R Z
-  document.getElementById('arcFill').setAttribute('d',
-    `M 0,0 L ${R},0 A ${R},${R} 0 0,1 0,${R} Z`);
-
-  // Update gradient geometry so the fade aligns with the actual arc edge
-  const grad=document.getElementById('arcEdgeGrad');
-  if(grad){
-    grad.setAttribute('cx','0');
-    grad.setAttribute('cy','0');
-    grad.setAttribute('r', String(R));
-  }
-}
-buildArc();
-addEventListener('resize',buildArc);
-
-/* ══════════════════════════════════════════════════
-   WORD CAROUSEL
-══════════════════════════════════════════════════ */
-function initWordCarousel(){
-  const slides=document.querySelectorAll('.word-slide');
-  let cur=0;
-  function tick(){
-    const prev=cur; cur=(cur+1)%slides.length;
-    gsap.to(slides[prev],{y:'-110%',opacity:0,duration:.5,ease:'power2.in',onComplete:()=>gsap.set(slides[prev],{y:'110%'})});
-    gsap.fromTo(slides[cur],{y:'110%',opacity:0},{y:'0%',opacity:1,duration:.5,ease:'power2.out',delay:.05});
-  }
-  setInterval(tick,2500);
-}
 
 /* ══════════════════════════════════════════════════
    MEADOWBROOK — one-time reveal
@@ -1000,7 +921,10 @@ function initOutro(){
 ══════════════════════════════════════════════════ */
 function initScrollAnimations(){
   ScrollTrigger.create({start:0,end:'max',onUpdate:s=>gsap.set('#prog',{scaleX:s.progress})});
-  ScrollTrigger.create({start:80,onEnter:()=>gsap.to('#scrollCue',{opacity:0,duration:.5})});
+  // Scroll cue disappears as soon as the page moves, and comes back at the very top
+  ScrollTrigger.create({start:30,end:'max',
+    onEnter:()=>gsap.to('#scrollCue',{autoAlpha:0,y:10,duration:.35,overwrite:true}),
+    onLeaveBack:()=>gsap.to('#scrollCue',{autoAlpha:1,y:0,duration:.5,overwrite:true})});
 
   document.querySelectorAll('.sr').forEach(el=>{
     gsap.fromTo(el,{opacity:0,y:52},{opacity:1,y:0,duration:.9,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%'}});
@@ -1030,19 +954,19 @@ function initScrollAnimations(){
   function afterIntro(){
     document.body.style.overflow='';
     requestAnimationFrame(()=>{
-      buildArc();
       initSerpentines();
       initProcess();
       initOutro();
       initScrollAnimations();
       ScrollTrigger.refresh();
       requestAnimationFrame(refreshSerpentineHeight);
-      initWordCarousel();
       initPartnersCarousel();
-      gsap.to('#heroTitle',{opacity:1,y:0,duration:.85,delay:.1,ease:'power3.out'});
-      gsap.to('#heroBody',{opacity:1,y:0,duration:.9,delay:.25,ease:'power3.out'});
-      gsap.to('#heroCta',{opacity:1,duration:.7,delay:.55});
-      gsap.to('#scrollCue',{opacity:1,duration:1,delay:1.8});
+      gsap.to('#heroKicker',{opacity:1,y:0,duration:.7,delay:.05,ease:'power3.out'});
+      gsap.to('#heroTitle',{opacity:1,y:0,duration:.85,delay:.15,ease:'power3.out'});
+      gsap.to('#heroBody',{opacity:1,y:0,duration:.9,delay:.3,ease:'power3.out'});
+      gsap.to('#heroCtas',{opacity:1,duration:.7,delay:.5});
+      gsap.to('#heroTags',{opacity:1,duration:1,delay:.9});
+      if(window.scrollY<30) gsap.to('#scrollCue',{autoAlpha:1,duration:.8,delay:1.1});
       gsap.to('#tabs',{opacity:1,duration:1});
       gsap.fromTo('#mlogo-wrap',{x:-50,opacity:0},{x:0,opacity:1,duration:.75,ease:'power3.out',delay:.2,
         onComplete:playMeadowbrookReveal});
@@ -1090,7 +1014,7 @@ document.querySelectorAll('.tp:not(.tp-active)').forEach(btn=>{
   btn.addEventListener('mouseleave',()=>gsap.to(btn,{y:0,duration:.6,ease:'elastic.out(1,.5)'}));
 });
 // Buttons
-[...document.querySelectorAll('#heroCta,#outroBtn')].forEach(btn=>{
+[...document.querySelectorAll('.hero-btn,#outroBtn')].forEach(btn=>{
   btn.addEventListener('mousemove',e=>{
     const r=btn.getBoundingClientRect();
     gsap.to(btn,{x:(e.clientX-r.left-r.width/2)*.22,y:(e.clientY-r.top-r.height/2)*.22,duration:.35,ease:'power2.out'});
