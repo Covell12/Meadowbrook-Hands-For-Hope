@@ -741,16 +741,7 @@ h1 em{font-weight:400;font-style:italic}
 .ws-h{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;line-height:1.1}
 .ws-h em{font-weight:400;font-style:italic}
 .ws-head-top .action-bar,.ws-sec-head .action-bar{margin-bottom:0}
-.ws-goal{display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap;margin-bottom:16px}
-.ws-pct{font-family:'Playfair Display',serif;font-size:clamp(64px,8vw,96px);font-weight:900;line-height:.85;text-shadow:0 2px 30px rgba(59,130,246,.35)}
-.ws-pct small{font-size:.4em;font-weight:400;font-style:italic;color:rgba(255,255,255,.7)}
-.ws-goal-meta{padding-bottom:8px}
-.ws-pts{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;color:rgba(255,255,255,.85)}
-.ws-pts b{color:#fff}
-.ws-pts span{color:rgba(255,255,255,.4);font-weight:500}
-.ws-goal-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px}
 .ws-bar{height:10px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);overflow:hidden}
-.ws-bar.big{height:16px}
 .ws-fill{height:100%;width:0;border-radius:100px;background:linear-gradient(90deg,#1d4ed8,#3b82f6 60%,#93c5fd);box-shadow:0 0 18px rgba(59,130,246,.5);transition:width 1s cubic-bezier(.2,1,.3,1)}
 .ws-bar.done .ws-fill{background:linear-gradient(90deg,#16a34a,#4ade80);box-shadow:0 0 18px rgba(74,222,128,.45)}
 .ws-bar.unset .ws-fill{width:0!important}
@@ -814,10 +805,18 @@ h1 em{font-weight:400;font-style:italic}
 
 /* Leaderboard — alphabetical */
 .ws-board{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden}
+.ws-board-top{display:flex;justify-content:flex-end;align-items:flex-end;gap:20px;padding:22px 24px 18px;border-bottom:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(37,99,235,.14),transparent)}
 .ws-board-title{display:none}
-.ws-board-head,.ws-brow{display:grid;grid-template-columns:1fr 110px 110px;gap:12px;align-items:center;padding:12px 24px}
+.ws-total{text-align:right}
+.ws-total .section-label{margin-bottom:4px}
+.ws-total-n{font-family:'Playfair Display',serif;font-size:clamp(52px,6vw,80px);font-weight:900;line-height:.95;text-shadow:0 2px 30px rgba(59,130,246,.45);font-variant-numeric:tabular-nums}
+.ws-total-sub{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:16px}
+.ws-plus{width:32px;height:32px;border-radius:50%;border:1px solid rgba(147,197,253,.4);background:rgba(59,130,246,.15);color:#bfdbfe;font-size:18px;line-height:1;cursor:pointer;transition:all .2s;justify-self:end}
+.ws-plus:hover{background:#3b82f6;color:#fff;border-color:#3b82f6;transform:scale(1.08)}
+.ws-exit-fs{display:none}
+.ws-board-head,.ws-brow{display:grid;grid-template-columns:1fr 100px 100px 40px;gap:12px;align-items:center;padding:12px 24px}
 .ws-board-head{font-family:'Space Grotesk',sans-serif;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:700;border-bottom:1px solid rgba(255,255,255,.08)}
-.ws-board-head span:not(:first-child),.ws-brow .un,.ws-brow .pt{text-align:right}
+.ws-board-head span:nth-child(2),.ws-board-head span:nth-child(3),.ws-brow .un,.ws-brow .pt{text-align:right}
 .ws-board-list{max-height:520px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
 .ws-brow{border-bottom:1px solid rgba(255,255,255,.05)}
 .ws-brow:last-child{border-bottom:none}
@@ -829,16 +828,20 @@ h1 em{font-weight:400;font-style:italic}
 .ws-brow .pt{font-family:'Playfair Display',serif;font-size:20px;font-weight:700}
 .ws-brow.zero{opacity:.5}
 .ws-board-empty{padding:40px 24px;text-align:center;color:rgba(255,255,255,.5);font-size:14px}
-.ws-board-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 24px;font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);border-top:1px solid rgba(255,255,255,.08)}
+.ws-board-foot{display:flex;justify-content:flex-start;align-items:center;flex-wrap:wrap;gap:8px;padding:12px 24px;font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);border-top:1px solid rgba(255,255,255,.08)}
 .ws-board:fullscreen{background:radial-gradient(circle at top,#1e3a8a 0%,#0a101d 80%);border:none;border-radius:0;padding:48px 56px;overflow-y:auto;display:flex;flex-direction:column}
 .ws-board:-webkit-full-screen{background:radial-gradient(circle at top,#1e3a8a 0%,#0a101d 80%);border:none;border-radius:0;padding:48px 56px;overflow-y:auto;display:flex;flex-direction:column;width:100%;height:100%}
-.ws-board.is-fs .ws-board-title{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:32px}
+.ws-board.is-fs .ws-board-top{justify-content:space-between;padding:0 0 28px;margin-bottom:28px;background:none}
+.ws-board.is-fs .ws-board-title{display:block}
+.ws-board.is-fs .ws-total-n{font-size:clamp(72px,9vw,128px)}
+.ws-board.is-fs .ws-total-sub{margin-top:22px}
+.ws-board.is-fs .ws-exit-fs{display:inline-block}
 .ws-board-title .section-label{margin-bottom:6px}
 .ws-board-title h2{font-family:'Playfair Display',serif;font-size:clamp(40px,4.5vw,64px);font-weight:900;line-height:1}
 .ws-board-title h2 em{font-weight:400;font-style:italic}
 .ws-board.is-fs .ws-board-head{display:none}
 .ws-board.is-fs .ws-board-list{max-height:none;overflow:visible;display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px;align-content:start}
-.ws-board.is-fs .ws-brow{grid-template-columns:1fr auto auto;gap:18px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(255,255,255,.05);padding:14px 20px}
+.ws-board.is-fs .ws-brow{grid-template-columns:1fr auto auto auto;gap:18px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(255,255,255,.05);padding:14px 20px}
 .ws-board.is-fs .ws-brow .nm{font-size:22px}
 .ws-board.is-fs .ws-brow .ws-av{width:42px;height:42px;font-size:14px}
 .ws-board.is-fs .ws-brow .un{font-size:14px}
@@ -892,7 +895,9 @@ textarea.ws-input{min-height:96px;resize:vertical;line-height:1.5}
 @media(max-width:700px){
   .ws-stats{grid-template-columns:1fr 1fr}
   .ws-grid{grid-template-columns:1fr}
-  .ws-board-head,.ws-brow{grid-template-columns:1fr 64px 64px;padding:10px 14px}
+  .ws-board-head,.ws-brow{grid-template-columns:1fr 56px 56px 34px;padding:10px 14px}
+  .ws-board-top{padding:18px 14px}
+  .ws-plus{width:30px;height:30px}
   .ws-row2{grid-template-columns:1fr}
   .ws-board:fullscreen,.ws-board.is-fs{padding:24px 18px}
   .ws-board.is-fs .ws-board-list{grid-template-columns:1fr}
@@ -3848,7 +3853,7 @@ const WS = (() => {
     };
   }
 
-  let S = null, unsub = null, root = null, built = false, lastPct = 0;
+  let S = null, unsub = null, root = null, built = false, lastTotal = 0;
 
   /* ── helpers ── */
   const esc = s => escHtml(String(s ?? ''));
@@ -3928,25 +3933,16 @@ const WS = (() => {
         <div class="survey-panel">
           <div class="ws-head-top">
             <div>
-              <span class="section-label">Workshop · <span id="wsSeason"></span> season</span>
-              <h4 class="ws-h">Season <em>Goal</em></h4>
+              <span class="section-label">Hands for Hope · <span id="wsSeason"></span> season</span>
+              <h4 class="ws-h">Workshop <em>Tracker</em></h4>
             </div>
             <div class="action-bar">
               <button class="action-btn primary" data-ws="auto">⚡ Auto-populate</button>
               <button class="action-btn" data-ws="newTask">+ Station</button>
               <button class="action-btn" data-ws="members">Members</button>
-              <button class="action-btn" data-ws="quota">Set Quota</button>
               <button class="action-btn danger" data-ws="reset">Reset</button>
             </div>
           </div>
-          <div class="ws-goal">
-            <div class="ws-pct" id="wsPct">0<small>%</small></div>
-            <div class="ws-goal-meta">
-              <div class="ws-pts"><b id="wsPts">0</b> <span>of</span> <b id="wsQuota">0</b> <span>points</span></div>
-              <div class="ws-goal-sub">Each unit is worth its station's difficulty, from 1.0 (easiest) to 3.0 (hardest)</div>
-            </div>
-          </div>
-          <div class="ws-bar big" id="wsGoalBar"><div class="ws-fill" id="wsGoalFill"></div></div>
           <div class="ws-stats">
             <div class="ws-stat"><div class="n" id="wsStUnits">0</div><div class="l">Units made</div></div>
             <div class="ws-stat"><div class="n" id="wsStTasks">0</div><div class="l">Active stations</div></div>
@@ -3961,17 +3957,21 @@ const WS = (() => {
         <div class="ws-archive" id="wsArchive"></div>
 
         <div class="ws-sec-head">
-          <div><span class="section-label">Who's making it happen</span><h4 class="ws-h">Leader<em>board</em></h4></div>
+          <div><span class="section-label">Who's making it happen</span><h4 class="ws-h">Productivity <em>Chart</em></h4></div>
           <div class="action-bar"><button class="action-btn" data-ws="fullscreen">⛶ Full Screen</button></div>
         </div>
         <div class="ws-board" id="wsBoard">
-          <div class="ws-board-title">
-            <div><span class="section-label">Hands for Hope · Workshop</span><h2>Leader<em>board</em></h2></div>
-            <button class="action-btn" data-ws="fullscreen">Exit Full Screen</button>
+          <div class="ws-board-top">
+            <div class="ws-board-title"><span class="section-label">Hands for Hope · Workshop</span><h2>Productivity <em>Chart</em></h2></div>
+            <div class="ws-total">
+              <span class="section-label">Total points</span>
+              <div class="ws-total-n" id="wsTotal">0</div>
+              <div class="ws-total-sub" id="wsTotalSub"></div>
+            </div>
           </div>
-          <div class="ws-board-head"><span>Member</span><span>Units</span><span>Points</span></div>
+          <div class="ws-board-head"><span>Member</span><span>Units</span><span>Points</span><span></span></div>
           <div class="ws-board-list" id="wsBoardList"></div>
-          <div class="ws-board-foot"><span id="wsBoardCount"></span><span>A–Z · Points = units × difficulty</span></div>
+          <div class="ws-board-foot"><button class="action-btn ws-exit-fs" data-ws="fullscreen">Exit Full Screen</button><span id="wsBoardCount"></span></div>
         </div>
         <div class="ws-foot">
           <button data-ws="export">Save a backup</button>
@@ -3982,7 +3982,13 @@ const WS = (() => {
     root.addEventListener('click', onClick);
     document.getElementById('wsImportFile').addEventListener('change', e => importData(e.target));
     const board = document.getElementById('wsBoard');
-    const fsChange = () => board.classList.toggle('is-fs', (document.fullscreenElement || document.webkitFullscreenElement) === board);
+    const fsChange = () => {
+      const on = (document.fullscreenElement || document.webkitFullscreenElement) === board;
+      board.classList.toggle('is-fs', on);
+      // Only the full-screen element is visible, so carry the log modal and toast inside it
+      const host = on ? board : document.body;
+      ['wsModal', 'wsToast'].forEach(id => { const el = document.getElementById(id); if (el.parentNode !== host) host.appendChild(el); });
+    };
     document.addEventListener('fullscreenchange', fsChange);
     document.addEventListener('webkitfullscreenchange', fsChange);
   }
@@ -3997,11 +4003,11 @@ const WS = (() => {
       case 'delTask': return deleteTask(id);
       case 'restore': return mutate(s => { const t = s.tasks.find(x => x.id === id); if (t) t.archived = false; }, 'Station restored');
       case 'log': return openLog(id);
+      case 'logFor': return openLogFor(m);
       case 'assign': return openAssign(id);
       case 'unassign': return mutate(s => { const t = s.tasks.find(x => x.id === id); if (t) t.assigned = t.assigned.filter(x => x !== m); });
       case 'unlog': return removeMemberUnits(id, m);
       case 'members': return openMembers();
-      case 'quota': return openQuota();
       case 'reset': return resetAll();
       case 'fullscreen': return toggleFullscreen();
       case 'archToggle': return document.getElementById('wsArchive').classList.toggle('open');
@@ -4013,20 +4019,13 @@ const WS = (() => {
   /* ── render ── */
   function render() {
     if (!S || !built) return;
-    renderGoal(); renderTasks(); renderBoard();
+    renderStats(); renderTasks(); renderBoard();
     if (document.getElementById('wsModal').classList.contains('open') && modalRefresh) modalRefresh();
   }
 
-  function renderGoal() {
+  function renderStats() {
     const t = totals();
-    const raw = S.quota > 0 ? Math.min(100, t.points / S.quota * 100) : 0;
-    const pct = Math.round(raw);
-    animateNumber(document.getElementById('wsPct'), lastPct, pct); lastPct = pct;
     document.getElementById('wsSeason').textContent = S.season;
-    document.getElementById('wsPts').textContent = fp(t.points);
-    document.getElementById('wsQuota').textContent = fmt(S.quota);
-    document.getElementById('wsGoalFill').style.width = raw + '%';
-    document.getElementById('wsGoalBar').classList.toggle('done', raw >= 100);
     document.getElementById('wsStUnits').textContent = fmt(t.units);
     document.getElementById('wsStTasks').textContent = t.active;
     document.getElementById('wsStDone').textContent = t.done;
@@ -4035,14 +4034,17 @@ const WS = (() => {
     document.getElementById('wsSource').innerHTML = src
       ? `Stations loaded from <b>${esc(src.surveyName)}</b> on ${new Date(src.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
       : 'Tip: <b>Auto-populate</b> pulls the stations and sign-ups from the latest Meeting Start survey.';
+    // Big total at the top of the productivity chart
+    const el = document.getElementById('wsTotal'), to = Math.round(t.points * 10) / 10;
+    animateNumber(el, lastTotal, to); lastTotal = to;
+    document.getElementById('wsTotalSub').textContent = `${fmt(t.units)} ${t.units === 1 ? 'unit' : 'units'} made`;
   }
   function animateNumber(el, from, to) {
-    const show = v => { el.innerHTML = Math.round(v) + '<small>%</small>'; };
-    if (from === to) return show(to);
+    if (from === to) { el.textContent = fp(to); return; }
     const start = performance.now();
     (function step(now) {
       const p = Math.min(1, (now - start) / 900), e = 1 - Math.pow(1 - p, 3);
-      show(from + (to - from) * e); if (p < 1) requestAnimationFrame(step);
+      el.textContent = fp(from + (to - from) * e); if (p < 1) requestAnimationFrame(step);
     })(start);
   }
 
@@ -4091,8 +4093,8 @@ const WS = (() => {
     const st = memberStats();
     const rows = S.members.map(m => ({ ...m, ...st[m.id] })).sort(byName);   // alphabetical, never by score
     document.getElementById('wsBoardList').innerHTML = rows.length
-      ? rows.map(r => `<div class="ws-brow ${r.points > 0 ? '' : 'zero'}"><span class="nm"><span class="ws-av">${esc(initials(r.name))}</span><span>${esc(r.name)}</span></span><span class="un">${fmt(r.units)} ${r.units === 1 ? 'unit' : 'units'}</span><span class="pt">${fp(r.points)}</span></div>`).join('')
-      : '<div class="ws-board-empty">No members yet — Auto-populate or add them under <b>Members</b>.</div>';
+      ? rows.map(r => `<div class="ws-brow ${r.points > 0 ? '' : 'zero'}"><span class="nm"><span class="ws-av">${esc(initials(r.name))}</span><span>${esc(r.name)}</span></span><span class="un">${fmt(r.units)} ${r.units === 1 ? 'unit' : 'units'}</span><span class="pt">${fp(r.points)}</span><button class="ws-plus" title="Log units for ${esc(r.name)}" data-ws="logFor" data-m="${r.id}">+</button></div>`).join('')
+      : '<div class="ws-board-empty">No members yet. Auto-populate or add them under <b>Members</b>.</div>';
     document.getElementById('wsBoardCount').textContent = `${S.members.length} ${S.members.length === 1 ? 'member' : 'members'}`;
   }
 
@@ -4168,7 +4170,7 @@ const WS = (() => {
   function deleteTask(id) {
     const t = S.tasks.find(x => x.id === id); if (!t) return;
     const done = taskDone(t);
-    confirmAction(`Delete ${t.name}?`, done ? `This also removes ${fmt(done)} logged units (${fp(taskPoints(t))} points) from the leaderboard and season goal. Archive it instead to keep the points.` : 'No units have been logged here yet.',
+    confirmAction(`Delete ${t.name}?`, done ? `This also removes ${fmt(done)} logged units (${fp(taskPoints(t))} points) from the productivity chart. Archive it instead to keep the points.` : 'No units have been logged here yet.',
       'Delete', () => mutate(s => { s.tasks = s.tasks.filter(x => x.id !== id); }, 'Station deleted'));
   }
   function removeMemberUnits(taskId, memberId) {
@@ -4228,6 +4230,54 @@ const WS = (() => {
     chips(); setTimeout(() => $('wsLSearch') && $('wsLSearch').focus(), 50);
   }
 
+  /* ── log units for a person (from the + on the productivity chart) ── */
+  function openLogFor(memberId) {
+    const m = member(memberId); if (!m) return;
+    if (!S.tasks.some(t => !t.archived)) { toast('Add a station first'); return; }
+    let picked = null;
+    openWsModal(`
+      <h3 class="modal-title">Log units · ${esc(m.name)}</h3>
+      <p class="modal-sub">Pick the station. Stations ${esc(firstName(m.name))} is assigned to are listed first.</p>
+      <div class="ws-field"><label>Member</label><input class="ws-input" value="${esc(m.name)}" disabled></div>
+      <div class="ws-field" style="margin-bottom:8px"><label>Station</label></div>
+      <div class="ws-chips" id="wsFChips"></div>
+      <div class="ws-row2" style="margin-top:16px">
+        <div class="ws-field"><label>Units made</label><div class="ws-stepper"><button type="button" data-b="-1">−</button><input id="wsFUnits" type="number" min="1" step="1" value="1" inputmode="numeric"><button type="button" data-b="1">+</button></div></div>
+        <div class="ws-field"><label>&nbsp;</label><div class="ws-summary" id="wsFSum">Pick a station.</div></div>
+      </div>
+      <div class="ws-err" id="wsErr"></div>
+      <div class="modal-actions"><button class="modal-btn" id="wsCancel">Cancel</button><button class="modal-btn confirm" id="wsFSave">Log Units</button></div>`, () => chips());
+    const chips = () => {
+      if (!member(memberId)) return closeWsModal();
+      const active = S.tasks.filter(t => !t.archived);
+      if (picked && !active.some(t => t.id === picked)) picked = null;
+      const mine = active.filter(t => t.assigned.includes(memberId)), rest = active.filter(t => !t.assigned.includes(memberId));
+      if (!picked && mine.length === 1) picked = mine[0].id;
+      const chip = (t, cls) => `<button type="button" class="ws-chip ${cls} ${t.id === picked ? 'on' : ''}" data-t="${t.id}">${esc(t.name)}</button>`;
+      $('wsFChips').innerHTML = (mine.length ? `<div class="ws-chip-group">Assigned</div>${mine.map(t => chip(t, 'assigned')).join('')}` : '')
+        + (rest.length ? `<div class="ws-chip-group">${mine.length ? 'Other stations' : 'Stations'}</div>${rest.map(t => chip(t, '')).join('')}` : '');
+      summary();
+    };
+    const summary = () => {
+      const t = S.tasks.find(x => x.id === picked), u = Math.max(0, parseInt($('wsFUnits').value, 10) || 0);
+      $('wsFSum').innerHTML = t ? `<b>${u}</b> ${u === 1 ? 'unit' : 'units'} of <b>${esc(t.name)}</b> × ${dw(t).toFixed(1)} = <b>${fp(u * dw(t))} pts</b>` : 'Pick a station.';
+    };
+    $('wsFChips').addEventListener('click', e => { const c = e.target.closest('[data-t]'); if (!c) return; picked = c.dataset.t; chips(); $('wsFUnits').focus(); $('wsFUnits').select(); });
+    document.querySelectorAll('#wsModalBox [data-b]').forEach(b => b.onclick = () => { const el = $('wsFUnits'); el.value = Math.max(1, (parseInt(el.value, 10) || 0) + Number(b.dataset.b)); summary(); });
+    $('wsFUnits').addEventListener('input', summary);
+    const save = () => {
+      const u = parseInt($('wsFUnits').value, 10);
+      if (!picked) return setErr('Pick which station the units are for.');
+      if (!u || u < 1) return setErr('Units must be at least 1.');
+      const taskId = picked; closeWsModal();
+      mutate(s => { const x = s.tasks.find(y => y.id === taskId); if (x) x.contributions.push({ id: newId(), memberId, units: u, at: Date.now() }); },
+        `${m.name} +${u} ${u === 1 ? 'unit' : 'units'}`);
+    };
+    $('wsFUnits').addEventListener('keydown', e => { if (e.key === 'Enter') save(); });
+    $('wsFSave').onclick = save; $('wsCancel').onclick = closeWsModal;
+    chips(); setTimeout(() => { const el = $('wsFUnits'); if (el) { el.focus(); el.select(); } }, 50);
+  }
+
   /* ── assign people to a station ── */
   function openAssign(taskId) {
     const t = S.tasks.find(x => x.id === taskId); if (!t) return;
@@ -4269,7 +4319,7 @@ const WS = (() => {
   function openMembers() {
     openWsModal(`
       <h3 class="modal-title">Members</h3>
-      <p class="modal-sub">Everyone who can be assigned to stations and appear on the leaderboard.</p>
+      <p class="modal-sub">Everyone who can be assigned to stations and appear on the productivity chart.</p>
       <div class="ws-field"><label>Add one</label><div class="ws-inline"><input class="ws-input" id="wsMOne" maxlength="40"><button class="modal-btn confirm" id="wsMAdd" type="button">Add</button></div></div>
       <div class="ws-field"><label>Mass add <small>one per line, or comma-separated</small></label><textarea class="ws-input" id="wsMMany"></textarea></div>
       <button class="action-btn" id="wsMAddAll" type="button">Add all</button>
@@ -4302,20 +4352,6 @@ const WS = (() => {
     });
     $('wsCancel').onclick = closeWsModal;
     list(); setTimeout(() => $('wsMOne') && $('wsMOne').focus(), 50);
-  }
-
-  /* ── quota ── */
-  function openQuota() {
-    openWsModal(`
-      <h3 class="modal-title">Set quota</h3>
-      <p class="modal-sub">Total points the club is aiming for this season. Points = units × difficulty, so 20 units at 3.0 is worth 60.</p>
-      <div class="ws-field"><label>Quota (points)</label><input class="ws-input" id="wsQVal" type="number" min="1" step="1" inputmode="numeric" value="${S.quota}"></div>
-      <div class="ws-err" id="wsErr"></div>
-      <div class="modal-actions"><button class="modal-btn" id="wsCancel">Cancel</button><button class="modal-btn confirm" id="wsQSave">Save</button></div>`);
-    const save = () => { const v = parseInt($('wsQVal').value, 10); if (!v || v < 1) return setErr('Quota must be at least 1 point.'); closeWsModal(); mutate(s => { s.quota = v; }, `Quota set to ${fmt(v)} points`); };
-    $('wsQSave').onclick = save; $('wsCancel').onclick = closeWsModal;
-    $('wsQVal').addEventListener('keydown', e => { if (e.key === 'Enter') save(); });
-    setTimeout(() => { $('wsQVal').focus(); $('wsQVal').select(); }, 50);
   }
 
   /* ── auto-populate from the latest Meeting Start survey ── */
@@ -4369,7 +4405,7 @@ const WS = (() => {
   function resetAll() {
     const t = totals();
     confirmAction('Reset the workshop?',
-      `Clears every station (active and archived), all ${fmt(t.units)} logged units and all assignments, so the leaderboard goes back to zero. The member roster and quota are kept. Save a backup first if you might want this data again.`,
+      `Clears every station (active and archived), all ${fmt(t.units)} logged units and all assignments, so the productivity chart goes back to zero. The member roster is kept. Save a backup first if you might want this data again.`,
       'Reset', () => mutate(s => { s.tasks = []; delete s.lastAutoFill; }, 'Workshop reset'));
   }
 
