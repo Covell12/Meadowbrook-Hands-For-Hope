@@ -335,8 +335,9 @@ body{background:var(--b);color:var(--w);font-family:'Inter',sans-serif;overflow-
 blockquote#mQ{
   font-family:'Playfair Display',serif;font-style:italic;
   font-size:clamp(26px,3.6vw,50px);font-weight:400;line-height:1.38;
-  max-width:980px;margin:0 auto 72px;
+  max-width:980px;margin:0 auto 32px;
 }
+.mq-body{position:relative;z-index:1;max-width:720px;margin:0 auto 64px;font-size:clamp(16px,1.35vw,19px);line-height:1.75;color:rgba(255,255,255,.72)}
 /* Words light up one by one as the quote scrolls through the screen */
 #mQ .w{opacity:.16;transition:none}
 #mQ .w.hl{
@@ -541,7 +542,7 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
     </div>
 
     <div id="heroContent">
-      <span id="heroKicker">Founded in 2016</span>
+      <span id="heroKicker">Founded in 2015</span>
       <h1 id="heroTitle">Hands for Hope</h1>
       <p id="heroBody">Students using our makerspace to build prosthetic hands, assistive devices and merchandise for people and nonprofits who need them.</p>
       <div id="heroCtas">
@@ -658,10 +659,10 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
       <span class="eyebrow sr">Where We Come From</span>
       <h2 class="flow-title sr">Our <em>History</em></h2>
       <div class="hist-items">
-        <div class="hi sr"><div class="hi-year">2016</div><div class="hi-body"><h3>The Beginning</h3><p>Hands for Hope is created, using the school's 3D printers to build ENABLE hands. Less than 10 students in the program.</p></div></div>
-        <div class="hi sr"><div class="hi-year">2020</div><div class="hi-body"><h3>4 Years</h3><p>The program begins to expand, and production continues to be focused around ENABLE hands.</p></div></div>
-        <div class="hi sr"><div class="hi-year">2023</div><div class="hi-body"><h3>7 Years</h3><p>Makers Making Change is introduced, the program gains a social media presence and begins to expand beyond ENABLE.</p></div></div>
-        <div class="hi sr"><div class="hi-year">2026</div><div class="hi-body"><h3>A Decade</h3><p>From presenting at the MassCUE conference, to forming multiple new partnerships, the all-time-high participation in the program---about 40 students involved---shows the tremendous growth of the program and begins to complete the transition away from ENABLE and towards many more opportunities.</p></div></div>
+        <div class="hi sr"><div class="hi-year">2015</div><div class="hi-body"><h3>The Beginning</h3><p>Hands for Hope is created, using the school's 3D printers to build ENABLE hands. Less than 10 students in the program.</p></div></div>
+        <div class="hi sr"><div class="hi-year">2020</div><div class="hi-body"><h3>5 Years</h3><p>The program begins to expand, and production continues to be focused around ENABLE hands.</p></div></div>
+        <div class="hi sr"><div class="hi-year">2023</div><div class="hi-body"><h3>8 Years</h3><p>Makers Making Change is introduced, the program gains a social media presence and begins to expand beyond ENABLE.</p></div></div>
+        <div class="hi sr"><div class="hi-year">2026</div><div class="hi-body"><h3>Over a Decade</h3><p>From presenting at the MassCUE conference, to forming multiple new partnerships, the all-time-high participation in the program---about 40 students involved---shows the tremendous growth of the program and begins to complete the transition away from ENABLE and towards many more opportunities.</p></div></div>
       </div>
     </div>
   </section>
@@ -677,7 +678,8 @@ footer{padding:40px 80px;text-align:center;font-size:11px;letter-spacing:3px;tex
       <span class="eyebrow sr" style="display:block">What Hands for Hope strives to do</span>
       <h2 class="flow-title sr" style="max-width:600px;margin:0 auto 56px">Our <em>Mission</em></h2>
       <span class="mq-mark" aria-hidden="true">&ldquo;</span>
-      <blockquote id="mQ">To utilize our school's incredible utilities to make change in the <span class="hl">disabled community</span>, powered by <span class="hl">student-led work</span> and devotion.</blockquote>
+      <blockquote id="mQ">Hands for Hope asks one question: How can we use the tools and processes of the <span class="hl">EurekaLab</span> to <span class="hl">help others?</span></blockquote>
+      <p class="mq-body">Our student-led team uses 3D printing, design, and hands-on making to create assistive devices, prosthetic hands, and other projects for people with real needs, from children with limb differences to local organizations and charities.</p>
       <div id="valWords">
         <span class="val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>Compassion</span>
         <span class="val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 20 5.5v6c0 5-3.4 8.7-8 10.5C7.4 20.2 4 16.5 4 11.5v-6Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Integrity</span>
@@ -1061,6 +1063,7 @@ function initScrollAnimations(){
   gsap.fromTo('.val',{opacity:0,y:24,scale:.85},{opacity:1,y:0,scale:1,duration:.55,stagger:.08,ease:'back.out(1.7)',
     scrollTrigger:{trigger:'#valWords',start:'top 90%'}});
   gsap.fromTo('.mq-mark',{opacity:0,y:30},{opacity:1,y:0,duration:.9,ease:'power3.out',scrollTrigger:{trigger:'#mQ',start:'top 90%'}});
+  gsap.fromTo('.mq-body',{opacity:0,y:24},{opacity:1,y:0,duration:.9,ease:'power3.out',scrollTrigger:{trigger:'.mq-body',start:'top 88%'}});
   initMissionQuote();
   gsap.to('#heroImg',{y:'12%',ease:'none',scrollTrigger:{trigger:'#hero',start:'top top',end:'bottom top',scrub:true}});
 }
