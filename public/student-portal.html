@@ -903,6 +903,322 @@ textarea.ws-input{min-height:96px;resize:vertical;line-height:1.5}
   .ws-board.is-fs .ws-board-list{grid-template-columns:1fr}
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   DASHBOARD THEME — white, square, blue-outlined
+   Applied only while a student or leader dashboard is showing
+   (body.theme-dash, set in showView). The sign-in screen keeps
+   the blue look.
+═══════════════════════════════════════════════════════════════ */
+body.theme-dash{
+  --d-bg:#f3f6fb; --d-panel:#ffffff; --d-line:#1d4ed8; --d-line-soft:#c3d3f4; --d-rule:#e2e9f6;
+  --d-ink:#0d1f45; --d-text:#24324d; --d-muted:#5a6a8a; --d-faint:#8b98b3;
+  --d-blue:#1d4ed8; --d-blue-dk:#1e3a8a; --d-tint:#eef3fd; --d-tint-2:#f7f9fe;
+  --d-green:#15803d; --d-green-bg:#ecf8f0; --d-red:#b91c1c; --d-red-bg:#fdf0f0; --d-amber:#b45309; --d-amber-bg:#fdf6ec;
+  background:var(--d-bg)!important; color:var(--d-text);
+  background-image:linear-gradient(rgba(29,78,216,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(29,78,216,.045) 1px,transparent 1px)!important;
+  background-size:28px 28px!important;
+}
+body.theme-dash .deco{display:none}
+body.theme-dash main{padding-top:48px}
+body.theme-dash ::selection{background:#c7d7fb;color:var(--d-ink)}
+
+/* page heading */
+body.theme-dash .view .page-label{color:var(--d-blue);letter-spacing:5px;font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:10px}
+body.theme-dash .view h1{color:var(--d-ink);font-size:clamp(40px,5vw,64px);line-height:1;letter-spacing:-.5px}
+body.theme-dash .view h1 em{color:var(--d-blue)}
+body.theme-dash #viewLeader .l-main-content > h1,body.theme-dash #studentHeaderWrap h1{position:relative;padding-bottom:22px;margin-bottom:34px!important}
+body.theme-dash #viewLeader .l-main-content > h1::after,body.theme-dash #studentHeaderWrap h1::after{
+  content:"";position:absolute;left:50%;bottom:0;width:180px;height:5px;transform:translateX(-50%);
+  border-top:2px solid var(--d-blue);border-bottom:1px solid var(--d-blue);
+}
+body.theme-dash .welcome-sub{color:var(--d-muted)}
+body.theme-dash .loading-placeholder{color:var(--d-faint)}
+
+/* profile header + name overlay */
+body.theme-dash .profile-header{background:var(--d-panel);border:1px solid var(--d-line);border-radius:2px;padding:10px 14px;box-shadow:3px 3px 0 var(--d-line-soft)}
+body.theme-dash .profile-header .p-name{color:var(--d-ink)}
+body.theme-dash .profile-header .p-email{color:var(--d-muted)}
+body.theme-dash .edit-name-btn{color:var(--d-blue)}
+body.theme-dash .name-overlay{background:rgba(13,31,69,.45)}
+body.theme-dash .name-box{background:#fff;border:1px solid var(--d-line);border-top:4px solid var(--d-blue);border-radius:2px;color:var(--d-text);box-shadow:0 20px 50px rgba(13,31,69,.2)}
+body.theme-dash .name-box h2{color:var(--d-ink)}
+body.theme-dash .name-box p{color:var(--d-muted)}
+body.theme-dash .input-group label{color:var(--d-muted)}
+body.theme-dash .input-group input{background:#fff;border:1px solid var(--d-line-soft);border-radius:2px;color:var(--d-ink)}
+body.theme-dash .input-group input:focus{border-color:var(--d-blue);background:#fff;box-shadow:0 0 0 3px rgba(29,78,216,.12)}
+body.theme-dash .primary-btn{background:var(--d-blue);color:#fff;border-radius:2px;box-shadow:none;border:1px solid var(--d-blue)}
+body.theme-dash .primary-btn:hover{background:var(--d-blue-dk);transform:none;box-shadow:none}
+body.theme-dash .msg{border-radius:2px}
+body.theme-dash .msg.error{background:var(--d-red-bg);border-color:#f3c4c4;color:var(--d-red)}
+body.theme-dash .msg.success{background:var(--d-green-bg);border-color:#bfe5cb;color:var(--d-green)}
+
+/* buttons */
+body.theme-dash .action-btn,body.theme-dash .bank-action-btn,body.theme-dash .modal-btn,body.theme-dash .sign-out-btn,body.theme-dash .view-choice-btn,body.theme-dash .add-btn,body.theme-dash .req-filter-btn{
+  border-radius:2px;background:#fff;border:1px solid var(--d-line);color:var(--d-blue);box-shadow:none;transform:none!important;font-family:'Space Grotesk',sans-serif;
+}
+body.theme-dash .action-btn:hover,body.theme-dash .bank-action-btn:hover,body.theme-dash .modal-btn:hover,body.theme-dash .sign-out-btn:hover,body.theme-dash .view-choice-btn:hover,body.theme-dash .req-filter-btn:hover{background:var(--d-tint);border-color:var(--d-blue);color:var(--d-blue-dk)}
+body.theme-dash .action-btn.primary,body.theme-dash .modal-btn.confirm,body.theme-dash .add-btn,body.theme-dash .req-filter-btn.active{background:var(--d-blue);color:#fff;border-color:var(--d-blue)}
+body.theme-dash .action-btn.primary:hover,body.theme-dash .modal-btn.confirm:hover,body.theme-dash .add-btn:hover{background:var(--d-blue-dk);color:#fff}
+body.theme-dash .action-btn.success,body.theme-dash .modal-btn.success{background:#fff;color:var(--d-green);border-color:var(--d-green)}
+body.theme-dash .action-btn.success:hover{background:var(--d-green-bg)}
+body.theme-dash .action-btn.danger,body.theme-dash .modal-btn.danger{background:#fff;color:var(--d-red);border-color:var(--d-red)}
+body.theme-dash .action-btn.danger:hover,body.theme-dash .modal-btn.danger:hover{background:var(--d-red-bg)}
+body.theme-dash .action-btn:disabled{opacity:.5}
+body.theme-dash .sign-out-btn{display:inline-flex;align-items:center;gap:8px}
+
+/* panels */
+body.theme-dash .dash-card,body.theme-dash .survey-panel,body.theme-dash .empty-state-card,body.theme-dash .survey-card,body.theme-dash .es-card,body.theme-dash .thankyou-card{
+  background:var(--d-panel);border:1px solid var(--d-line);border-radius:2px;backdrop-filter:none;-webkit-backdrop-filter:none;
+  box-shadow:0 1px 2px rgba(13,31,69,.06),4px 4px 0 var(--d-tint);color:var(--d-text);position:relative;
+}
+body.theme-dash .dash-card::before,body.theme-dash .survey-panel::before,body.theme-dash .survey-card::before{
+  content:"";position:absolute;left:-1px;right:-1px;top:-1px;height:4px;background:var(--d-blue);
+}
+body.theme-dash .dash-card h3,body.theme-dash .survey-panel h4,body.theme-dash .empty-state-card h2,body.theme-dash .es-card h3,body.theme-dash .survey-card h3{color:var(--d-ink)}
+body.theme-dash .dash-card h3{padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--d-rule)}
+body.theme-dash .dash-card .card-sub,body.theme-dash .survey-panel .sp-sub{color:var(--d-muted)}
+body.theme-dash .empty-state-card p,body.theme-dash .es-card p,body.theme-dash .thankyou-card p{color:var(--d-muted)}
+body.theme-dash .thankyou-card h3{color:var(--d-green)}
+body.theme-dash .es-card h3,body.theme-dash .survey-card h3{background:none;-webkit-text-fill-color:currentColor;color:var(--d-ink)}
+body.theme-dash .es-card,body.theme-dash .empty-state-card{max-width:560px;width:100%;padding:44px 40px}
+body.theme-dash #errorToast{background:var(--d-ink)!important;border-radius:2px!important;box-shadow:0 12px 30px rgba(13,31,69,.3)!important}
+body.theme-dash .section-label{color:var(--d-blue);font-family:'Space Grotesk',sans-serif;display:flex;align-items:center;gap:10px}
+body.theme-dash .section-label::after{content:"";flex:1;height:1px;background:var(--d-rule)}
+body.theme-dash .action-bar{padding-bottom:16px;border-bottom:1px solid var(--d-rule)}
+
+/* sidebar */
+body.theme-dash .l-sidebar{gap:0;border:1px solid var(--d-line);border-left:none;background:#fff;box-shadow:4px 4px 0 var(--d-tint)}
+body.theme-dash .ltp{width:230px!important;border-radius:0;background:#fff;color:var(--d-text);border:none;border-bottom:1px solid var(--d-rule);height:46px;letter-spacing:1.5px}
+body.theme-dash .ltp:last-child{border-bottom:none}
+body.theme-dash .ltp:hover{background:var(--d-tint);color:var(--d-blue)}
+body.theme-dash .ltp.ltp-active{background:var(--d-blue);color:#fff;border-color:var(--d-blue);box-shadow:inset 4px 0 0 var(--d-blue-dk)}
+body.theme-dash #switchFromLeaderBtn{margin-top:0!important;border-top:3px double var(--d-line-soft);color:var(--d-muted)}
+body.theme-dash .ltp-avatar{border:2px solid #fff}
+
+/* lists: emails, students */
+body.theme-dash .email-list{gap:0;border:1px solid var(--d-line-soft)}
+body.theme-dash .email-item{border-radius:0;background:#fff;color:var(--d-text);border-bottom:1px solid var(--d-rule)}
+body.theme-dash .email-item:last-child{border-bottom:none}
+body.theme-dash .email-item:nth-child(even){background:var(--d-tint-2)}
+body.theme-dash .email-item:hover{background:var(--d-tint)}
+body.theme-dash .email-item .permanent-tag{color:var(--d-amber)}
+body.theme-dash .remove-btn{color:var(--d-red)}
+body.theme-dash .add-input{border-radius:2px;background:#fff;border:1px solid var(--d-line-soft);color:var(--d-ink)}
+body.theme-dash .add-input:focus{border-color:var(--d-blue)}
+body.theme-dash .add-input::placeholder{color:var(--d-faint)}
+body.theme-dash .student-list-item{border-radius:0;background:#fff;border:1px solid var(--d-line-soft);margin-bottom:-1px}
+body.theme-dash .student-list-item:nth-child(even){background:var(--d-tint-2)}
+body.theme-dash .student-info .s-name{color:var(--d-ink)}
+body.theme-dash .student-info .s-email{color:var(--d-muted)}
+body.theme-dash .s-edit-btn{color:var(--d-blue)}
+body.theme-dash .s-del-btn{color:var(--d-red)}
+
+/* survey builder */
+body.theme-dash .draft-name-input,body.theme-dash .question-textarea,body.theme-dash .le-input{background:#fff;border:1px solid var(--d-line-soft);border-radius:2px;color:var(--d-ink)}
+body.theme-dash .draft-name-input:focus,body.theme-dash .question-textarea:focus,body.theme-dash .le-input:focus{border-color:var(--d-blue);background:#fff;box-shadow:0 0 0 3px rgba(29,78,216,.1)}
+body.theme-dash .question-textarea:disabled{background:var(--d-tint-2);color:var(--d-muted)}
+body.theme-dash .station-chip{border-radius:2px;background:var(--d-tint);border:1px solid var(--d-line);color:var(--d-blue-dk)}
+body.theme-dash .station-chip-x{color:var(--d-muted)}
+body.theme-dash .station-chip-x:hover{color:var(--d-red)}
+body.theme-dash .question-card{border-radius:2px;background:#fff;border:1px solid var(--d-line-soft);border-left:3px solid var(--d-blue)}
+body.theme-dash .question-card:hover{border-color:var(--d-line);border-left-color:var(--d-blue)}
+body.theme-dash .q-label{color:var(--d-muted)}
+body.theme-dash .presence-chip{border-radius:2px}
+body.theme-dash .dropdown-menu{background:#fff!important;border:1px solid var(--d-line)!important;border-radius:2px!important;box-shadow:4px 4px 0 var(--d-tint)!important}
+
+/* live results */
+body.theme-dash .live-banner{border-radius:2px;background:var(--d-green-bg);border:1px solid #9fd6b2;color:var(--d-green)}
+body.theme-dash .live-banner h4{color:var(--d-green)}
+body.theme-dash .live-banner .response-count{color:var(--d-green)}
+body.theme-dash .live-banner.paused{background:var(--d-amber-bg);border-color:#efcf9e}
+body.theme-dash .live-banner.paused h4,body.theme-dash .live-banner.paused .response-count{color:var(--d-amber)}
+body.theme-dash .live-banner.paused .pulse-dot{background:var(--d-amber);animation:none}
+body.theme-dash .pulse-dot{background:var(--d-green)}
+body.theme-dash .station-result-col{background:#fff!important;border:1px solid var(--d-line-soft)!important;border-top:3px solid var(--d-blue)!important;border-radius:2px!important}
+body.theme-dash main .station-result-col h5{color:var(--d-blue-dk)!important}
+body.theme-dash .station-result-count{color:var(--d-muted)}
+body.theme-dash .station-result-name{background:var(--d-tint-2)!important;border:1px solid var(--d-rule)!important;border-radius:2px!important}
+body.theme-dash .station-result-name:hover{background:var(--d-tint)!important}
+body.theme-dash .text-answers-table th{color:var(--d-muted);border-color:var(--d-rule)}
+body.theme-dash .text-answers-table td{color:var(--d-text);border-color:var(--d-rule)}
+
+/* banks */
+body.theme-dash .survey-bank-item,body.theme-dash .assignment-bank-item{border-radius:2px;background:#fff;border:1px solid var(--d-line-soft);margin-bottom:-1px}
+body.theme-dash .survey-bank-header:hover,body.theme-dash .assignment-bank-header:hover{background:var(--d-tint-2)}
+body.theme-dash .survey-bank-title{color:var(--d-ink)}
+body.theme-dash .survey-bank-type{color:var(--d-muted)}
+body.theme-dash #scheduledSurveysContainer h3,body.theme-dash #surveyBankContainer h3,body.theme-dash #pastPagesContainer h3{font-family:'Playfair Display',serif;color:var(--d-ink)}
+body.theme-dash .readonly-col{border-radius:2px;background:var(--d-tint-2);border:1px solid var(--d-rule)}
+body.theme-dash .readonly-col h6{color:var(--d-blue-dk)}
+body.theme-dash .readonly-name{color:var(--d-text)}
+
+/* tracker */
+body.theme-dash .tracker-top-bar h4{color:var(--d-ink)}
+body.theme-dash .tracker-column{background:var(--d-tint-2);border:1px solid var(--d-line-soft);border-top:3px solid var(--d-blue);border-radius:2px;box-shadow:none}
+body.theme-dash .tracker-column.drag-over{border-color:var(--d-blue);background:var(--d-tint);box-shadow:none;transform:none}
+body.theme-dash .tracker-column h5{color:var(--d-blue-dk)}
+body.theme-dash .name-card{border-radius:2px;background:#fff;border:1px solid var(--d-line-soft);color:var(--d-ink);box-shadow:0 1px 2px rgba(13,31,69,.06)}
+body.theme-dash .name-card:hover{border-color:var(--d-blue);transform:none}
+body.theme-dash .name-card .nc-avatar{border-radius:2px;background:var(--d-blue);color:#fff}
+body.theme-dash .tracker-columns-wrapper{flex-wrap:wrap;overflow-x:visible}
+body.theme-dash .tracker-column{flex:1 1 200px}
+body.theme-dash .tracker-columns-wrapper:fullscreen{background:var(--d-bg)}
+
+/* requests */
+body.theme-dash .req-card{border-radius:2px;background:#fff;border:1px solid var(--d-line-soft);border-left-width:4px;box-shadow:none;color:var(--d-text)}
+body.theme-dash .req-card:hover{background:var(--d-tint-2);transform:none}
+body.theme-dash .req-card-title{color:var(--d-ink)}
+body.theme-dash .req-card-meta{color:var(--d-muted)}
+body.theme-dash .req-card-detail{color:var(--d-text)}
+body.theme-dash .req-badge{border-radius:2px}
+
+/* modals */
+body.theme-dash .modal-overlay{background:rgba(13,31,69,.4)}
+body.theme-dash .modal-box{background:#fff;border:1px solid var(--d-line);border-top:4px solid var(--d-blue);border-radius:2px;color:var(--d-text);box-shadow:0 24px 60px rgba(13,31,69,.25)}
+body.theme-dash .modal-title{color:var(--d-ink)}
+body.theme-dash .modal-sub{color:var(--d-muted)}
+body.theme-dash .modal-actions{border-top:1px solid var(--d-rule);padding-top:20px}
+body.theme-dash .schedule-chip,body.theme-dash .copy-survey-item{border-radius:2px;background:#fff;border:1px solid var(--d-line-soft);color:var(--d-text)}
+body.theme-dash .schedule-chip:hover,body.theme-dash .copy-survey-item:hover{background:var(--d-tint)}
+body.theme-dash .schedule-chip.selected{border-color:var(--d-blue);background:var(--d-tint);color:var(--d-blue-dk)}
+body.theme-dash .copy-survey-item .csi-name{color:var(--d-ink)}
+body.theme-dash .copy-survey-item .csi-meta,body.theme-dash .more-options-toggle{color:var(--d-muted)}
+body.theme-dash .schedule-datetime input[type="datetime-local"]{background:#fff;border:1px solid var(--d-line-soft);border-radius:2px;color:var(--d-ink);color-scheme:light}
+
+/* student survey */
+body.theme-dash .survey-card-header{border-color:var(--d-rule)!important}
+body.theme-dash .survey-divider{background:var(--d-rule)}
+body.theme-dash .survey-question-label{color:var(--d-ink)!important}
+body.theme-dash .survey-textarea{background:#fff;border:1px solid var(--d-line-soft);border-radius:2px;color:var(--d-ink)}
+body.theme-dash .survey-textarea:focus{border-color:var(--d-blue);box-shadow:0 0 0 3px rgba(29,78,216,.1)}
+body.theme-dash .station-option{border-radius:2px;background:#fff;border:1px solid var(--d-line-soft);color:var(--d-text);box-shadow:none;transform:none!important}
+body.theme-dash .station-option:hover{border-color:var(--d-blue);background:var(--d-tint)}
+body.theme-dash .station-option.selected{background:var(--d-blue);border-color:var(--d-blue);color:#fff}
+body.theme-dash .station-option.selected::after{color:#fff}
+body.theme-dash .survey-submit-btn{border-radius:2px;background:var(--d-blue);color:#fff;box-shadow:none;transform:none!important}
+body.theme-dash .survey-submit-btn:hover{background:var(--d-blue-dk)}
+body.theme-dash .paused-badge{display:inline-block;margin-bottom:14px;padding:5px 12px;border:1px solid var(--d-amber);color:var(--d-amber);background:var(--d-amber-bg);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+
+/* live survey editor */
+.live-note{font-size:13px;margin:-4px 0 16px;color:#b45309}
+.live-edit-box{max-width:640px!important;text-align:left}
+.le-inline{display:flex;gap:8px;margin:-6px 0 4px}
+.le-input{flex:1;min-width:0;padding:10px 14px;font-size:14px;font-family:inherit;outline:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);border-radius:10px;color:#fff}
+.le-q{padding:14px 16px!important;margin-bottom:10px}
+.le-q-head{display:flex;justify-content:space-between;align-items:center}
+.le-empty{font-size:13px;opacity:.6}
+.le-err{color:#dc2626;font-size:13px;min-height:18px;margin-top:10px}
+.paused-badge{display:inline-block;margin-bottom:14px;padding:5px 12px;border:1px solid #f59e0b;color:#fcd34d;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+
+/* workshop tab */
+body.theme-dash .ws-h{color:var(--d-ink)}
+body.theme-dash .ws-stat{background:var(--d-tint-2);border:1px solid var(--d-line-soft);border-radius:2px}
+body.theme-dash .ws-stat .n{color:var(--d-ink)}
+body.theme-dash .ws-stat .l,body.theme-dash .ws-source{color:var(--d-muted)}
+body.theme-dash .ws-source b{color:var(--d-ink)}
+body.theme-dash .ws-card{background:#fff;border:1px solid var(--d-line-soft);border-top:3px solid var(--d-blue);border-radius:2px;box-shadow:0 1px 2px rgba(13,31,69,.06)}
+body.theme-dash .ws-card:hover{border-color:var(--d-line);transform:none}
+body.theme-dash .ws-card.complete{border-color:#86c79c;border-top-color:var(--d-green)}
+body.theme-dash .ws-num{color:var(--d-blue)}
+body.theme-dash .ws-name{color:var(--d-ink)}
+body.theme-dash .ws-diff{border-radius:2px;color:var(--d-muted);border-color:var(--d-line-soft)}
+body.theme-dash .ws-diff.d1{color:#1e40af;border-color:#bfd0f4;background:#f2f6fe}
+body.theme-dash .ws-diff.d2{color:#1d4ed8;border-color:#93b2ef;background:#e8effd}
+body.theme-dash .ws-diff.d3{color:#b45309;border-color:#efc58c;background:#fdf4e7}
+body.theme-dash .ws-icon{border-radius:2px;background:#fff;border:1px solid var(--d-line-soft);color:var(--d-blue)}
+body.theme-dash .ws-icon:hover{background:var(--d-tint);border-color:var(--d-blue);color:var(--d-blue-dk)}
+body.theme-dash .ws-icon.del:hover{color:var(--d-red);border-color:var(--d-red);background:var(--d-red-bg)}
+body.theme-dash .ws-count{color:var(--d-muted)}
+body.theme-dash .ws-count b,body.theme-dash .ws-count .pct{color:var(--d-ink)}
+body.theme-dash .ws-card.complete .pct{color:var(--d-green)}
+body.theme-dash .ws-link{color:var(--d-blue)}
+body.theme-dash .ws-bar{border-radius:0;background:var(--d-tint);border:1px solid var(--d-line-soft)}
+body.theme-dash .ws-fill{border-radius:0;background:var(--d-blue);box-shadow:none}
+body.theme-dash .ws-bar.done .ws-fill{background:var(--d-green);box-shadow:none}
+body.theme-dash .ws-person,body.theme-dash .ws-bubble{border-radius:2px;background:var(--d-tint-2);border:1px solid var(--d-line-soft);color:var(--d-text)}
+body.theme-dash .ws-bubble{background:var(--d-tint)}
+body.theme-dash .ws-bubble .u{color:var(--d-blue)}
+body.theme-dash .ws-av{border-radius:2px;background:var(--d-blue);color:#fff}
+body.theme-dash .ws-x{color:var(--d-faint)}
+body.theme-dash .ws-x:hover{color:var(--d-red)}
+body.theme-dash .ws-add-chip{border-radius:2px;border-color:var(--d-blue);color:var(--d-blue)}
+body.theme-dash .ws-add-chip:hover{background:var(--d-tint)}
+body.theme-dash .ws-none{color:var(--d-faint)}
+body.theme-dash .ws-done{color:var(--d-green)}
+body.theme-dash .ws-empty{border:1px dashed var(--d-line);border-radius:2px;background:#fff;color:var(--d-muted)}
+body.theme-dash .ws-empty h5{color:var(--d-ink)}
+body.theme-dash .ws-arch-toggle{color:var(--d-muted)}
+body.theme-dash .ws-arch-toggle:hover{color:var(--d-blue)}
+body.theme-dash .ws-arch-row{border-radius:2px;background:#fff;border:1px solid var(--d-line-soft);color:var(--d-text)}
+body.theme-dash .ws-arch-row .mt{color:var(--d-muted)}
+body.theme-dash .ws-board{background:#fff;border:1px solid var(--d-line);border-radius:2px;box-shadow:4px 4px 0 var(--d-tint)}
+body.theme-dash .ws-board-top{background:var(--d-tint-2);border-bottom:1px solid var(--d-line-soft)}
+body.theme-dash .ws-total-n{color:var(--d-blue);text-shadow:none}
+body.theme-dash .ws-total-sub{color:var(--d-muted)}
+body.theme-dash .ws-board-head{color:var(--d-muted);border-bottom:1px solid var(--d-line-soft);background:#fff}
+body.theme-dash .ws-brow{border-bottom:1px solid var(--d-rule);color:var(--d-text)}
+body.theme-dash .ws-brow:nth-child(even){background:var(--d-tint-2)}
+body.theme-dash .ws-brow:hover{background:var(--d-tint)}
+body.theme-dash .ws-brow .nm{color:var(--d-ink)}
+body.theme-dash .ws-brow .un{color:var(--d-muted)}
+body.theme-dash .ws-brow .pt{color:var(--d-ink)}
+body.theme-dash .ws-brow.zero{opacity:.55}
+body.theme-dash .ws-plus{border-radius:2px;background:#fff;border:1px solid var(--d-blue);color:var(--d-blue)}
+body.theme-dash .ws-plus:hover{background:var(--d-blue);color:#fff;transform:none}
+body.theme-dash .ws-board-foot{color:var(--d-muted);border-top:1px solid var(--d-line-soft)}
+body.theme-dash .ws-board-empty{color:var(--d-muted)}
+body.theme-dash .ws-foot button{color:var(--d-muted)}
+body.theme-dash .ws-foot button:hover{color:var(--d-blue)}
+body.theme-dash .ws-board:fullscreen,body.theme-dash .ws-board.is-fs{background:var(--d-bg);background-image:linear-gradient(rgba(29,78,216,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(29,78,216,.05) 1px,transparent 1px);background-size:32px 32px}
+body.theme-dash .ws-board.is-fs .ws-board-top{background:none;border-bottom:3px double var(--d-line)}
+body.theme-dash .ws-board-title h2{color:var(--d-ink)}
+body.theme-dash .ws-board-title h2 em{color:var(--d-blue)}
+body.theme-dash .ws-board.is-fs .ws-brow{background:#fff;border:1px solid var(--d-line);border-radius:2px;box-shadow:3px 3px 0 var(--d-tint)}
+body.theme-dash .ws-field label{color:var(--d-muted)}
+body.theme-dash .ws-input{background:#fff;border:1px solid var(--d-line-soft);border-radius:2px;color:var(--d-ink)}
+body.theme-dash .ws-input:focus{border-color:var(--d-blue);background:#fff}
+body.theme-dash .ws-input:disabled{background:var(--d-tint-2);color:var(--d-text)}
+body.theme-dash .ws-slider,body.theme-dash .ws-stepper{border-radius:2px;background:#fff;border:1px solid var(--d-line-soft)}
+body.theme-dash .ws-slider-top{color:var(--d-muted)}
+body.theme-dash .ws-slider-top b,body.theme-dash .ws-stepper input,body.theme-dash .ws-stepper button{color:var(--d-ink)}
+body.theme-dash .ws-stepper button:hover{background:var(--d-tint)}
+body.theme-dash .ws-modal input[type=range]::-webkit-slider-thumb{border-color:#fff;background:var(--d-blue);box-shadow:0 0 0 1px var(--d-blue)}
+body.theme-dash .ws-chip{border-radius:2px;background:#fff;border:1px solid var(--d-line-soft);color:var(--d-text)}
+body.theme-dash .ws-chip:hover{background:var(--d-tint);border-color:var(--d-blue)}
+body.theme-dash .ws-chip.assigned{border-color:var(--d-blue);background:var(--d-tint)}
+body.theme-dash .ws-chip.on{background:var(--d-blue);color:#fff;border-color:var(--d-blue)}
+body.theme-dash .ws-chip-group,body.theme-dash .ws-subhead{color:var(--d-muted)}
+body.theme-dash .ws-summary{border-radius:2px;background:var(--d-tint);border:1px solid var(--d-line-soft);color:var(--d-text)}
+body.theme-dash .ws-summary b{color:var(--d-ink)}
+body.theme-dash .ws-err{color:var(--d-red)}
+body.theme-dash .ws-lrow{border-radius:2px;background:#fff;border:1px solid var(--d-rule);color:var(--d-text)}
+body.theme-dash .ws-lrow .meta{color:var(--d-muted)}
+body.theme-dash #wsToast{border-radius:2px;background:var(--d-ink);color:#fff}
+
+/* inline colours that the dashboard scripts write directly */
+body.theme-dash main [style*="color:#fff"]:not([style*="background:#"]),body.theme-dash .modal-box [style*="color:#fff"]:not([style*="background:#"]){color:var(--d-ink)!important}
+body.theme-dash main [style*="color:rgba(255,255,255,0.9"],body.theme-dash .modal-box [style*="color:rgba(255,255,255,0.9"],
+body.theme-dash main [style*="color:rgba(255,255,255,0.8"],body.theme-dash .modal-box [style*="color:rgba(255,255,255,0.8"]{color:var(--d-text)!important}
+body.theme-dash main [style*="color:rgba(255,255,255,0.6"],body.theme-dash .modal-box [style*="color:rgba(255,255,255,0.6"],
+body.theme-dash main [style*="color:rgba(255,255,255,0.5"],body.theme-dash .modal-box [style*="color:rgba(255,255,255,0.5"],
+body.theme-dash main [style*="color:rgba(255,255,255,0.4"],body.theme-dash .modal-box [style*="color:rgba(255,255,255,0.4"],
+body.theme-dash main [style*="color:rgba(255,255,255,.35"],body.theme-dash main [style*="color:rgba(255,255,255,0.35"],body.theme-dash .modal-box [style*="color:rgba(255,255,255,0.35"],
+body.theme-dash main [style*="color:rgba(255,255,255,0.3"],body.theme-dash .modal-box [style*="color:rgba(255,255,255,0.3"]{color:var(--d-muted)!important}
+body.theme-dash main [style*="background:rgba(255,255,255"],body.theme-dash .modal-box [style*="background:rgba(255,255,255"]{background:var(--d-tint-2)!important}
+body.theme-dash main [style*="background:rgba(0,0,0"],body.theme-dash .modal-box [style*="background:rgba(0,0,0"]{background:var(--d-tint-2)!important;border:1px solid var(--d-rule)}
+body.theme-dash main [style*="background:#1e293b"]{background:#fff!important;color:var(--d-text)}
+body.theme-dash main [style*="border:1px solid rgba(255,255,255"],body.theme-dash .modal-box [style*="border:1px solid rgba(255,255,255"]{border-color:var(--d-line-soft)!important}
+body.theme-dash main [style*="border-bottom:1px solid rgba(255,255,255"],body.theme-dash main [style*="border-top:1px solid rgba(255,255,255"]{border-color:var(--d-rule)!important}
+body.theme-dash main [style*="border-radius"],body.theme-dash .modal-box [style*="border-radius"]{border-radius:2px!important}
+body.theme-dash [style*="-webkit-text-fill-color:transparent"]{background:none!important;-webkit-text-fill-color:var(--d-ink)!important;color:var(--d-ink)!important}
+body.theme-dash main [style*="color:#10b981"]{color:var(--d-green)!important}
+
+@media(max-width:768px){
+  body.theme-dash .l-sidebar{background:#fff;border:none;border-bottom:1px solid var(--d-line);box-shadow:none}
+  body.theme-dash .ltp{width:auto!important;border:1px solid var(--d-line-soft);border-radius:2px;height:34px}
+  body.theme-dash .ltp.ltp-active{box-shadow:none}
+}
+
 </style>
 </head>
 <body>
@@ -1211,6 +1527,9 @@ function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const target = document.getElementById(id);
   target.classList.add('active');
+
+  // Dashboards use the white, blue-outlined theme; the sign-in screen keeps the blue one
+  document.body.classList.toggle('theme-dash', ['viewStudent', 'viewLeader', 'viewLeaderChoice'].includes(id));
 
   if (id === 'viewLeader') {
     document.body.style.background = '#0a101d';
@@ -1583,7 +1902,7 @@ function initStudentDashboard() {
   renderEmptyState(area);
 
   const unsub = db.collection('surveys')
-    .where('status', '==', 'active')
+    .where('status', 'in', ['active', 'paused'])
     .onSnapshot(async snap => {
       if (snap.empty) {
         animateToEmptyState(area);
@@ -1628,6 +1947,28 @@ function animateToEmptyState(area) {
   }
 }
 
+// What a student has typed/picked but not yet submitted, per survey. Kept so a
+// pause or a live edit by a leader doesn't wipe their in-progress answers.
+const studentDrafts = {};
+const UNCHOSEN_STATION = 'Unchosen';
+
+function renderPausedCard(area, survey) {
+  const html = `
+    <div class="empty-state-card" id="pausedSurveyCard">
+      <div class="paused-badge">Paused</div>
+      <h2>${escHtml(survey.name || 'Meeting Survey')}</h2>
+      <p>This survey is closed for a moment. It will reopen here automatically — anything you've already typed is kept.</p>
+    </div>`;
+  const existing = area.firstElementChild;
+  if (existing && existing.id === 'pausedSurveyCard') { area.innerHTML = html; return; }
+  if (existing) {
+    gsap.to(existing, { opacity: 0, y: -20, duration: 0.3, onComplete: () => {
+      area.innerHTML = html;
+      gsap.fromTo('#pausedSurveyCard', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' });
+    }});
+  } else area.innerHTML = html;
+}
+
 async function showStudentSurvey(area, survey) {
   if (!currentUser) return;
   const uid = currentUser.uid;
@@ -1644,6 +1985,12 @@ async function showStudentSurvey(area, survey) {
     }
   } catch(e) { console.error(e); }
 
+  if (survey.status === 'paused') { renderPausedCard(area, survey); return; }
+
+  const draft = studentDrafts[survey.id] || (studentDrafts[survey.id] = { station: null, answers: {} });
+  // A station the leader removed can't stay selected
+  if (draft.station && !(survey.stations || []).includes(draft.station)) draft.station = null;
+
   const formattedDate = survey.openedAt ? formatDate(survey.openedAt.toDate()) : '';
   const isStart = survey.type === 'meeting_start';
 
@@ -1652,7 +1999,7 @@ async function showStudentSurvey(area, survey) {
     stationsHTML = `
       <span class="survey-question-label" style="font-weight:600;font-size:14px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:inline-block;">Choose Your Station</span>
       <div class="station-grid" id="stationGrid">
-        ${survey.stations.map(s => `<div class="station-option" data-station="${escHtml(s)}">${escHtml(s)}</div>`).join('')}
+        ${survey.stations.map(s => `<div class="station-option ${s === draft.station ? 'selected' : ''}" data-station="${escHtml(s)}">${escHtml(s)}</div>`).join('')}
       </div>`;
   }
 
@@ -1661,7 +2008,7 @@ async function showStudentSurvey(area, survey) {
     questionsHTML = survey.questions.map((q, i) => `
       <div style="margin-bottom:28px;">
         <span class="survey-question-label" style="font-size:15px;font-weight:500;margin-bottom:12px;display:block;color:rgba(255,255,255,0.9);">${escHtml(q.text || `Question ${i+1}`)}</span>
-        <textarea class="survey-textarea" id="sq_${q.id}" placeholder="Type your answer here…" rows="3"></textarea>
+        <textarea class="survey-textarea" id="sq_${q.id}" placeholder="Type your answer here…" rows="3">${escHtml(draft.answers[q.id] || '')}</textarea>
       </div>`).join('');
   }
 
@@ -1686,9 +2033,14 @@ async function showStudentSurvey(area, survey) {
         opt.addEventListener('click', () => {
           area.querySelectorAll('.station-option').forEach(o => o.classList.remove('selected'));
           opt.classList.add('selected');
+          draft.station = opt.dataset.station;
         });
       });
     }
+    (survey.questions || []).forEach(q => {
+      const ta = document.getElementById('sq_' + q.id);
+      if (ta) ta.addEventListener('input', () => { draft.answers[q.id] = ta.value; });
+    });
 
     // Submit
     const btn = document.getElementById('surveySubmitBtn');
@@ -1724,6 +2076,7 @@ async function showStudentSurvey(area, survey) {
             textAnswers: textAnswers,
             submittedAt: firebase.firestore.FieldValue.serverTimestamp()
           });
+          delete studentDrafts[survey.id];
           animateToThankyou(area, survey);
         } catch(e) {
           console.error(e);
@@ -1995,7 +2348,7 @@ async function openSurveyNow(surveyId) {
     const surveyDoc = await db.collection('surveys').doc(surveyId).get();
     const surveyName = surveyDoc.exists ? (surveyDoc.data().name || 'New Survey') : 'New Survey';
 
-    const activSnap = await db.collection('surveys').where('status', '==', 'active').get();
+    const activSnap = await db.collection('surveys').where('status', 'in', ['active', 'paused']).get();
     const batch = db.batch();
     activSnap.forEach(d => { if (d.id !== surveyId) batch.update(d.ref, { status: 'closed', closedAt: firebase.firestore.FieldValue.serverTimestamp() }); });
     batch.update(db.collection('surveys').doc(surveyId), { status: 'active', openedAt: firebase.firestore.FieldValue.serverTimestamp() });
@@ -2051,7 +2404,7 @@ function initSurveyTab() {
   startPresence();
 
   // Listen for active survey
-  unsubActiveSurvey = db.collection('surveys').where('status', '==', 'active').onSnapshot(snap => {
+  unsubActiveSurvey = db.collection('surveys').where('status', 'in', ['active', 'paused']).onSnapshot(snap => {
     if (!snap.empty) {
       // Sort client-side, take most recent
       const docs = snap.docs.slice().sort((a,b) => (b.data().openedAt?.toMillis()||0)-(a.data().openedAt?.toMillis()||0));
@@ -2341,7 +2694,7 @@ function listenToDraft(surveyId) {
   unsubDraft = db.collection('surveys').doc(surveyId).onSnapshot(snap => {
     if (!snap.exists) { currentDraftId = null; currentDraftData = null; renderBuilderEmpty(); return; }
     const data = { id: snap.id, ...snap.data() };
-    if (data.status === 'active' || (data.status === 'scheduled' && data.scheduledAt)) {
+    if (data.status === 'active' || data.status === 'paused' || (data.status === 'scheduled' && data.scheduledAt)) {
       currentDraftId = null;
       currentDraftData = null;
       renderBuilderEmpty();
@@ -2820,20 +3173,34 @@ function renderLiveResults(surveyId, survey) {
   const container = document.getElementById('surveyTabContent');
   const isStart = survey.type === 'meeting_start';
 
+  const isPaused = survey.status === 'paused';
   container.innerHTML = `
     <div class="survey-panel" id="liveResultsPanel">
-      <div class="live-banner">
+      <div class="live-banner ${isPaused ? 'paused' : ''}">
         <span class="pulse-dot"></span>
-        <h4>LIVE — ${escHtml(survey.name || 'Survey')}</h4>
+        <h4>${isPaused ? 'PAUSED' : 'LIVE'} — ${escHtml(survey.name || 'Survey')}</h4>
         <span class="response-count" id="responseCountLabel">0 responses</span>
       </div>
+      ${isPaused ? '<p class="live-note">Students can\'t submit while the survey is paused. Anything they had typed is kept and comes back when you resume.</p>' : ''}
       <div class="action-bar">
-        <button class="action-btn danger" id="closeSurveyBtn">Close Survey</button>
+        ${isPaused
+          ? '<button class="action-btn success" id="pauseSurveyBtn">▶ Resume Survey</button>'
+          : '<button class="action-btn" id="pauseSurveyBtn">❚❚ Pause Survey</button>'}
+        <button class="action-btn primary" id="editLiveBtn">Edit Survey</button>
         <button class="action-btn" id="viewRawBtn">View Raw Responses</button>
+        <button class="action-btn danger" id="closeSurveyBtn">Close Survey</button>
       </div>
       <div id="liveResultsBody" style="margin-top:16px;"></div>
     </div>
     <div id="surveyBankContainer"></div>`;
+
+  document.getElementById('pauseSurveyBtn').addEventListener('click', () => {
+    db.collection('surveys').doc(surveyId).update(isPaused
+      ? { status: 'active', resumedAt: firebase.firestore.FieldValue.serverTimestamp() }
+      : { status: 'paused', pausedAt: firebase.firestore.FieldValue.serverTimestamp() }
+    ).catch(e => { console.error(e); showErrorToast('Could not update the survey.'); });
+  });
+  document.getElementById('editLiveBtn').addEventListener('click', () => openLiveSurveyEditor(surveyId));
 
   document.getElementById('closeSurveyBtn').addEventListener('click', () => {
     openModal({
@@ -2868,7 +3235,8 @@ function renderLiveResults(surveyId, survey) {
         .sort((a, b) => (a.userName || '').localeCompare(b.userName || ''));
 
       const personCards = rows.map((r, ri) => {
-        const meta = [r.userEmail, isStart && r.stationId ? `Station: ${r.stationId}` : null].filter(Boolean).map(escHtml).join(' · ');
+        const st = isStart ? ((r.stationId && (survey.stations || []).includes(r.stationId)) ? r.stationId : UNCHOSEN_STATION) : null;
+        const meta = [r.userEmail, st ? `Station: ${st}` : null].filter(Boolean).map(escHtml).join(' · ');
         const qna = questions.map((q, i) => {
           const ans = (r.textAnswers && r.textAnswers[q.id]) || '—';
           return `
@@ -2947,9 +3315,12 @@ function renderLiveResultsBody(responses, survey, container) {
   const questions = survey.questions || [];
 
   if (isStart) {
-    const stations = survey.stations || [];
+    const real = survey.stations || [];
+    // People whose station was removed (or who have none) show under Unchosen
+    const unchosen = responses.filter(r => !r.stationId || !real.includes(r.stationId));
+    const stations = unchosen.length ? [...real, UNCHOSEN_STATION] : real;
     const cols = stations.map(s => {
-      const respondents = responses.filter(r => r.stationId === s);
+      const respondents = s === UNCHOSEN_STATION && !real.includes(s) ? unchosen : responses.filter(r => r.stationId === s);
       const nameItems = respondents.map(r => {
         const name = escHtml(r.userName || r.userEmail || 'Anonymous');
         const payload = encodeURIComponent(JSON.stringify({ name: r.userName || r.userEmail || 'Anonymous', answers: r.textAnswers || {}, questions }));
@@ -2991,6 +3362,116 @@ function renderLiveResultsBody(responses, survey, container) {
   }
 }
 
+/* ═══════════════════════════════════════════════
+   EDIT A LIVE (OR PAUSED) SURVEY
+   Changes are made on a local copy and only reach students on Save.
+   - Answers are stored by question id, so rewording a question keeps them
+   - New questions show blank for people who already answered
+   - Responses for a removed station become "Unchosen"
+═══════════════════════════════════════════════ */
+async function openLiveSurveyEditor(surveyId) {
+  let snap;
+  try { snap = await db.collection('surveys').doc(surveyId).get(); } catch(e) { console.error(e); return showErrorToast('Could not load the survey.'); }
+  if (!snap.exists) return;
+  const orig = snap.data();
+  const isStart = orig.type === 'meeting_start';
+  const st = {
+    name: orig.name || '',
+    stations: [...(orig.stations || [])],
+    questions: (orig.questions || []).map(q => ({ ...q })),
+    postNote: orig.postNote || ''
+  };
+  let overlay = document.getElementById('liveEditOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'liveEditOverlay';
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = '<div class="modal-box live-edit-box" id="liveEditBox"></div>';
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+  }
+  const box = document.getElementById('liveEditBox');
+  const draw = () => {
+    box.innerHTML = `
+      <div class="modal-title">Edit live survey</div>
+      <p class="modal-sub">Students see these changes as soon as you save. Answers already submitted are kept: reworded questions keep their answers, new questions show blank for people who already responded, and anyone who picked a removed station becomes <b>Unchosen</b>.</p>
+      <span class="section-label">Survey name</span>
+      <input class="draft-name-input" id="leName" value="${escHtml(st.name)}" placeholder="Survey name…">
+      ${isStart ? `
+        <span class="section-label">Stations</span>
+        <div class="stations-row" id="leStations">
+          ${st.stations.map((s, i) => `<div class="station-chip"><span>${escHtml(s)}</span><button class="station-chip-x" data-rm-station="${i}" title="Remove">×</button></div>`).join('') || '<span class="le-empty">No stations</span>'}
+        </div>
+        <div class="le-inline"><input class="le-input" id="leNewStation" placeholder="New station name"><button class="action-btn" id="leAddStation" type="button">+ Add Station</button></div>` : ''}
+      <span class="section-label" style="margin-top:22px;">Questions</span>
+      <div id="leQuestions">
+        ${st.questions.map((q, i) => `
+          <div class="question-card le-q">
+            <div class="le-q-head"><label class="q-label">Question ${i + 1}${orig.questions && orig.questions.some(o => o.id === q.id) ? '' : ' · new'}</label><button class="station-chip-x" data-rm-q="${i}" title="Remove question">×</button></div>
+            <textarea class="question-textarea" data-q="${i}" rows="2" placeholder="Question text…">${escHtml(q.text || '')}</textarea>
+          </div>`).join('')}
+      </div>
+      <button class="action-btn" id="leAddQ" type="button" style="margin-top:4px;">+ Add Question</button>
+      <span class="section-label" style="margin-top:22px;">Post-survey note for students (optional)</span>
+      <textarea class="question-textarea" id="leNote" rows="2" placeholder="e.g. Please close your laptops.">${escHtml(st.postNote)}</textarea>
+      <div id="leErr" class="le-err"></div>
+      <div class="modal-actions">
+        <button class="modal-btn" id="leCancel">Cancel</button>
+        <button class="modal-btn confirm" id="leSave">Save Changes</button>
+      </div>`;
+    const keep = () => {
+      st.name = document.getElementById('leName').value;
+      st.postNote = document.getElementById('leNote').value;
+      box.querySelectorAll('[data-q]').forEach(t => { st.questions[+t.dataset.q].text = t.value; });
+    };
+    box.querySelectorAll('[data-rm-station]').forEach(b => b.onclick = () => { keep(); st.stations.splice(+b.dataset.rmStation, 1); draw(); });
+    box.querySelectorAll('[data-rm-q]').forEach(b => b.onclick = () => { keep(); st.questions.splice(+b.dataset.rmQ, 1); draw(); });
+    const addSt = () => {
+      keep();
+      const v = document.getElementById('leNewStation').value.trim();
+      if (!v) return;
+      if (st.stations.some(x => x.toLowerCase() === v.toLowerCase())) { document.getElementById('leErr').textContent = 'That station already exists.'; return; }
+      st.stations.push(v); draw();
+      setTimeout(() => { const el = document.getElementById('leNewStation'); if (el) el.focus(); }, 0);
+    };
+    if (isStart) {
+      document.getElementById('leAddStation').onclick = addSt;
+      document.getElementById('leNewStation').addEventListener('keydown', e => { if (e.key === 'Enter') addSt(); });
+    }
+    document.getElementById('leAddQ').onclick = () => {
+      keep(); st.questions.push({ id: genId(), type: 'text', text: '', editorUid: null }); draw();
+      setTimeout(() => { const all = box.querySelectorAll('[data-q]'); if (all.length) all[all.length - 1].focus(); }, 0);
+    };
+    document.getElementById('leCancel').onclick = () => overlay.classList.remove('open');
+    document.getElementById('leSave').onclick = async () => {
+      keep();
+      const qs = st.questions.map(q => ({ ...q, text: (q.text || '').trim() }));
+      if (qs.some(q => !q.text)) { document.getElementById('leErr').textContent = 'Every question needs some text (or remove it).'; return; }
+      const btn = document.getElementById('leSave'); btn.disabled = true; btn.textContent = 'Saving…';
+      const removed = (orig.stations || []).filter(x => !st.stations.includes(x));
+      try {
+        const update = { name: st.name.trim() || orig.name || 'Survey', questions: qs, postNote: st.postNote.trim() };
+        if (isStart) update.stations = st.stations;
+        await db.collection('surveys').doc(surveyId).update(update);
+        if (removed.length) {
+          // Anyone who picked a station that no longer exists goes back to "unchosen"
+          const rs = await db.collection('surveys').doc(surveyId).collection('responses').get();
+          const batch = db.batch(); let n = 0;
+          rs.forEach(d => { if (removed.includes(d.data().stationId)) { batch.update(d.ref, { stationId: null }); n++; } });
+          if (n) await batch.commit();
+        }
+        overlay.classList.remove('open');
+        showErrorToast('Survey updated for students.');
+      } catch(e) {
+        console.error(e); btn.disabled = false; btn.textContent = 'Save Changes';
+        document.getElementById('leErr').textContent = 'Could not save — try again.';
+      }
+    };
+  };
+  draw();
+  overlay.classList.add('open');
+}
+
 async function closeSurveyAndCreatePage(surveyId, survey) {
   try {
     await db.collection('surveys').doc(surveyId).update({
@@ -3005,9 +3486,9 @@ async function closeSurveyAndCreatePage(surveyId, survey) {
       (survey.stations || []).forEach(s => { columns[s] = []; });
       respSnap.forEach(d => {
         const data = d.data();
-        if (data.stationId && columns[data.stationId] !== undefined) {
-          columns[data.stationId].push({ uid: d.id, name: data.userName || data.userEmail || 'Anonymous' });
-        }
+        const person = { uid: d.id, name: data.userName || data.userEmail || 'Anonymous' };
+        if (data.stationId && columns[data.stationId] !== undefined) columns[data.stationId].push(person);
+        else (columns[UNCHOSEN_STATION] = columns[UNCHOSEN_STATION] || []).push(person);   // station was removed
       });
       await db.collection('assignment_pages').add({
         surveyId,
@@ -3105,10 +3586,10 @@ function bindSurveyBankEvents(surveys) {
           actions: [
             { label: 'Cancel', cls: '' },
             { label: 'Reopen', cls: 'confirm', fn: async () => {
-              const activeDrafts = await db.collection('surveys').where('status', 'in', ['active', 'draft', 'scheduled']).get();
+              const activeDrafts = await db.collection('surveys').where('status', 'in', ['active', 'paused', 'draft', 'scheduled']).get();
               const batch = db.batch();
               activeDrafts.forEach(d => {
-                if (d.data().status === 'active') {
+                if (d.data().status === 'active' || d.data().status === 'paused') {
                   batch.update(d.ref, { status: 'closed', closedAt: firebase.firestore.FieldValue.serverTimestamp() });
                 }
               });
@@ -4373,7 +4854,7 @@ const WS = (() => {
         const rs = await db.collection('surveys').doc(sv.id).collection('responses').get();
         rs.forEach(d => { const r = d.data(); if (r.stationId && columns[r.stationId]) columns[r.stationId].push({ uid: d.id, name: r.userName || r.userEmail || '' }); });
       }
-      const stations = [...(sv.stations || []), ...Object.keys(columns).filter(k => !(sv.stations || []).includes(k))].filter(Boolean);
+      const stations = [...(sv.stations || []), ...Object.keys(columns).filter(k => !(sv.stations || []).includes(k) && k !== UNCHOSEN_STATION)].filter(Boolean);
       if (!stations.length) return toast('That survey has no stations');
       const people = stations.reduce((n, s) => n + (columns[s] || []).length, 0);
       const keep = new Set(stations.map(s => s.toLowerCase()));
