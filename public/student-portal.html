@@ -415,7 +415,7 @@ h1 em{font-weight:400;font-style:italic}
 .station-chip {
   display:flex; align-items:center; gap:6px; padding:6px 16px; border-radius:100px;
   background:rgba(29,78,216,0.2); border:1px solid rgba(29,78,216,0.4); font-size:13px;
-  font-weight:500; white-space:nowrap;
+  font-weight:500; max-width:100%; overflow-wrap:anywhere;
 }
 .station-chip-x {
   background:none; border:none; color:rgba(248,113,113,0.7); cursor:pointer;
@@ -636,7 +636,7 @@ h1 em{font-weight:400;font-style:italic}
   background:rgba(255,255,255,0.03); border:1.5px solid rgba(255,255,255,0.08);
   border-radius:16px; padding:20px; text-align:center; cursor:pointer;
   transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight:600; font-size:15px;
-  position: relative; overflow: hidden;
+  position: relative; overflow: hidden; overflow-wrap:anywhere;
 }
 .station-option:hover { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.2); transform:translateY(-2px); }
 .station-option.selected {
@@ -2361,23 +2361,19 @@ function listenToDraft(surveyId) {
 function openAddStationModal(survey) {
   openModal({
     title: 'Add Station',
-    sub: 'Enter the name for the new station (max 15 characters).',
-    bodyHTML: '<input id="newStationInput" type="text" maxlength="15" style="width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;padding:12px 16px;font-size:14px;font-family:inherit;outline:none;" placeholder="Max 15 characters"><div id="stationCharCount" style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;text-align:right;">0 / 15</div>',
+    sub: 'Enter the name for the new station.',
+    bodyHTML: '<input id="newStationInput" type="text" style="width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;padding:12px 16px;font-size:14px;font-family:inherit;outline:none;" placeholder="Station name">',
     actions: [
       { label: 'Cancel', cls: '' },
       { label: 'Add', cls: 'confirm', fn: () => {
-        const val = document.getElementById('newStationInput').value.trim().slice(0, 15);
+        const val = document.getElementById('newStationInput').value.trim();
         if (val) db.collection('surveys').doc(survey.id).update({ stations: firebase.firestore.FieldValue.arrayUnion(val) }).catch(e => console.error(e));
       }}
     ]
   });
   setTimeout(() => {
     const el = document.getElementById('newStationInput');
-    const counter = document.getElementById('stationCharCount');
-    if (el) {
-      el.focus();
-      el.addEventListener('input', () => { if (counter) counter.textContent = `${el.value.length} / 15`; });
-    }
+    if (el) el.focus();
   }, 50);
 }
 
